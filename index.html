@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blue Team Portfolio - Threat Analysis & Incident Response</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{--bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--border2:#1e2e45;--cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;--purple:#c084fc;--text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 70% 50% at 15% 15%,rgba(0,217,245,.04) 0%,transparent 55%),
+  radial-gradient(ellipse 60% 40% at 85% 80%,rgba(192,132,252,.03) 0%,transparent 55%),
+  linear-gradient(rgba(0,217,245,.015) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,217,245,.015) 1px,transparent 1px);
+  background-size:100% 100%,100% 100%,44px 44px,44px 44px;pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:64px 24px 100px;position:relative;z-index:1;}
+
+/* HEADER */
+.eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--cyan);display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.eyebrow::before{content:'';width:32px;height:1px;background:var(--cyan);box-shadow:0 0 8px var(--cyan);}
+.blink{animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(28px,6vw,56px);font-weight:900;color:var(--white);line-height:1.0;margin-bottom:24px;}
+h1 .hl{color:var(--cyan);}
+.intro{font-size:13px;color:var(--text);line-height:1.9;max-width:620px;border-left:2px solid var(--border2);padding-left:16px;margin-bottom:48px;}
+.intro strong{color:var(--white);}
+
+/* SKILLS PILLS */
+.skills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:56px;}
+.pill{font-size:10px;letter-spacing:1px;padding:5px 12px;border-radius:2px;text-transform:uppercase;}
+.pill.c{background:rgba(0,217,245,.08);color:var(--cyan);border:1px solid rgba(0,217,245,.2);}
+.pill.g{background:rgba(61,255,143,.08);color:var(--green);border:1px solid rgba(61,255,143,.2);}
+.pill.o{background:rgba(255,123,44,.08);color:var(--orange);border:1px solid rgba(255,123,44,.2);}
+.pill.p{background:rgba(192,132,252,.08);color:var(--purple);border:1px solid rgba(192,132,252,.2);}
+.pill.y{background:rgba(255,209,102,.08);color:var(--yellow);border:1px solid rgba(255,209,102,.2);}
+
+/* SECTION HEADING */
+.sh{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--cyan);display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+.sh::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* WRITEUP CARDS */
+.cards{display:flex;flex-direction:column;gap:16px;margin-bottom:56px;}
+
+.wcard{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0;overflow:hidden;text-decoration:none;display:block;transition:border-color .2s,transform .2s;}
+.wcard:hover{border-color:var(--cyan);transform:translateY(-2px);}
+.wcard.orange:hover{border-color:var(--orange);}
+.wcard.purple:hover{border-color:var(--purple);}
+
+.wcard-inner{display:grid;grid-template-columns:4px 1fr;height:100%;}
+.wcard-bar{background:var(--cyan);}
+.wcard.orange .wcard-bar{background:var(--orange);}
+.wcard.purple .wcard-bar{background:var(--purple);}
+.wcard-content{padding:20px 24px;}
+
+.wcard-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.wcard-id{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--cyan);}
+.wcard.orange .wcard-id{color:var(--orange);}
+.wcard.purple .wcard-id{color:var(--purple);}
+.wcard-date{font-size:10px;color:var(--muted);}
+
+.wcard-title{font-family:'Epilogue',sans-serif;font-size:17px;font-weight:800;color:var(--white);line-height:1.2;margin-bottom:10px;}
+
+.wcard-desc{font-size:12px;color:var(--text);line-height:1.7;margin-bottom:14px;}
+
+.wcard-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.tag{font-size:9px;letter-spacing:1px;padding:3px 8px;border-radius:2px;text-transform:uppercase;}
+.tag.r{background:rgba(255,69,96,.1);color:var(--red);border:1px solid rgba(255,69,96,.2);}
+.tag.o{background:rgba(255,123,44,.1);color:var(--orange);border:1px solid rgba(255,123,44,.2);}
+.tag.c{background:rgba(0,217,245,.08);color:var(--cyan);border:1px solid rgba(0,217,245,.18);}
+.tag.g{background:rgba(61,255,143,.08);color:var(--green);border:1px solid rgba(61,255,143,.18);}
+.tag.y{background:rgba(255,209,102,.08);color:var(--yellow);border:1px solid rgba(255,209,102,.18);}
+.tag.p{background:rgba(192,132,252,.08);color:var(--purple);border:1px solid rgba(192,132,252,.18);}
+
+.wcard-arrow{font-size:18px;color:var(--muted);transition:color .2s;margin-left:auto;display:block;text-align:right;margin-top:8px;}
+.wcard:hover .wcard-arrow{color:var(--cyan);}
+.wcard.orange:hover .wcard-arrow{color:var(--orange);}
+.wcard.purple:hover .wcard-arrow{color:var(--purple);}
+
+/* ABOUT */
+.about{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:28px 32px;margin-bottom:24px;}
+.about-title{font-size:13px;font-weight:700;color:var(--white);margin-bottom:12px;}
+.about-body{font-size:12px;color:var(--text);line-height:1.85;}
+.about-body strong{color:var(--white);}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:56px;}
+.stat{background:var(--card);padding:16px 18px;}
+.stat-val{font-family:'Epilogue',sans-serif;font-size:28px;font-weight:900;color:var(--cyan);line-height:1;}
+.stat-val.o{color:var(--orange);}.stat-val.g{color:var(--green);}.stat-val.p{color:var(--purple);}
+.stat-label{font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:1px;text-transform:uppercase;}
+
+footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="eyebrow"><span class="blink">▮</span> Blue Team · Threat Analysis</div>
+  <h1>Security<br><span class="hl">Research</span><br>Portfolio</h1>
+  <p class="intro">
+    Dokumentacja incydentów bezpieczeństwa, analizy malware i badań zagrożeń.<br>
+    <strong>Stack:</strong> Microsoft Sentinel · Defender XDR · KQL · SOAR · ANY.RUN · CyberChef · Windows Sandbox.<br>
+    Każdy writeup oparty na realnym materiale z środowisk produkcyjnych - dane wrażliwe zanonimizowane.
+  </p>
+
+  <div class="skills">
+    <span class="pill c">Microsoft Sentinel</span>
+    <span class="pill c">Defender XDR</span>
+    <span class="pill c">KQL · Advanced Hunting</span>
+    <span class="pill g">Incident Response</span>
+    <span class="pill g">Malware Analysis</span>
+    <span class="pill o">SOAR · Playbooks</span>
+    <span class="pill o">ClickFix Analysis</span>
+    <span class="pill p">MITRE ATT&CK</span>
+    <span class="pill p">Threat Intelligence</span>
+    <span class="pill y">Detection Engineering</span>
+    <span class="pill y">Azure Security</span>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><div class="stat-val">3</div><div class="stat-label">Writeups</div></div>
+    <div class="stat"><div class="stat-val o">5</div><div class="stat-label">Threat Families</div></div>
+    <div class="stat"><div class="stat-val g">0</div><div class="stat-label">Payload Executions</div></div>
+    <div class="stat"><div class="stat-val p">TA569</div><div class="stat-label">Threat Actor ID</div></div>
+  </div>
+
+  <!-- WRITEUPS -->
+  <div class="sh">Writeups</div>
+  <div class="cards">
+
+    <a href="inc-7936.html" class="wcard">
+      <div class="wcard-inner">
+        <div class="wcard-bar"></div>
+        <div class="wcard-content">
+          <div class="wcard-top">
+            <span class="wcard-id">INC-7936</span>
+            <span class="wcard-date">14 Jan 2025</span>
+          </div>
+          <div class="wcard-title">Drive-by C2 via Compromised Polish E-commerce Sites - TA569</div>
+          <div class="wcard-desc">Multi-host incident involving C2 beaconing from two workstations through compromised WordPress sites. Full IR cycle: alert triage → sandbox detonation (ANY.RUN) → org-wide KQL hunt → discovery of second affected host that evaded detection due to upstream filtering.</div>
+          <div class="wcard-tags">
+            <span class="tag r">True Positive</span>
+            <span class="tag o">TA569</span>
+            <span class="tag c">Advanced Hunting KQL</span>
+            <span class="tag c">Defender XDR</span>
+            <span class="tag g">C2 Blocked</span>
+            <span class="tag y">ANY.RUN</span>
+          </div>
+          <div class="wcard-arrow">→</div>
+        </div>
+      </div>
+    </a>
+
+    <a href="inc-7987.html" class="wcard orange">
+      <div class="wcard-inner">
+        <div class="wcard-bar"></div>
+        <div class="wcard-content">
+          <div class="wcard-top">
+            <span class="wcard-id">INC-7987</span>
+            <span class="wcard-date">30 Jan 2025</span>
+          </div>
+          <div class="wcard-title">ClickFix Attack Chain - LummaC2 Infostealer via mshta → VBScript → PowerShell Dropper</div>
+          <div class="wcard-desc">Static analysis of a full 5-stage ClickFix loader chain. Compromised WordPress site injecting fake reCAPTCHA overlay → clipboard execution via mshta → Base64-encoded VBScript → PowerShell dropper with geofencing check → LummaC2 infostealer. Analysis conducted in isolated Windows Sandbox.</div>
+          <div class="wcard-tags">
+            <span class="tag r">Malware Confirmed</span>
+            <span class="tag o">ClickFix · LOTL</span>
+            <span class="tag o">LummaC2</span>
+            <span class="tag y">Base64 · CyberChef</span>
+            <span class="tag c">Windows Sandbox</span>
+            <span class="tag p">Geofencing</span>
+          </div>
+          <div class="wcard-arrow">→</div>
+        </div>
+      </div>
+    </a>
+
+    <a href="threat-003.html" class="wcard purple">
+      <div class="wcard-inner">
+        <div class="wcard-bar"></div>
+        <div class="wcard-content">
+          <div class="wcard-top">
+            <span class="wcard-id">THREAT-003</span>
+            <span class="wcard-date">4 Mar 2025</span>
+          </div>
+          <div class="wcard-title">Malvertising ClickFix Campaign - Fake reCAPTCHA → HTA Loader → theatercraft[.]buzz</div>
+          <div class="wcard-desc">Proactive threat research of an active malvertising campaign targeting Gmail users (source=151_gmai). Campaign evolved from EXE delivery (blocked by Defender) to 7z archive containing hex-obfuscated HTA loader. Static analysis via Sysinternals Strings + CyberChef hex decode revealed stage-2 script loading from DGA-style subdomain.</div>
+          <div class="wcard-tags">
+            <span class="tag p">Threat Research</span>
+            <span class="tag r">Malvertising</span>
+            <span class="tag p">HTA · Hex Obfuscation</span>
+            <span class="tag o">Defender Bypass (7z)</span>
+            <span class="tag y">Sysinternals · CyberChef</span>
+            <span class="tag c">DGA Subdomain</span>
+          </div>
+          <div class="wcard-arrow">→</div>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- ABOUT -->
+  <div class="sh">About</div>
+  <div class="about">
+    <div class="about-title">// O tym portfolio</div>
+    <div class="about-body">
+      Writeup'y oparte na realnych incydentach z środowisk produkcyjnych oraz proaktywnym badaniu zagrożeń. Każda analiza zawiera pełną rekonstrukcję łańcucha ataku, mapowanie MITRE ATT&CK, listę IoC oraz rekomendacje detekcyjne.<br><br>
+      <strong>Metodologia:</strong> Każdy incydent traktuję jako okazję do nauczenia się czegoś nowego - nie tylko "co się stało", ale "jak to wykryć wcześniej następnym razem". Dlatego każdy writeup kończy się konkretną regułą KQL lub rekomendacją detekcyjną.<br><br>
+      Dane wrażliwe (nazwy organizacji, hosty, użytkownicy) zostały zanonimizowane. IoC (domeny C2, IP, hashe) są publiczne i celowo zachowane - stanowią wartość dla społeczności security.
+    </div>
+  </div>
+
+  <footer>
+    <span>// Blue Team Security Research Portfolio</span>
+    <span>Microsoft Sentinel · Defender XDR · KQL · SOAR · Malware Analysis</span>
+  </footer>
+
+</div>
+</body>
+</html>

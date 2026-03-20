@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INC-7936 - Drive-by C2 via TA569 Compromised Sites</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{--bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;--purple:#c084fc;--text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 20%,rgba(0,217,245,.03) 0%,transparent 55%),linear-gradient(rgba(0,217,245,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,217,245,.015) 1px,transparent 1px);background-size:100%,44px 44px,44px 44px;pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--cyan);}
+.nav span{color:var(--border);}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--cyan);box-shadow:0 0 6px var(--cyan);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:20px;}
+h1 span{color:var(--cyan);}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:48px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.o{color:var(--orange);}.mv.g{color:var(--green);}.mv.c{color:var(--cyan);}.mv.y{color:var(--yellow);}
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.r{color:var(--red);}.sl.g{color:var(--green);}.sl.o{color:var(--orange);}.sl.y{color:var(--yellow);}
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(0,217,245,.08);border:1px solid rgba(0,217,245,.15);color:var(--cyan);padding:1px 6px;border-radius:2px;font-size:11px;}
+.kc{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:20px;}
+.kcs{flex:1;min-width:100px;background:var(--card);padding:12px 14px;border-right:1px solid var(--border);}
+.kcs:last-child{border-right:none;}
+.kcs.a{background:rgba(0,217,245,.04);border-bottom:2px solid var(--cyan);}
+.kcs.a .kcn{color:var(--cyan);}
+.kcs.blocked{background:rgba(61,255,143,.04);border-bottom:2px solid var(--green);}
+.kcs.blocked .kcn{color:var(--green);}
+.kcnum{font-size:9px;color:var(--muted);margin-bottom:4px;}
+.kcn{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px;}
+.kct{font-size:10px;color:var(--muted);}
+.tl{position:relative;padding-left:40px;margin-bottom:8px;}
+.tl::before{content:'';position:absolute;left:11px;top:6px;bottom:6px;width:1px;background:linear-gradient(to bottom,var(--cyan),var(--orange),var(--green));opacity:.2;}
+.tlr{position:relative;margin-bottom:14px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:4px;}
+.tlr::before{content:'';position:absolute;left:-29px;top:50%;transform:translateY(-50%);width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 6px var(--cyan);}
+.tlr.r::before{background:var(--red);box-shadow:0 0 6px var(--red);}
+.tlr.o::before{background:var(--orange);box-shadow:0 0 6px var(--orange);}
+.tlr.g::before{background:var(--green);box-shadow:0 0 6px var(--green);}
+.tltime{font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;text-transform:uppercase;}
+.tlevent{font-size:12px;color:var(--white);font-weight:500;margin-bottom:3px;}
+.tldetail{font-size:11px;color:var(--text);}
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(255,69,96,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.ioc-d{color:var(--orange);font-family:'JetBrains Mono',monospace;word-break:break-all;}
+.ioc-ip{color:var(--cyan);}
+.ioc-h{color:var(--purple);font-size:10px;}
+.bdg{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.bdg.r{background:rgba(255,69,96,.12);color:var(--red);border:1px solid rgba(255,69,96,.25);}
+.bdg.o{background:rgba(255,123,44,.12);color:var(--orange);border:1px solid rgba(255,123,44,.25);}
+.bdg.y{background:rgba(255,209,102,.12);color:var(--yellow);border:1px solid rgba(255,209,102,.25);}
+.bdg.g{background:rgba(61,255,143,.1);color:var(--green);border:1px solid rgba(61,255,143,.2);}
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:8px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--cyan);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+.box{border-radius:6px;padding:14px 18px;font-size:12px;line-height:1.8;margin-bottom:14px;}
+.box.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.15);border-left:3px solid var(--green);}
+.box.yellow{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);border-left:3px solid var(--yellow);}
+.box strong{color:var(--white);}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+@media(max-width:600px){.kc{flex-direction:column;}.kcs{border-right:none;border-bottom:1px solid var(--border);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="nav"><a href="index.html">← Portfolio</a><span>/</span><span style="color:var(--text)">INC-7936</span></nav>
+
+<header>
+  <div class="eyebrow">Incident Writeup * Blue Team</div>
+  <h1>INC-7936 - Drive-by <span>C2 Communication</span><br>via Compromised Polish Sites * TA569</h1>
+  <div class="meta">
+    <div class="mc"><div class="ml">ID</div><div class="mv c">INC-7936</div></div>
+    <div class="mc"><div class="ml">Date</div><div class="mv">14 Jan 2025</div></div>
+    <div class="mc"><div class="ml">Severity</div><div class="mv o">MEDIUM</div></div>
+    <div class="mc"><div class="ml">Verdict</div><div class="mv r">True Positive</div></div>
+    <div class="mc"><div class="ml">Hosts</div><div class="mv y">WORKSTATION-A, WORKSTATION-B</div></div>
+    <div class="mc"><div class="ml">Threat Actor</div><div class="mv o">TA569</div></div>
+    <div class="mc"><div class="ml">Vector</div><div class="mv c">Drive-by / SEO</div></div>
+    <div class="mc"><div class="ml">Payload</div><div class="mv r">C2 Beaconing</div></div>
+    <div class="mc"><div class="ml">Outcome</div><div class="mv g">Blocked / Contained</div></div>
+  </div>
+</header>
+
+<div class="sec">
+  <div class="sl">Executive Summary</div>
+  <p class="pr">14 stycznia 2025 o godz. 12:40 Microsoft Defender wygenerował alerty o próbie nawiązania połączenia z serwerem C2 z hosta <strong>WORKSTATION-A</strong>. Incydent sklasyfikowany jako <strong>True Positive</strong>. Dalsze dochodzenie ujawniło drugi host - <strong>KWORKSTATION-B</strong> - który łączył się z tą samą infrastrukturą już 11 stycznia 2025, lecz nie wygenerował alertu ze względu na blokowanie upstream przez Barracudę.</p>
+  <p class="pr">Wektor infekcji: użytkownicy odwiedzili legalne polskie strony e-commerce (<code>radoscdawania[.]pl</code>, <code>ostropizza[.]pl</code>) skompromitowane przez grupę <strong>TA569</strong>. Strony zawierały wstrzyknięte skrypty JS ładujące zasoby C2. Żadne złośliwe oprogramowanie nie zostało zainstalowane - połączenia zablokowane przez Network Protection.</p>
+</div>
+
+<div class="sec">
+  <div class="sl">Attack Chain</div>
+  <div class="kc">
+    <div class="kcs a"><div class="kcnum">01</div><div class="kcn">Drive-by</div><div class="kct">T1189 * SEO poisoning</div></div>
+    <div class="kcs a"><div class="kcnum">02</div><div class="kcn">JS Injection</div><div class="kct">T1059.007 * WP compromise</div></div>
+    <div class="kcs a"><div class="kcnum">03</div><div class="kcn">C2 Beaconing</div><div class="kct">T1071.001 * HTTPS</div></div>
+    <div class="kcs blocked"><div class="kcnum">04</div><div class="kcn">⛔ Blocked</div><div class="kct">Network Protection</div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sl">Investigation Timeline</div>
+  <div class="tl">
+    <div class="tlr"><div class="tltime">11 Jan 2025 * 16:06</div><div class="tlevent">KWORKSTATION-B - pierwsze połączenie z loopconstruct[.]com</div><div class="tldetail">Brak alertu - Barracuda blokowała upstream. Odkryto retroaktywnie przez Advanced Hunting KQL.</div></div>
+    <div class="tlr o"><div class="tltime">14 Jan 2025 * 12:38</div><div class="tlevent">WORKSTATION-A - użytkownik odwiedza radoscdawania[.]pl (wynik #3 Google)</div><div class="tldetail">Strona WP z wstrzykniętymi skryptami z blacksaltys[.]com i blackshelter[.]org. Potwierdzone przez DevTools.</div></div>
+    <div class="tlr r"><div class="tltime">14 Jan 2025 * 12:38</div><div class="tlevent">chrome.exe → outbound → 176[.]53[.]147[.]97:443</div><div class="tldetail">Network Protection blocked C2. 3 alerty: Medium + Informational. Defender wygenerował incydent.</div></div>
+    <div class="tlr o"><div class="tltime">14 Jan 2025 * ~13:00</div><div class="tlevent">Timeline analysis → identyfikacja radoscdawania[.]pl jako initial access</div><div class="tldetail">TLS connection do radoscdawania[.]pl widoczne 30s przed C2 beaconing. Użytkownik potwierdził wizytę.</div></div>
+    <div class="tlr"><div class="tltime">14 Jan 2025 * ~13:30</div><div class="tlevent">Sandbox - ANY.RUN → TA569 attribution + IoC expansion</div><div class="tldetail">Powiązanie z TA569. Uzyskano dodatkowe domeny i IP nieobecne w pierwotnym alercie.</div></div>
+    <div class="tlr g"><div class="tltime">14 Jan 2025 * ~14:00</div><div class="tlevent">Org-wide KQL hunt → odkrycie KWORKSTATION-B</div><div class="tldetail">Advanced Hunting (DeviceNetworkEvents, ostatnie 4 dni). KWORKSTATION-B łączyło się z loopconstruct[.]com 11.01. Timeline + skan potwierdziły ostropizza[.]pl jako initial access.</div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sl r">Indicators of Compromise</div>
+  <table class="it">
+    <thead><tr><th>Type</th><th>Indicator</th><th>Context</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>Domain</td><td><span class="ioc-d">radoscdawania[.]pl</span></td><td>Compromised WP - initial access WORKSTATION-A</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">ostropizza[.]pl</span></td><td>Compromised WP - initial access KWORKSTATION-B</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">blacksaltys[.]com</span></td><td>C2 domain - injected script</td><td><span class="bdg r">C2</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">blackshelter[.]org</span></td><td>C2 domain</td><td><span class="bdg r">C2</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">speedchaoptimise[.]com</span></td><td>C2 domain</td><td><span class="bdg r">C2</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">virtual[.]urban-orthodontics[.]com</span></td><td>C2 domain</td><td><span class="bdg r">C2</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">loopconstruct[.]com</span></td><td>C2 domain - KWORKSTATION-B</td><td><span class="bdg r">C2</span></td></tr>
+      <tr><td>IP</td><td><span class="ioc-ip">176[.]53[.]147[.]97</span></td><td>Primary C2 IP - multi-host</td><td><span class="bdg r">C2</span></td></tr>
+      <tr><td>IP</td><td><span class="ioc-ip">185[.]76[.]79[.]50</span></td><td>C2 IP</td><td><span class="bdg o">Suspicious</span></td></tr>
+      <tr><td>IP</td><td><span class="ioc-ip">185[.]159[.]129[.]211</span></td><td>C2 IP</td><td><span class="bdg o">Suspicious</span></td></tr>
+      <tr><td>SHA256</td><td><span class="ioc-h">87339a1e25ccbbf120f294fd60333e292e1d631e785a9b205ed5beb0128c214f</span></td><td>buynow_driver.js - WannaCry execution parents (VT 0/62)</td><td><span class="bdg y">Suspicious</span></td></tr>
+      <tr><td>SHA256</td><td><span class="ioc-h">ef74de5c67f2d6ce11c579b2446f9059c1f8049ed819efcfaa0beeaec98e35b2</span></td><td>bnpl_driver.js - WannaCry execution parents (VT 0/62)</td><td><span class="bdg y">Suspicious</span></td></tr>
+      <tr><td>SHA256</td><td><span class="ioc-h">acc1e6eccdb31d12ecd0ab34d4709c16cde43a26ede4c0947851addc494c914c</span></td><td>shopping_iframe_driver.js - long-sleeps tag (VT 0/61)</td><td><span class="bdg y">Suspicious</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="sec">
+  <div class="sl">MITRE ATT&amp;CK</div>
+  <div class="mg">
+    <div class="mc2"><div class="mid">T1189</div><div class="mname">Drive-by Compromise</div><div class="mtactic">Initial Access</div></div>
+    <div class="mc2"><div class="mid">T1059.007</div><div class="mname">JavaScript Execution</div><div class="mtactic">Execution</div></div>
+    <div class="mc2"><div class="mid">T1071.001</div><div class="mname">Web Protocols C2</div><div class="mtactic">Command &amp; Control</div></div>
+    <div class="mc2"><div class="mid">T1584.001</div><div class="mname">Compromise Infrastructure (WP)</div><div class="mtactic">Resource Development</div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sl g">Remediation</div>
+  <div class="box green"><strong>Działania podjęte:</strong> Blokada wszystkich IoC w Defenderze. Zdalne pełne skanowanie obu hostów - czyste. Timeline analysis - brak wykonania payload. Incydent contained.</div>
+  <div class="box yellow"><strong>Rekomendacja:</strong> Reguła detekcji KQL alertująca na połączenia z domen o wzorcu TA569. Szkolenie użytkowników dot. SEO poisoning - zagrożone strony wyglądają legitnie i pojawiają się w organicznych wynikach Google.</div>
+</div>
+
+<div class="sec">
+  <div class="sl">References</div>
+  <p class="pr">ANY.RUN - radoscdawania[.]pl: <code>app.any.run/tasks/c8681303-f4bf-4109-8183-b893e6a8cf3c</code></p>
+  <p class="pr">ANY.RUN - ostropizza[.]pl: <code>app.any.run/tasks/bb8d53ce-d9cc-421e-b9c7-f5eb60d1ba50</code></p>
+</div>
+
+<footer><span>// INC-7936 * 14.01.2025 * Blue Team Analysis</span><span>Tools: Defender XDR * Sentinel KQL * ANY.RUN * VirusTotal</span></footer>
+</div>
+</body>
+</html>

