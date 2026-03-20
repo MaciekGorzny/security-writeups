@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THREAT-004 - PayU Payment Phishing · dPanel.pl · nes-srl.com</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{--bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;--purple:#c084fc;--text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 20%,rgba(255,69,96,.03) 0%,transparent 55%),linear-gradient(rgba(0,217,245,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,217,245,.015) 1px,transparent 1px);background-size:100%,44px 44px,44px 44px;pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--red);}
+.nav span{color:var(--border);}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--red);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--red);box-shadow:0 0 6px var(--red);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:20px;}
+h1 span{color:var(--red);}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:48px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.o{color:var(--orange);}.mv.g{color:var(--green);}.mv.c{color:var(--cyan);}.mv.y{color:var(--yellow);}
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.g{color:var(--green);}.sl.c{color:var(--cyan);}.sl.y{color:var(--yellow);}.sl.o{color:var(--orange);}
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(255,69,96,.08);border:1px solid rgba(255,69,96,.2);color:var(--red);padding:1px 6px;border-radius:2px;font-size:11px;}
+.kc{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:20px;}
+.kcs{flex:1;min-width:90px;background:var(--card);padding:12px 14px;border-right:1px solid var(--border);}
+.kcs:last-child{border-right:none;}
+.kcs.a{background:rgba(255,69,96,.04);border-bottom:2px solid var(--red);}
+.kcs.a .kcn{color:var(--red);}
+.kcs.g{background:rgba(61,255,143,.04);border-bottom:2px solid var(--green);}
+.kcs.g .kcn{color:var(--green);}
+.kcnum{font-size:9px;color:var(--muted);margin-bottom:4px;}
+.kcn{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px;}
+.kct{font-size:10px;color:var(--muted);}
+.obs{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:4px;padding:14px 18px;margin-bottom:12px;}
+.obs-title{font-size:11px;font-weight:700;color:var(--red);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;}
+.obs-body{font-size:12px;color:var(--text);line-height:1.8;}
+.obs-body code{background:rgba(255,69,96,.08);border:1px solid rgba(255,69,96,.15);color:var(--red);padding:1px 6px;border-radius:2px;font-size:11px;}
+.obs.cyan{border-left-color:var(--cyan);}
+.obs.cyan .obs-title{color:var(--cyan);}
+.obs.cyan .obs-body code{background:rgba(0,217,245,.08);border-color:rgba(0,217,245,.15);color:var(--cyan);}
+.obs.yellow{border-left-color:var(--yellow);}
+.obs.yellow .obs-title{color:var(--yellow);}
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(255,69,96,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.ioc-d{color:var(--orange);word-break:break-all;}
+.ioc-url{color:var(--red);word-break:break-all;font-size:10px;}
+.bdg{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.bdg.r{background:rgba(255,69,96,.12);color:var(--red);border:1px solid rgba(255,69,96,.25);}
+.bdg.o{background:rgba(255,123,44,.12);color:var(--orange);border:1px solid rgba(255,123,44,.25);}
+.bdg.y{background:rgba(255,209,102,.12);color:var(--yellow);border:1px solid rgba(255,209,102,.25);}
+.bdg.c{background:rgba(0,217,245,.1);color:var(--cyan);border:1px solid rgba(0,217,245,.2);}
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:8px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--red);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+.box{border-radius:6px;padding:14px 18px;font-size:12px;line-height:1.8;margin-bottom:14px;}
+.box.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.15);border-left:3px solid var(--green);}
+.box.yellow{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);border-left:3px solid var(--yellow);}
+.box.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.15);border-left:3px solid var(--red);}
+.box strong{color:var(--white);}
+.box code{background:rgba(255,255,255,.06);padding:1px 6px;border-radius:2px;font-size:11px;color:var(--yellow);}
+.positive-box{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.2);border-radius:6px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px;}
+.positive-icon{font-size:24px;flex-shrink:0;margin-top:2px;}
+.positive-body{font-size:12px;color:var(--text);line-height:1.8;}
+.positive-body strong{color:var(--green);}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+@media(max-width:600px){.kc{flex-direction:column;}.kcs{border-right:none;border-bottom:1px solid var(--border);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="nav"><a href="index.html">← Portfolio</a><span>/</span><span style="color:var(--text)">THREAT-004</span></nav>
+
+<header>
+  <div class="eyebrow">Incident Report · Phishing</div>
+  <h1>THREAT-004 - <span>PayU Payment Phishing</span><br>Fake dPanel.pl · Card Harvesting · nes-srl[.]com</h1>
+  <div class="meta">
+    <div class="mc"><div class="ml">ID</div><div class="mv r">THREAT-004</div></div>
+    <div class="mc"><div class="ml">Date</div><div class="mv">25 Apr 2025</div></div>
+    <div class="mc"><div class="ml">Severity</div><div class="mv o">MEDIUM</div></div>
+    <div class="mc"><div class="ml">Verdict</div><div class="mv r">True Positive</div></div>
+    <div class="mc"><div class="ml">Vector</div><div class="mv r">Phishing Email</div></div>
+    <div class="mc"><div class="ml">Target</div><div class="mv y">Payment credentials</div></div>
+    <div class="mc"><div class="ml">Lure</div><div class="mv o">PayU · dPanel.pl</div></div>
+    <div class="mc"><div class="ml">Outcome</div><div class="mv g">Reported by user</div></div>
+  </div>
+</header>
+
+<!-- POSITIVE NOTE -->
+<div class="positive-box">
+  <div class="positive-icon">✅</div>
+  <div class="positive-body"><strong>Zgłoszone przez użytkownika - dane nie zostały wprowadzone.</strong> Incydent wykryty dzięki czujności użytkownika który rozpoznał podejrzanego maila i zgłosił go przed wejściem w interakcję ze stroną phishingową. Brak kompromitacji danych płatniczych.</div>
+</div>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="sec">
+  <div class="sl c">Executive Summary</div>
+  <p class="pr">25 kwietnia 2025 użytkownik zgłosił podejrzanego maila zawierającego link do fałszywej strony płatności. Link kierował na domenę <code>id59e1767afdf.nes-srl[.]com</code> podszywającą się pod polski system płatności <strong>dPanel.pl</strong> oraz bramkę <strong>PayU</strong>.</p>
+  <p class="pr">Strona phishingowa składała się z dwóch etapów: strony ładowania ("Proszę czekać, przetwarzamy Twoje dane...") oraz fałszywego formularza karty płatniczej zbierającego imię i nazwisko, numer karty, datę ważności i CVV. Kwota wyświetlana w formularzu: <strong>25,93 zł</strong> - niska, mająca zwiększyć wiarygodność i zmniejszyć czujność ofiary. Analiza przeprowadzona w izolowanym środowisku Windows Sandbox.</p>
+</div>
+
+<!-- ATTACK CHAIN -->
+<div class="sec">
+  <div class="sl">Attack Chain</div>
+  <div class="kc">
+    <div class="kcs a"><div class="kcnum">01</div><div class="kcn">Phishing Email</div><div class="kct">Link do fałszywej płatności</div></div>
+    <div class="kcs a"><div class="kcnum">02</div><div class="kcn">Redirect / Loader</div><div class="kct">loading.php → "przetwarzamy"</div></div>
+    <div class="kcs a"><div class="kcnum">03</div><div class="kcn">Fake Payment Page</div><div class="kct">cd.php → card harvesting</div></div>
+    <div class="kcs a"><div class="kcnum">04</div><div class="kcn">Credential Dump</div><div class="kct">Karta → serwer atakującego</div></div>
+    <div class="kcs g"><div class="kcnum">✓</div><div class="kcn">Zatrzymane</div><div class="kct">User zgłosił przed wpisaniem</div></div>
+  </div>
+</div>
+
+<!-- TECHNICAL ANALYSIS -->
+<div class="sec">
+  <div class="sl">Analiza techniczna</div>
+
+  <div class="obs">
+    <div class="obs-title">Stage 1 - Phishing Email</div>
+    <div class="obs-body">Mail zawierający link płatności kierujący na domenę atakującego. Treść maila nieznana (użytkownik zgłosił przed pełną analizą nagłówków), jednak kontekst wskazuje na lure związany z oczekiwaną płatnością - kwota 25,93 zł jest wystarczająco niska aby nie wzbudzić podejrzeń i wystarczająco konkretna aby wyglądać na realną fakturę lub opłatę.</div>
+  </div>
+
+  <div class="obs">
+    <div class="obs-title">Stage 2 - Redirect / Loading Page (loading.php)</div>
+    <div class="obs-body">
+      URL: <code>https://id59e1767afdf.nes-srl[.]com/plu/web/loading.php?unlock=code&appIdKey=1834f733528e1a9fc930069fa3763a20009d41769&country=none</code><br><br>
+      Strona wyświetla animację ładowania z komunikatem "Proszę czekać, przetwarzamy Twoje dane..." na tle siatki połączeń naśladującej wygląd legalnych platform fintech. Tytuł zakładki: "dPanel.pl - Przetwarzanie" - celowe podszycie pod polską platformę płatności. Parametr <code>appIdKey</code> to prawdopodobnie unikalny identyfikator kampanii lub sesji służący śledzeniu ofiar. DevTools ujawniły zasoby z <code>cdnjs.cloudflare.com</code> - legitymizacja przez znane CDN.
+    </div>
+  </div>
+
+  <div class="obs">
+    <div class="obs-title">Stage 3 - Fake Payment Form (cd.php)</div>
+    <div class="obs-body">
+      URL: <code>https://id59e1767afdf.nes-srl[.]com/plu/web/cd.php?unlock=code&appIdKey=1834f733528e1a9fc930069fa3763a2809d41769&country=none</code><br><br>
+      Formularz zbierający pełne dane karty płatniczej: imię i nazwisko, numer karty, data ważności (MM/RR), CVV. Wyświetla logotypy <strong>Mastercard</strong> i <strong>Visa</strong> oraz ikonę Click to Pay dla uwiarygodnienia. Przycisk "Zapłać 25,93 zł" w charakterystycznej zielonej kolorystyce PayU. Na dole - skopiowana stopka z prawdziwej strony PayU SA z adresem siedziby w Poznaniu i linkami do polityki prywatności. Endpoint <code>cd.php</code> (prawdopodobnie "card dump") to klasyczna nazwa używana w phishingowych panelach harvesting.
+    </div>
+  </div>
+
+  <div class="obs cyan">
+    <div class="obs-title">Infrastruktura - nes-srl[.]com</div>
+    <div class="obs-body">
+      Domena <code>nes-srl[.]com</code> - włoskie rozszerzenie SRL (Società a Responsabilità Limitata), prawdopodobnie skompromitowana lub celowo zarejestrowana domena. Subdomena <code>id59e1767afdf</code> to unikalny identyfikator heksadecymalny - wskazuje na zautomatyzowane generowanie subdomen per kampania lub per ofiara, podobnie jak w kampaniach DGA. Struktura URL (<code>/plu/web/</code>) naśladuje ścieżki legitnych integracji PayU PLU (Payment Link Unified).
+    </div>
+  </div>
+
+  <div class="obs yellow">
+    <div class="obs-title">Social Engineering - dlaczego to działa</div>
+    <div class="obs-body">
+      Kampania wykorzystuje kilka technik uwiarygodnienia jednocześnie: <strong>(1)</strong> niska kwota 25,93 zł nie wzbudza podejrzeń jak np. 250 zł, <strong>(2)</strong> wygląd strony wiernie odwzorowuje PayU - kolory, logotypy, stopka prawna, <strong>(3)</strong> etap "przetwarzania" symuluje prawdziwy redirect przez bramkę płatności, <strong>(4)</strong> parametry URL (<code>appIdKey</code>, <code>country</code>) wyglądają jak legalna integracja API. Jedynym wyraźnym red flagiem jest domena - nie paydirect.pl czy secure.payu.com, ale obca domena .com z losową subdomeną.
+    </div>
+  </div>
+</div>
+
+<!-- IOC -->
+<div class="sec">
+  <div class="sl">Indicators of Compromise</div>
+  <table class="it">
+    <thead><tr><th>Type</th><th>Indicator</th><th>Context</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>Domain</td><td><span class="ioc-d">nes-srl[.]com</span></td><td>Phishing infrastructure host</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Subdomain</td><td><span class="ioc-d">id59e1767afdf.nes-srl[.]com</span></td><td>Campaign-specific subdomain - card harvesting</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-url">id59e1767afdf.nes-srl[.]com/plu/web/loading.php</span></td><td>Phishing loader - fake PayU redirect</td><td><span class="bdg r">Phishing</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-url">id59e1767afdf.nes-srl[.]com/plu/web/cd.php</span></td><td>Card dump endpoint - credential harvesting form</td><td><span class="bdg r">Phishing</span></td></tr>
+      <tr><td>URL pattern</td><td><span class="ioc-url">*.nes-srl[.]com/plu/web/*</span></td><td>Wildcard - możliwe inne kampanie na tej samej infrastrukturze</td><td><span class="bdg o">Block all</span></td></tr>
+      <tr><td>Parameter</td><td><span class="ioc-d">appIdKey=1834f733528e1a9fc930069fa3763a20009d41769</span></td><td>Campaign/session tracking ID</td><td><span class="bdg y">IOC</span></td></tr>
+      <tr><td>Lure brand</td><td><span class="ioc-d">dPanel.pl · PayU SA</span></td><td>Impersonated Polish payment platforms</td><td><span class="bdg o">Brand abuse</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- MITRE -->
+<div class="sec">
+  <div class="sl c">MITRE ATT&amp;CK</div>
+  <div class="mg">
+    <div class="mc2"><div class="mid">T1566.002</div><div class="mname">Phishing - Spearphishing Link</div><div class="mtactic">Initial Access</div></div>
+    <div class="mc2"><div class="mid">T1056.003</div><div class="mname">Web Portal Capture</div><div class="mtactic">Collection - Credential Harvesting</div></div>
+    <div class="mc2"><div class="mid">T1036.005</div><div class="mname">Masquerading - Match Legitimate Name</div><div class="mtactic">Defense Evasion</div></div>
+    <div class="mc2"><div class="mid">T1583.001</div><div class="mname">Acquire Infrastructure - Domain</div><div class="mtactic">Resource Development</div></div>
+    <div class="mc2"><div class="mid">T1598.003</div><div class="mname">Phishing for Information</div><div class="mtactic">Reconnaissance</div></div>
+  </div>
+</div>
+
+<!-- REMEDIATION -->
+<div class="sec">
+  <div class="sl g">Działania i rekomendacje</div>
+
+  <div class="box green">
+    <strong>✔ Działania podjęte:</strong><br>
+    · Analiza strony phishingowej w izolowanym środowisku (Windows Sandbox)<br>
+    · Identyfikacja infrastruktury atakującego i zebranie IoC<br>
+    · Blokada domeny nes-srl[.]com i subdomeny w systemach bezpieczeństwa<br>
+    · Potwierdzenie że user nie wprowadził żadnych danych - brak kompromitacji
+  </div>
+
+  <div class="box yellow">
+    <strong>⚠ Rekomendacje:</strong><br>
+    · Zgłosić domain abuse do rejestratora domeny nes-srl[.]com<br>
+    · Zgłosić phishing do CERT Polska (incydent.cert.pl) oraz do PayU (abuse@payu.com)<br>
+    · Przeanalizować nagłówki oryginalnego maila phishingowego - ustalić sending infrastructure i ewentualne SPF/DKIM bypass<br>
+    · Dodać regułę w email gateway blokującą linki z wzorcem <code>*/plu/web/cd.php*</code><br>
+    · Przeprowadzić mini-szkolenie dla użytkowników - jak weryfikować domenę przed wprowadzeniem danych płatniczych
+  </div>
+
+  <div class="box red">
+    <strong>🔴 Red flags które powinny wzbudzić podejrzenia:</strong><br>
+    · Domena płatności to nie <code>secure.payu.com</code> ani <code>payu.pl</code> - tylko obca domena z losową subdomeną<br>
+    · Parametr <code>country=none</code> w URL - legalne bramki płatności zawsze znają kraj<br>
+    · Endpoint <code>cd.php</code> - legalne płatności online nigdy nie proszą o CVV na stronie zewnętrznej wobec banku<br>
+    · Kwota "z sufitu" (25,93 zł) bez żadnego kontekstu zamówienia na stronie
+  </div>
+</div>
+
+<footer><span>// THREAT-004 · 25.04.2025 · Phishing Analysis</span><span>Tools: Windows Sandbox · DevTools · Browser Analysis</span></footer>
+</div>
+</body>
+</html>

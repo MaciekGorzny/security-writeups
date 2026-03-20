@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THREAT-006 - Microsoft Sway Phishing · Credential Harvesting · nistriseup.com</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{--bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;--purple:#c084fc;--blue:#4da6ff;--text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 20%,rgba(77,166,255,.025) 0%,transparent 55%),radial-gradient(ellipse 50% 35% at 85% 75%,rgba(255,69,96,.02) 0%,transparent 55%),linear-gradient(rgba(0,217,245,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,217,245,.015) 1px,transparent 1px);background-size:100% 100%,100% 100%,44px 44px,44px 44px;pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--blue);}
+.nav span{color:var(--border);}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--blue);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--blue);box-shadow:0 0 6px var(--blue);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:20px;}
+h1 span{color:var(--blue);}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:32px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.o{color:var(--orange);}.mv.g{color:var(--green);}.mv.c{color:var(--cyan);}.mv.b{color:var(--blue);}.mv.y{color:var(--yellow);}.mv.p{color:var(--purple);}
+
+.notice{border-radius:6px;padding:14px 20px;margin-bottom:24px;display:flex;align-items:flex-start;gap:14px;font-size:12px;line-height:1.8;}
+.notice.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.2);}
+.notice.blue{background:rgba(77,166,255,.04);border:1px solid rgba(77,166,255,.2);}
+.notice-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.notice-body strong{color:var(--white);}
+.notice.green .notice-body strong{color:var(--green);}
+.notice.blue .notice-body strong{color:var(--blue);}
+
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.r{color:var(--red);}.sl.g{color:var(--green);}.sl.o{color:var(--orange);}.sl.y{color:var(--yellow);}.sl.p{color:var(--purple);}
+
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(77,166,255,.08);border:1px solid rgba(77,166,255,.2);color:var(--blue);padding:1px 6px;border-radius:2px;font-size:11px;}
+
+/* kill chain */
+.kc{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:20px;}
+.kcs{flex:1;min-width:90px;background:var(--card);padding:12px 14px;border-right:1px solid var(--border);}
+.kcs:last-child{border-right:none;}
+.kcs.a{background:rgba(77,166,255,.04);border-bottom:2px solid var(--blue);}
+.kcs.a .kcn{color:var(--blue);}
+.kcs.r{background:rgba(255,69,96,.04);border-bottom:2px solid var(--red);}
+.kcs.r .kcn{color:var(--red);}
+.kcnum{font-size:9px;color:var(--muted);margin-bottom:4px;}
+.kcn{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px;}
+.kct{font-size:10px;color:var(--muted);}
+
+/* stages */
+.stage{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
+.stage-header{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.stage-num{font-size:9px;font-weight:700;color:var(--bg);background:var(--blue);padding:2px 8px;border-radius:2px;letter-spacing:1px;}
+.stage-title{font-size:12px;font-weight:700;color:var(--white);}
+.stage-body{padding:14px 18px;font-size:12px;color:var(--text);line-height:1.8;}
+.stage-body code{background:rgba(77,166,255,.08);border:1px solid rgba(77,166,255,.15);color:var(--blue);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage-body .red{color:var(--red);font-weight:700;}
+.stage-body .yellow{color:var(--yellow);}
+
+/* abuse chain diagram */
+.abuse-chain{display:flex;align-items:center;flex-wrap:wrap;gap:0;margin:16px 0;}
+.abuse-node{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:10px 14px;font-size:11px;text-align:center;min-width:110px;}
+.abuse-node .an-label{font-size:9px;color:var(--muted);margin-bottom:4px;letter-spacing:1px;text-transform:uppercase;}
+.abuse-node .an-val{font-weight:700;}
+.abuse-node.legit .an-val{color:var(--green);}
+.abuse-node.abused .an-val{color:var(--red);}
+.abuse-node.final .an-val{color:var(--orange);}
+.abuse-arrow{font-size:18px;color:var(--muted);padding:0 8px;}
+
+/* IOC */
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(255,69,96,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.ioc-d{color:var(--orange);word-break:break-all;}
+.ioc-url{color:var(--red);word-break:break-all;font-size:10px;}
+.ioc-b{color:var(--blue);word-break:break-all;font-size:10px;}
+
+.bdg{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.bdg.r{background:rgba(255,69,96,.12);color:var(--red);border:1px solid rgba(255,69,96,.25);}
+.bdg.o{background:rgba(255,123,44,.12);color:var(--orange);border:1px solid rgba(255,123,44,.25);}
+.bdg.y{background:rgba(255,209,102,.12);color:var(--yellow);border:1px solid rgba(255,209,102,.25);}
+.bdg.b{background:rgba(77,166,255,.1);color:var(--blue);border:1px solid rgba(77,166,255,.2);}
+.bdg.g{background:rgba(61,255,143,.1);color:var(--green);border:1px solid rgba(61,255,143,.2);}
+.bdg.p{background:rgba(192,132,252,.1);color:var(--purple);border:1px solid rgba(192,132,252,.2);}
+
+/* MITRE */
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--blue);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+
+/* boxes */
+.box{border-radius:6px;padding:14px 18px;font-size:12px;line-height:1.8;margin-bottom:14px;}
+.box.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.15);border-left:3px solid var(--red);}
+.box.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.15);border-left:3px solid var(--green);}
+.box.yellow{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);border-left:3px solid var(--yellow);}
+.box.blue{background:rgba(77,166,255,.04);border:1px solid rgba(77,166,255,.15);border-left:3px solid var(--blue);}
+.box.orange{background:rgba(255,123,44,.04);border:1px solid rgba(255,123,44,.15);border-left:3px solid var(--orange);}
+.box strong{color:var(--white);}
+.box code{background:rgba(255,255,255,.06);padding:1px 6px;border-radius:2px;font-size:11px;color:var(--yellow);}
+
+/* red flags grid */
+.flags{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+@media(max-width:640px){.flags{grid-template-columns:1fr;}}
+.flag-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;}
+.flag-num{font-size:22px;font-weight:900;font-family:'Epilogue',sans-serif;color:var(--red);margin-bottom:6px;}
+.flag-title{font-size:12px;font-weight:700;color:var(--white);margin-bottom:6px;}
+.flag-body{font-size:11px;color:var(--text);line-height:1.7;}
+
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+@media(max-width:600px){.kc{flex-direction:column;}.kcs{border-right:none;border-bottom:1px solid var(--border);}.abuse-chain{flex-direction:column;}.abuse-arrow{transform:rotate(90deg);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="nav"><a href="index.html">← Portfolio</a><span>/</span><span style="color:var(--text)">THREAT-006</span></nav>
+
+<header>
+  <div class="eyebrow">Incident Writeup · Phishing · Living-off-Trusted-Sites</div>
+  <h1>THREAT-006 - <span>Microsoft Sway Phishing</span><br>Credential Harvesting via Trusted M365 Infrastructure</h1>
+  <div class="meta">
+    <div class="mc"><div class="ml">ID</div><div class="mv b">THREAT-006</div></div>
+    <div class="mc"><div class="ml">Date</div><div class="mv">13 Jun 2025</div></div>
+    <div class="mc"><div class="ml">Severity</div><div class="mv r">HIGH</div></div>
+    <div class="mc"><div class="ml">Verdict</div><div class="mv r">True Positive</div></div>
+    <div class="mc"><div class="ml">Vector</div><div class="mv r">Phishing Email</div></div>
+    <div class="mc"><div class="ml">Lure</div><div class="mv y">Faktura / OneDrive</div></div>
+    <div class="mc"><div class="ml">Technique</div><div class="mv b">LoTS · Sway</div></div>
+    <div class="mc"><div class="ml">Redirect</div><div class="mv r">nistriseup[.]com</div></div>
+    <div class="mc"><div class="ml">Target</div><div class="mv o">Microsoft credentials</div></div>
+    <div class="mc"><div class="ml">Outcome</div><div class="mv g">Reported by user</div></div>
+  </div>
+</header>
+
+<div class="notice green">
+  <div class="notice-icon">✅</div>
+  <div class="notice-body"><strong>Zgłoszone przez użytkownika - dane nie zostały wprowadzone.</strong> Incydent wykryty dzięki czujności użytkownika. Analiza przeprowadzona manualnie przez przejście łańcucha ataku i inspekcję DevTools.</div>
+</div>
+
+<div class="notice blue">
+  <div class="notice-icon">🔵</div>
+  <div class="notice-body"><strong>Technika: Living-off-Trusted-Sites (LoTS).</strong> Kampania w całości oparta na infrastrukturze Microsoft - email, OneDrive lure, Microsoft Sway. Atakujący nie potrzebował własnej złośliwej domeny aż do ostatniego kroku. Większość narzędzi bezpieczeństwa nie zablokuje linków do <code>sway.cloud.microsoft</code>.</div>
+</div>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="sec">
+  <div class="sl">Executive Summary</div>
+  <p class="pr">13 czerwca 2025 użytkownik otrzymał wiadomość email od <strong>[[Dane zanonimizowane]]</strong> z tematem "Nowe zatwierdzone oświadczenie PO od [[Dane zanonimizowane]]." Treść maila naśladuje automatyczne powiadomienie z <strong>OneDrive for Business</strong> o udostępnieniu faktury w formacie PDF.</p>
+  <p class="pr">Kliknięcie linku w mailu prowadzi do <strong>Microsoft Sway</strong> (<code>sway.cloud.microsoft</code>) - legalnej usługi prezentacji Microsoft 365. Na Sway osadzono fałszywą stronę informującą o "2 plikach PDF online" z przyciskiem "KLIKNIJ TUTAJ ABY ZOBACZYĆ DOKUMENTY". Kliknięcie tego przycisku przekierowuje na domenę <code>nistriseup[.]com</code>, gdzie wyświetlany jest <strong>fałszywy formularz logowania Microsoft</strong> zbierający dane uwierzytelniające.</p>
+  <p class="pr">Kampania wykorzystuje technikę <strong>Living-off-Trusted-Sites (LoTS)</strong> - atakujący przez większość łańcucha używa wyłącznie legalnej infrastruktury Microsoft, co skutecznie omija filtry URL reputation, email gateway i wiele rozwiązań Secure Email Gateway (SEG).</p>
+</div>
+
+<!-- ABUSE CHAIN -->
+<div class="sec">
+  <div class="sl">Łańcuch nadużycia infrastruktury Microsoft</div>
+  <div class="abuse-chain">
+    <div class="abuse-node legit"><div class="an-label">Email</div><div class="an-val">[Dane zanonimizowane]</div></div>
+    <div class="abuse-arrow">→</div>
+    <div class="abuse-node abused"><div class="an-label">Legit M365</div><div class="an-val">sway.cloud.microsoft</div></div>
+    <div class="abuse-arrow">→</div>
+    <div class="abuse-node final"><div class="an-label">Phishing</div><div class="an-val">nistriseup[.]com</div></div>
+    <div class="abuse-arrow">→</div>
+    <div class="abuse-node final"><div class="an-label">Harvest</div><div class="an-val">MS credentials</div></div>
+  </div>
+  <p class="pr" style="font-size:11px;color:var(--muted);">Pierwsze trzy kroki - email, Sway - używają wyłącznie legalnych domen Microsoft lub domeny wyglądającej legalnie. Złośliwa domena pojawia się dopiero na ostatnim etapie.</p>
+</div>
+
+<!-- KILL CHAIN -->
+<div class="sec">
+  <div class="sl">Attack Chain</div>
+  <div class="kc">
+    <div class="kcs a"><div class="kcnum">01</div><div class="kcn">Phishing Email</div><div class="kct">OneDrive lure · PDF faktura</div></div>
+    <div class="kcs a"><div class="kcnum">02</div><div class="kcn">Sway Page</div><div class="kct">sway.cloud.microsoft</div></div>
+    <div class="kcs a"><div class="kcnum">03</div><div class="kcn">Fake PDF prompt</div><div class="kct">"2 pliki PDF online"</div></div>
+    <div class="kcs r"><div class="kcnum">04</div><div class="kcn">Redirect</div><div class="kct">nistriseup[.]com</div></div>
+    <div class="kcs r"><div class="kcnum">05</div><div class="kcn">Fake MS Login</div><div class="kct">Credential harvest</div></div>
+  </div>
+</div>
+
+<!-- TECHNICAL ANALYSIS -->
+<div class="sec">
+  <div class="sl">Analiza techniczna - krok po kroku</div>
+
+  <div class="stage">
+    <div class="stage-header">
+      <span class="stage-num">STAGE 1</span>
+      <span class="stage-title">Phishing Email - OneDrive for Business Lure</span>
+    </div>
+    <div class="stage-body">
+      Mail od <code>[Dane zanonimizowane]</code> naśladuje automatyczne powiadomienie OneDrive for Business. Zawiera: logo <strong>[Dane zanonimizowane]</strong>, logo <strong>Microsoft 365</strong>, przycisk-link "[Dane zanonimizowane] - Fattura.PDF" oraz miniaturkę dokumentu dla uwiarygodnienia. Stopka zawiera prawdziwy adres OneDrive i branding Microsoft 365.<br><br>
+      Konto nadawcy <span class="red">mogło być skompromitowane</span> lub celowo zarejestrowane z domeną naśladującą firmę. Wysyłka z <code>[Dane zanonimizowane]</code> zamiast np. <code>microsoft.com</code> to jedyny wyraźny red flag w warstwie emailowej - poza tym mail wygląda legitnie.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header">
+      <span class="stage-num">STAGE 2</span>
+      <span class="stage-title">Microsoft Sway - nadużycie legalnej platformy M365</span>
+    </div>
+    <div class="stage-body">
+      Link z maila prowadzi do <code>https://sway.cloud.microsoft/tJso0dbOsMoyDSsy?ref</code> - legalnej strony Microsoft Sway. Atakujący stworzył publiczną prezentację Sway zawierającą fałszywą stronę imitującą powiadomienie Microsoft 365:<br><br>
+      · Logo <strong>Microsoft Office 365</strong> i ikona Adobe PDF<br>
+      · "Otrzymałeś (2) pliki PDF online"<br>
+      · Fałszywy identyfikator wiadomości: <code>"5467454678948-546"</code><br>
+      · Fałszywe odniesienie: <code>MLK35534434-S5894 13/06/2025</code><br>
+      · "Ta wiadomość e-mail została wysłana ze skanera RNP583879051AFA"<br>
+      · Przycisk CTA: <span class="red">"KLIKNIJ TUTAJ ABY ZOBACZYĆ DOKUMENTY"</span><br><br>
+      DevTools ujawniły zasoby z <code>neu-wway-cdn.com</code> i <code>wcpstatic.microsoft.com</code> - mieszanka legitnych i podejrzanych zasobów. Domena <code>neu-wway-cdn.com</code> to CDN atakującego udający Microsoft CDN przez podobną nazwę.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header">
+      <span class="stage-num">STAGE 3</span>
+      <span class="stage-title">Redirect → nistriseup[.]com - Fake Microsoft Login</span>
+    </div>
+    <div class="stage-body">
+      Kliknięcie przycisku "KLIKNIJ TUTAJ" przekierowuje na:<br>
+      <code>https://nistriseup[.]com/public/s/?aXBkYXRhPTEwOS4xNzMuMjIyLjkmdmJveD0mc3Y9bzM2NV8xX25vbSZtPXRyJnVpZD1VU0VSMDYwNjIwMjVMMzAoNjA2MTYmdD0wNQ==</code><br><br>
+      URL zawiera <span class="yellow">długi Base64-encoded string</span> jako parametr - prawdopodobnie zakodowane dane ofiary (IP, timestamp, campaign ID) przekazywane do panelu harvestera. Strona wyświetla <span class="red">pixel-perfect kopię strony logowania Microsoft</span> - logo Microsoft, pole "Email, phone or Skype", przyciski "Back" / "Next", stopka "Terms of use · Privacy &amp; cookies". Domena <code>nistriseup[.]com</code> nie ma żadnego związku z Microsoft.
+    </div>
+  </div>
+
+  <div class="box blue">
+    <strong>Dlaczego Sway jest tak skuteczny jako phishing vector?</strong><br>
+    Microsoft Sway to legalna usługa M365 - jej domena <code>sway.cloud.microsoft</code> jest na whitelist praktycznie każdego SEG i URL reputation system. Link do Sway w mailu nie wzbudza podejrzeń narzędzi bezpieczeństwa. Użytkownik widzi zieloną kłódkę i domenę "microsoft" - co dla wielu osób jest wystarczającym dowodem legalności. Atakujący nie musi rejestrować złośliwej domeny dla Stage 1-2 łańcucha.
+  </div>
+
+  <div class="box orange">
+    <strong>neu-wway-cdn[.]com - typosquatting CDN:</strong> Domena w zasobach Sway strony naśladuje wzorzec nazewniczy Microsoft CDN (<code>wcpstatic.microsoft.com</code>, <code>az*.msecnd.net</code>). Prefix "neu" sugeruje region (North Europe), "wway" naśladuje "wpc" lub "www". To jest własna infrastruktura atakującego służąca do dostarczania JS payloadu lub śledzenia kliknięć - pod pozorem legitnego CDN.
+  </div>
+</div>
+
+<!-- RED FLAGS -->
+<div class="sec">
+  <div class="sl r">Red Flags - jak rozpoznać tę kampanię</div>
+  <div class="flags">
+    <div class="flag-card">
+      <div class="flag-num">01</div>
+      <div class="flag-title">Nadawca ≠ Microsoft</div>
+      <div class="flag-body">Mail twierdzący że pochodzi z OneDrive for Business wysłany z <code>@[Dane zanonimizowane]</code> - nie z <code>@microsoft.com</code> ani <code>@sharepointonline.com</code>. Legalne powiadomienia OneDrive zawsze przychodzą z domeną Microsoft.</div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-num">02</div>
+      <div class="flag-title">Sway jako landing page</div>
+      <div class="flag-body">Legalne udostępnianie plików OneDrive nigdy nie kieruje przez Sway. Jeśli link z maila o "pliku PDF" prowadzi na <code>sway.cloud.microsoft</code> - to jest phishing.</div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-num">03</div>
+      <div class="flag-title">Fałszywe identyfikatory</div>
+      <div class="flag-body">Losowe numery referencyjne (<code>MLK35534434-S5894</code>, <code>RNP583879051AFA</code>) mają wyglądać jak systemowe ID - w rzeczywistości są generowane losowo. Legalne systemy nie dodają "numeru skanera" do powiadomień o plikach.</div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-num">04</div>
+      <div class="flag-title">Domena logowania ≠ microsoft.com</div>
+      <div class="flag-body">Formularz logowania Microsoft zawsze jest hostowany na <code>login.microsoftonline.com</code> lub <code>login.live.com</code>. <code>nistriseup[.]com</code> to obca domena - niezależnie od tego jak bardzo strona wygląda jak Microsoft.</div>
+    </div>
+  </div>
+</div>
+
+<!-- IOC -->
+<div class="sec">
+  <div class="sl r">Indicators of Compromise</div>
+  <table class="it">
+    <thead><tr><th>Type</th><th>Indicator</th><th>Context</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>Domain</td><td><span class="ioc-d">nistriseup[.]com</span></td><td>Final credential harvesting endpoint - fake Microsoft login</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-url">nistriseup[.]com/public/s/?aXBkYXRhPTEwOS4x...</span></td><td>Phishing page - Base64 encoded victim tracking params</td><td><span class="bdg r">Phishing</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">neu-wway-cdn[.]com</span></td><td>Attacker CDN - typosquatting Microsoft CDN naming pattern</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-b">sway.cloud.microsoft/tJso0dbOsMoyDSsy</span></td><td>Malicious Sway presentation - phishing landing page (report to Microsoft)</td><td><span class="bdg o">Abused legit</span></td></tr>
+      <tr><td>Email</td><td><span class="ioc-d">[Dane zanonimizowane]</span></td><td>Sending address - possibly compromised or spoofed account</td><td><span class="bdg y">Suspicious</span></td></tr>
+      <tr><td>Lure subject</td><td><span class="ioc-d">Nowe zatwierdzone oświadczenie PO od [Dane zanonimizowane]</span></td><td>Phishing email subject - OneDrive file share lure</td><td><span class="bdg o">Pattern</span></td></tr>
+      <tr><td>Parameter pattern</td><td><span class="ioc-d">Base64 string w URL params - victim tracking</span></td><td>Encoded victim data (IP, timestamp, campaign ID)</td><td><span class="bdg y">IOC</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- MITRE -->
+<div class="sec">
+  <div class="sl p">MITRE ATT&amp;CK</div>
+  <div class="mg">
+    <div class="mc2"><div class="mid">T1566.002</div><div class="mname">Phishing - Spearphishing Link</div><div class="mtactic">Initial Access</div></div>
+    <div class="mc2"><div class="mid">T1056.003</div><div class="mname">Web Portal Capture</div><div class="mtactic">Collection - Credential Harvesting</div></div>
+    <div class="mc2"><div class="mid">T1036.005</div><div class="mname">Masquerade - Match Legitimate Name</div><div class="mtactic">Defense Evasion</div></div>
+    <div class="mc2"><div class="mid">T1583.006</div><div class="mname">Acquire Infrastructure - Web Services (Sway)</div><div class="mtactic">Resource Development</div></div>
+    <div class="mc2"><div class="mid">T1608.005</div><div class="mname">Stage Capabilities - Link Target (Sway page)</div><div class="mtactic">Resource Development</div></div>
+    <div class="mc2"><div class="mid">T1078</div><div class="mname">Valid Accounts - target of credential theft</div><div class="mtactic">Defense Evasion · Persistence</div></div>
+  </div>
+</div>
+
+<!-- REMEDIATION -->
+<div class="sec">
+  <div class="sl g">Działania i rekomendacje</div>
+
+  <div class="box green">
+    <strong>✔ Działania podjęte:</strong><br>
+    · Analiza pełnego łańcucha ataku przez manualne przejście każdego kroku<br>
+    · Identyfikacja infrastruktury atakującego - nistriseup[.]com, neu-wway-cdn[.]com<br>
+    · Inspekcja DevTools - identyfikacja zasobów Sway i CDN atakującego<br>
+    · Potwierdzenie że user nie wprowadził danych logowania - brak kompromitacji konta
+  </div>
+
+  <div class="box yellow">
+    <strong>⚠ Rekomendowane działania naprawcze:</strong><br>
+    · Zgłosić złośliwą prezentację Sway do Microsoft: <code>https://sway.cloud.microsoft/tJso0dbOsMoyDSsy</code> (Report abuse w Sway)<br>
+    · Zgłosić domenę nistriseup[.]com do CERT Polska (incydent.cert.pl)<br>
+    · Sprawdzić czy konto <code>[Dane zanonimizowane]</code> nie jest skompromitowane - powiadomić firmę [Dane zanonimizowane]<br>
+    · Zablokować nistriseup[.]com i neu-wway-cdn[.]com w web proxy i email gateway<br>
+    · Sprawdzić logi logowania M365 organizacji pod kątem nieautoryzowanych dostępów
+  </div>
+
+  <div class="box red">
+    <strong>🔴 Rekomendacje detekcyjne - Microsoft Sway phishing:</strong><br>
+    · Skonfigurować Microsoft Defender for Office 365 Safe Links z weryfikacją URL po kliknięciu (nie tylko w momencie dostarczenia)<br>
+    · Włączyć politykę blokowania zewnętrznych przekierowań z Sway przez Conditional Access lub MCAS<br>
+    · Monitorować logi logowania pod kątem nieudanych prób z nowych lokalizacji IP po kliknięciu linków Sway<br><br>
+    <strong>KQL - wykrywanie logowań po kliknięciu linku Sway:</strong><br>
+    <code>AADSignInEventsBeta<br>
+    | where Timestamp > ago(24h)<br>
+    | where ReferrerUrl has "sway.cloud.microsoft"<br>
+    | where ResultType != 0<br>
+    | project Timestamp, AccountUpn, IPAddress, ReferrerUrl, ResultDescription</code>
+  </div>
+
+  <div class="box blue">
+    <strong>Świadomość użytkowników - co mówić na szkoleniu:</strong><br>
+    Legalne powiadomienia Microsoft OneDrive: (1) przychodzą z <code>@microsoft.com</code> lub <code>@sharepointonline.com</code>, (2) nigdy nie kierują przez Sway, (3) formularz logowania Microsoft zawsze jest na <code>login.microsoftonline.com</code>. Zasada: <strong>zawsze sprawdź domenę w pasku adresu przed wpisaniem hasła</strong> - niezależnie od tego jak bardzo strona wygląda jak Microsoft.
+  </div>
+</div>
+
+<footer><span>// THREAT-006 · 13.06.2025 · Phishing Analysis · LoTS</span><span>Tools: Manual chain analysis · DevTools · Browser inspection</span></footer>
+</div>
+</body>
+</html>

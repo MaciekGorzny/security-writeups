@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THREAT-007 - Meta Blue Badge Phishing · MFA Harvesting · vercel.app</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{--bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;--purple:#c084fc;--blue:#4da6ff;--fb:#1877f2;--text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 20%,rgba(24,119,242,.025) 0%,transparent 55%),radial-gradient(ellipse 50% 35% at 85% 75%,rgba(255,69,96,.02) 0%,transparent 55%),linear-gradient(rgba(0,217,245,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,217,245,.015) 1px,transparent 1px);background-size:100% 100%,100% 100%,44px 44px,44px 44px;pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--fb);}
+.nav span{color:var(--border);}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--fb);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--fb);box-shadow:0 0 6px var(--fb);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:20px;}
+h1 span{color:var(--fb);}
+.meta-bar{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:32px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.o{color:var(--orange);}.mv.g{color:var(--green);}.mv.b{color:var(--blue);}.mv.y{color:var(--yellow);}.mv.p{color:var(--purple);}.mv.fb{color:var(--fb);}
+
+.notice{border-radius:6px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px;font-size:12px;line-height:1.8;}
+.notice.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.2);}
+.notice.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.2);}
+.notice.blue{background:rgba(24,119,242,.04);border:1px solid rgba(24,119,242,.2);}
+.notice-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.notice-body strong{color:var(--white);}
+.notice.green .notice-body strong{color:var(--green);}
+.notice.red .notice-body strong{color:var(--red);}
+.notice.blue .notice-body strong{color:var(--fb);}
+
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--fb);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.r{color:var(--red);}.sl.g{color:var(--green);}.sl.o{color:var(--orange);}.sl.y{color:var(--yellow);}.sl.p{color:var(--purple);}.sl.c{color:var(--cyan);}
+
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(24,119,242,.08);border:1px solid rgba(24,119,242,.2);color:var(--fb);padding:1px 6px;border-radius:2px;font-size:11px;}
+
+/* kill chain */
+.kc{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:20px;}
+.kcs{flex:1;min-width:80px;background:var(--card);padding:12px 14px;border-right:1px solid var(--border);}
+.kcs:last-child{border-right:none;}
+.kcs.a{background:rgba(24,119,242,.04);border-bottom:2px solid var(--fb);}
+.kcs.a .kcn{color:var(--fb);}
+.kcs.r{background:rgba(255,69,96,.04);border-bottom:2px solid var(--red);}
+.kcs.r .kcn{color:var(--red);}
+.kcnum{font-size:9px;color:var(--muted);margin-bottom:4px;}
+.kcn{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px;}
+.kct{font-size:10px;color:var(--muted);}
+
+/* platform abuse chain */
+.pchain{display:flex;align-items:stretch;flex-wrap:wrap;gap:0;margin:16px 0 20px;}
+.pnode{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 16px;flex:1;min-width:110px;text-align:center;}
+.pnode .pn-num{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.pnode .pn-platform{font-size:12px;font-weight:700;margin-bottom:4px;}
+.pnode .pn-desc{font-size:10px;color:var(--muted);}
+.pnode .pn-domain{font-size:10px;margin-top:4px;word-break:break-all;}
+.pnode.fb{border-bottom:2px solid var(--fb);} .pnode.fb .pn-platform{color:var(--fb);}
+.pnode.gf{border-bottom:2px solid var(--green);} .pnode.gf .pn-platform{color:var(--green);}
+.pnode.vc{border-bottom:2px solid var(--orange);} .pnode.vc .pn-platform{color:var(--orange);}
+.pnode.mfa{border-bottom:2px solid var(--red);} .pnode.mfa .pn-platform{color:var(--red);}
+.parrow{display:flex;align-items:center;padding:0 6px;color:var(--muted);font-size:18px;}
+
+/* stages */
+.stage{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
+.stage-header{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.stage-num{font-size:9px;font-weight:700;color:var(--white);background:var(--fb);padding:2px 8px;border-radius:2px;letter-spacing:1px;}
+.stage-num.red{background:var(--red);}
+.stage-title{font-size:12px;font-weight:700;color:var(--white);}
+.stage-body{padding:14px 18px;font-size:12px;color:var(--text);line-height:1.8;}
+.stage-body code{background:rgba(24,119,242,.08);border:1px solid rgba(24,119,242,.15);color:var(--fb);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage-body .red{color:var(--red);font-weight:700;}
+.stage-body .yellow{color:var(--yellow);}
+.stage-body .green{color:var(--green);}
+
+/* MFA realtime box */
+.mfa-box{background:rgba(255,69,96,.06);border:2px solid rgba(255,69,96,.3);border-radius:6px;padding:16px 20px;margin:12px 0;}
+.mfa-title{font-size:11px;font-weight:700;color:var(--red);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.mfa-title::before{content:'⚡';font-size:14px;}
+.mfa-body{font-size:12px;color:var(--text);line-height:1.8;}
+.mfa-body strong{color:var(--white);}
+
+/* IOC */
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(255,69,96,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.ioc-d{color:var(--orange);word-break:break-all;}
+.ioc-url{color:var(--red);word-break:break-all;font-size:10px;}
+.ioc-fb{color:var(--fb);word-break:break-all;font-size:10px;}
+.bdg{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.bdg.r{background:rgba(255,69,96,.12);color:var(--red);border:1px solid rgba(255,69,96,.25);}
+.bdg.o{background:rgba(255,123,44,.12);color:var(--orange);border:1px solid rgba(255,123,44,.25);}
+.bdg.y{background:rgba(255,209,102,.12);color:var(--yellow);border:1px solid rgba(255,209,102,.25);}
+.bdg.b{background:rgba(24,119,242,.1);color:var(--fb);border:1px solid rgba(24,119,242,.2);}
+.bdg.g{background:rgba(61,255,143,.1);color:var(--green);border:1px solid rgba(61,255,143,.2);}
+
+/* MITRE */
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--fb);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+
+/* boxes */
+.box{border-radius:6px;padding:14px 18px;font-size:12px;line-height:1.8;margin-bottom:14px;}
+.box.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.15);border-left:3px solid var(--red);}
+.box.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.15);border-left:3px solid var(--green);}
+.box.yellow{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);border-left:3px solid var(--yellow);}
+.box.blue{background:rgba(24,119,242,.04);border:1px solid rgba(24,119,242,.15);border-left:3px solid var(--fb);}
+.box.orange{background:rgba(255,123,44,.04);border:1px solid rgba(255,123,44,.15);border-left:3px solid var(--orange);}
+.box strong{color:var(--white);}
+.box code{background:rgba(255,255,255,.06);padding:1px 6px;border-radius:2px;font-size:11px;color:var(--yellow);}
+
+/* red flags */
+.flags{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+@media(max-width:640px){.flags{grid-template-columns:1fr;} .kc{flex-direction:column;} .kcs{border-right:none;border-bottom:1px solid var(--border);} .pchain{flex-direction:column;} .parrow{transform:rotate(90deg);justify-content:center;}}
+.flag-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;}
+.flag-num{font-size:22px;font-weight:900;font-family:'Epilogue',sans-serif;color:var(--red);margin-bottom:6px;}
+.flag-title{font-size:12px;font-weight:700;color:var(--white);margin-bottom:6px;}
+.flag-body{font-size:11px;color:var(--text);line-height:1.7;}
+
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="nav"><a href="index.html">← Portfolio</a><span>/</span><span style="color:var(--text)">THREAT-007</span></nav>
+
+<header>
+  <div class="eyebrow">Incident Writeup · Phishing · MFA Harvesting · LoTS</div>
+  <h1>THREAT-007 - <span>Meta Blue Badge Phishing</span><br>Real-time MFA Bypass · Facebook + Google Forms + Vercel</h1>
+  <div class="meta-bar">
+    <div class="mc"><div class="ml">ID</div><div class="mv fb">THREAT-007</div></div>
+    <div class="mc"><div class="ml">Date</div><div class="mv">12 Jan 2026</div></div>
+    <div class="mc"><div class="ml">Severity</div><div class="mv r">HIGH</div></div>
+    <div class="mc"><div class="ml">Verdict</div><div class="mv r">True Positive</div></div>
+    <div class="mc"><div class="ml">Vector</div><div class="mv r">Phishing Email</div></div>
+    <div class="mc"><div class="ml">Lure</div><div class="mv y">Meta Verified Blue Badge</div></div>
+    <div class="mc"><div class="ml">Technique</div><div class="mv r">MFA Harvesting · LoTS</div></div>
+    <div class="mc"><div class="ml">Platforms abused</div><div class="mv fb">FB · Google · Vercel</div></div>
+    <div class="mc"><div class="ml">Target</div><div class="mv o">FB/IG credentials + 2FA</div></div>
+    <div class="mc"><div class="ml">Outcome</div><div class="mv g">Reported by user</div></div>
+  </div>
+</header>
+
+<div class="notice green">
+  <div class="notice-icon">✅</div>
+  <div class="notice-body"><strong>Zgłoszone przez użytkownika - dane nie zostały skompromitowane.</strong> Incydent wykryty dzięki czujności użytkownika. Pełny łańcuch ataku przeanalizowany manualnie w Windows Sandbox - wszystkie etapy przetestowane z fałszywymi danymi.</div>
+</div>
+
+<div class="notice red">
+  <div class="notice-icon">⚡</div>
+  <div class="notice-body"><strong>Krytyczne: Real-time MFA Harvesting.</strong> Strona phishingowa nie tylko kradnie hasło - aktywnie próbuje przechwycić kod 2FA w czasie rzeczywistym. To oznacza że atakujący jest online i natychmiast loguje się na konto ofiary używając kodu zanim wygaśnie (zwykle 30–60 sekund). Klasyczne 2FA <strong>nie chroni</strong> przed tym atakiem.</div>
+</div>
+
+<div class="notice blue">
+  <div class="notice-icon">🔵</div>
+  <div class="notice-body"><strong>Technika: Living-off-Trusted-Sites (LoTS) × 3.</strong> Kampania wykorzystuje jednocześnie trzy legalne platformy - Facebook (email), Google Forms (initial lure) i Vercel (phishing host). Każda z tych domen ma wysoką reputację i jest na whitelist większości narzędzi bezpieczeństwa.</div>
+</div>
+
+<!-- EXEC SUMMARY -->
+<div class="sec">
+  <div class="sl">Executive Summary</div>
+  <p class="pr">12 stycznia 2026 użytkownik otrzymał wiadomość email z <code>groupupdates@facebookmail.com</code> - <strong>legitnej domeny Facebook</strong> - zapraszającą do grupy "AI-Center Connect" przez link <code>rebrand.ly/c7d400</code>. Treść maila obiecywała możliwość uzyskania <strong>Meta Verified Blue Badge za darmo</strong>.</p>
+  <p class="pr">Link prowadził do <strong>Google Forms</strong> (<code>docs.google.com/forms</code>) z fałszywym powiadomieniem "Official Meta Notification" informującym o aktywacji Meta Verified i żądającym potwierdzenia tożsamości. Google Forms zawierało link do <code>facebook.com/blue-verified/claim</code> - który okazał się przekierowaniem na <strong>Vercel</strong> (<code>verication-casefb309505.vercel.app</code>).</p>
+  <p class="pr">Na Vercel atakujący przeprowadził pełny <strong>5-etapowy harvesting</strong>: fake reCAPTCHA → "Meta Verified Rewards" → formularz danych osobowych (imię, email, telefon, PESEL-like data urodzenia, nazwa strony) → <strong>fake Facebook login (hasło)</strong> → <strong>real-time MFA harvesting (kod 2FA)</strong>. Cały łańcuch hostowany na trzech legalnych platformach bez jednej złośliwej domeny własnej aż do końcowego redirectu.</p>
+</div>
+
+<!-- PLATFORM ABUSE CHAIN -->
+<div class="sec">
+  <div class="sl">Łańcuch nadużycia platform (LoTS × 3)</div>
+  <div class="pchain">
+    <div class="pnode fb">
+      <div class="pn-num">01</div>
+      <div class="pn-platform">Facebook Email</div>
+      <div class="pn-desc">Legalna domena FB</div>
+      <div class="pn-domain" style="color:var(--fb);">groupupdates@facebookmail.com</div>
+    </div>
+    <div class="parrow">→</div>
+    <div class="pnode gf">
+      <div class="pn-num">02</div>
+      <div class="pn-platform">Google Forms</div>
+      <div class="pn-desc">Lure + redirect</div>
+      <div class="pn-domain" style="color:var(--green);">docs.google.com/forms</div>
+    </div>
+    <div class="parrow">→</div>
+    <div class="pnode vc">
+      <div class="pn-num">03</div>
+      <div class="pn-platform">Vercel App</div>
+      <div class="pn-desc">Phishing host</div>
+      <div class="pn-domain" style="color:var(--orange);">verication-casefb309505.vercel.app</div>
+    </div>
+    <div class="parrow">→</div>
+    <div class="pnode mfa">
+      <div class="pn-num">04</div>
+      <div class="pn-platform">MFA Harvest</div>
+      <div class="pn-desc">Real-time 2FA theft</div>
+      <div class="pn-domain" style="color:var(--red);">Credentials → attacker</div>
+    </div>
+  </div>
+</div>
+
+<!-- KILL CHAIN -->
+<div class="sec">
+  <div class="sl">Attack Chain - 7 etapów</div>
+  <div class="kc">
+    <div class="kcs a"><div class="kcnum">01</div><div class="kcn">FB Group Email</div><div class="kct">facebookmail.com</div></div>
+    <div class="kcs a"><div class="kcnum">02</div><div class="kcn">Google Forms</div><div class="kct">Blue Badge lure</div></div>
+    <div class="kcs a"><div class="kcnum">03</div><div class="kcn">Vercel reCAPTCHA</div><div class="kct">verication-case*.vercel.app</div></div>
+    <div class="kcs a"><div class="kcnum">04</div><div class="kcn">Meta Verified page</div><div class="kct">Blue badge social eng.</div></div>
+    <div class="kcs a"><div class="kcnum">05</div><div class="kcn">PII Form</div><div class="kct">Imię · email · telefon · DOB</div></div>
+    <div class="kcs r"><div class="kcnum">06</div><div class="kcn">Fake FB Login</div><div class="kct">Password harvest</div></div>
+    <div class="kcs r"><div class="kcnum">07</div><div class="kcn">MFA Harvest</div><div class="kct">Real-time 2FA bypass</div></div>
+  </div>
+</div>
+
+<!-- TECHNICAL ANALYSIS -->
+<div class="sec">
+  <div class="sl">Analiza techniczna - etap po etapie</div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">STAGE 1</span><span class="stage-title">Facebook Group Email - legitna domena jako initial vector</span></div>
+    <div class="stage-body">
+      Email wysłany z <code>groupupdates@facebookmail.com</code> - <span class="green">legitna domena Facebook</span> używana do powiadomień o grupach. Atakujący założył grupę "AI-Center Connect" i zaprosił ofiarę przez system Facebook, co spowodowało automatyczne wysłanie powiadomienia z prawdziwej infrastruktury Meta. Link w mailu prowadzi przez <code>rebrand.ly/c7d400</code> - URL shortener ukrywający docelową domenę Google Forms.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">STAGE 2</span><span class="stage-title">Google Forms - "Official Meta Notification" lure</span></div>
+    <div class="stage-body">
+      Strona Google Forms (<code>docs.google.com/forms/d/e/1FAIpQLSdxEKqz2BclxPU7XMRczCVyrAikVwGg5WsEBEVqjQ31k06A_Q/viewform</code>) prezentuje fałszywe powiadomienie "Official Meta Notification" z logo niebieskiej plakietki i grafiką Instagram/Facebook. Treść informuje o aktywacji "Meta Verified subscription" i kieruje do <code>facebook.com/blue-verified/claim</code> - link który przekierowuje dalej. Stopka Google Forms: <span class="yellow">"Ta treść nie została utworzona ani zatwierdzona przez Google"</span> - jedyny widoczny red flag na tej stronie.<br><br>
+      Urgency: <span class="red">"Your badge reservation expires in 72 hours"</span> - klasyczny time pressure social engineering.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">STAGE 3</span><span class="stage-title">Vercel - fake reCAPTCHA gate</span></div>
+    <div class="stage-body">
+      Cel: <code>verication-casefb309505.vercel.app</code> - typosquatting "verification" → "verication". Vercel to platforma hostingowa dla developerów z doskonałą reputacją i darmowym hostingiem - idealna dla atakujących. Strona prezentuje logo Meta i fake reCAPTCHA "I'm not a robot". Po kliknięciu przechodzi do kolejnego etapu bez żadnej prawdziwej weryfikacji - checkbox służy tylko jako brama psychologiczna uwiarygodniająca proces.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">STAGE 4</span><span class="stage-title">"Meta Verified - Rewards for you" landing page</span></div>
+    <div class="stage-body">
+      Strona z niebieską plakietką i tekstem "Show the world that you mean business. Congratulations on achieving the requirements to upgrade your page to a verified blue badge!" Zawiera fałszywy ticket ID: <span class="yellow">#4IWH-22VH-4LH4</span> dla uwiarygodnienia. Przycisk "Submit request" otwiera formularz danych osobowych.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">STAGE 5</span><span class="stage-title">PII Harvesting Form - pełne dane osobowe</span></div>
+    <div class="stage-body">
+      Formularz zbiera: <strong>Full Name · Email · Email Business · Page Name · Phone Number · Date of Birth</strong> - kompletny profil PII ofiary. Kombinacja tych danych wystarczy do kradzieży tożsamości, przejęcia kont na innych platformach i ataków BEC (Business Email Compromise). Warto zwrócić uwagę na pole "Email Business" - atakujący targetuje konta firmowe, nie tylko prywatne.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num red">STAGE 6</span><span class="stage-title">Fake Facebook Login - Password Harvesting</span></div>
+    <div class="stage-body">
+      Po przesłaniu formularza PII wyświetlany jest pixel-perfect formularz logowania Facebook z polem "Password" i komunikatem "For your security, you must enter your password to continue." Strona wyświetliła <span class="red">"The password you've entered is incorrect"</span> po pierwszym wpisaniu - klasyczna technika double-entry: strona zawsze odrzuca pierwsze hasło żeby skłonić ofiarę do wpisania drugiego (zakładając literówkę), co pozwala potwierdzić że hasło jest poprawne.
+    </div>
+  </div>
+
+  <div class="mfa-box">
+    <div class="mfa-title">STAGE 7 - Real-time MFA Harvesting - najgroźniejszy etap</div>
+    <div class="mfa-body">
+      Po wpisaniu hasła strona wyświetla ekran <strong>"Two-factor authentication required (1/3)"</strong> z komunikatem "Enter the code for this account that we send to b**s@wp.pl, 12 **** 89" - strona <strong>zna częściowy adres email i numer telefonu ofiary</strong> (z formularza Stage 5) i wyświetla je zamazane, co daje złudzenie że to autentyczny system Facebook.<br><br>
+      <strong>Jak działa real-time MFA bypass:</strong> Atakujący jest aktywnie online. W momencie gdy ofiara wpisuje hasło, atakujący natychmiast loguje się na Facebook używając tego hasła - Facebook wysyła prawdziwy kod 2FA na telefon ofiary. Ofiara wpisuje ten kod na stronie phishingowej → atakujący używa go do dokończenia logowania zanim wygaśnie (30–60 sekund). Strona pokazała błąd <span style="color:var(--red);">"The code is incorrect. Try again after 21 seconds"</span> - co potwierdza że system faktycznie próbuje weryfikować kody w czasie rzeczywistym lub symuluje cooldown żeby wymusić kolejne próby.<br><br>
+      <strong>Konsekwencja:</strong> Klasyczne 2FA (SMS, TOTP) nie chroni przed tym atakiem. Jedynym skutecznym środkiem jest <strong>hardware security key (FIDO2/WebAuthn)</strong> - klucz sprzętowy jest powiązany z domeną i nie zadziała na fałszywej stronie.
+    </div>
+  </div>
+</div>
+
+<!-- IOC -->
+<div class="sec">
+  <div class="sl r">Indicators of Compromise</div>
+  <table class="it">
+    <thead><tr><th>Type</th><th>Indicator</th><th>Context</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>Domain</td><td><span class="ioc-d">verication-casefb309505.vercel.app</span></td><td>Phishing host - Vercel platform abuse (typosquatting "verification")</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-url">verication-casefb309505.vercel.app/required.html</span></td><td>Main phishing page - Meta Verified lure + credential harvest + MFA</td><td><span class="bdg r">Phishing</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-fb">docs.google.com/forms/d/e/1FAIpQLSdxEKqz2BclxPU7XMRczCVyrAikVwGg5WsEBEVqjQ31k06A_Q/viewform</span></td><td>Google Forms lure - "Official Meta Notification" (report to Google)</td><td><span class="bdg o">Abused legit</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-d">rebrand.ly/c7d400</span></td><td>URL shortener - masks Google Forms destination</td><td><span class="bdg o">Suspicious</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-d">rebrand.ly/2eolfaa</span></td><td>Second URL shortener found in Google Forms</td><td><span class="bdg o">Suspicious</span></td></tr>
+      <tr><td>Email</td><td><span class="ioc-fb">groupupdates@facebookmail.com</span></td><td>Legitimate Facebook notification domain - abused via fake FB group invite</td><td><span class="bdg b">Legit abused</span></td></tr>
+      <tr><td>FB Group</td><td><span class="ioc-d">AI-Center Connect</span></td><td>Fake Facebook group used as initial email delivery mechanism</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Lure</td><td><span class="ioc-d">Meta Verified Blue Badge - "free upgrade"</span></td><td>Social engineering lure - urgency: "expires in 72 hours"</td><td><span class="bdg o">Pattern</span></td></tr>
+      <tr><td>Ticket ID</td><td><span class="ioc-d">#4IWH-22VH-4LH4</span></td><td>Fake case/ticket ID - legitimacy social engineering</td><td><span class="bdg y">IOC</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- RED FLAGS -->
+<div class="sec">
+  <div class="sl r">Red Flags - jak rozpoznać tę kampanię</div>
+  <div class="flags">
+    <div class="flag-card">
+      <div class="flag-num">01</div>
+      <div class="flag-title">Facebook nie rozdaje blue badge przez grupy</div>
+      <div class="flag-body">Meta Verified to płatna subskrypcja zarządzana wyłącznie z ustawień konta. Żadne zaproszenie do grupy FB nie jest związane z weryfikacją. "Free blue badge" = zawsze phishing.</div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-num">02</div>
+      <div class="flag-title">Google Forms ≠ oficjalna komunikacja Meta</div>
+      <div class="flag-body">Stopka formularza wyraźnie mówi "Ta treść nie została utworzona ani zatwierdzona przez Google." Meta nigdy nie używa Google Forms do komunikacji z użytkownikami.</div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-num">03</div>
+      <div class="flag-title">Domena "verication" zamiast "verification"</div>
+      <div class="flag-body"><code>verication-casefb309505.vercel.app</code> - literówka w nazwie subdomeny + losowy numer + platforma deweloperska. Meta używa wyłącznie <code>facebook.com</code> i <code>meta.com</code> dla swoich usług.</div>
+    </div>
+    <div class="flag-card">
+      <div class="flag-num">04</div>
+      <div class="flag-title">Strona "odrzuca" pierwsze hasło zawsze</div>
+      <div class="flag-body">Komunikat "The password you've entered is incorrect" po pierwszym wpisaniu to celowa technika double-entry - skłania ofiarę do wpisania hasła po raz drugi, potwierdzając jego poprawność atakującemu.</div>
+    </div>
+  </div>
+</div>
+
+<!-- MITRE -->
+<div class="sec">
+  <div class="sl p">MITRE ATT&amp;CK</div>
+  <div class="mg">
+    <div class="mc2"><div class="mid">T1566.002</div><div class="mname">Phishing - Spearphishing Link</div><div class="mtactic">Initial Access</div></div>
+    <div class="mc2"><div class="mid">T1056.003</div><div class="mname">Web Portal Capture - Credential Harvesting</div><div class="mtactic">Collection</div></div>
+    <div class="mc2"><div class="mid">T1557</div><div class="mname">Adversary-in-the-Middle - Real-time MFA Relay</div><div class="mtactic">Credential Access</div></div>
+    <div class="mc2"><div class="mid">T1113 / T1589</div><div class="mname">PII Harvesting (name, DOB, phone)</div><div class="mtactic">Reconnaissance · Collection</div></div>
+    <div class="mc2"><div class="mid">T1036.005</div><div class="mname">Masquerade - Match Legitimate Name (Meta)</div><div class="mtactic">Defense Evasion</div></div>
+    <div class="mc2"><div class="mid">T1583.006</div><div class="mname">Acquire Infrastructure - Web Services (Vercel, Google, FB)</div><div class="mtactic">Resource Development</div></div>
+    <div class="mc2"><div class="mid">T1598.003</div><div class="mname">Phishing for Information - PII form</div><div class="mtactic">Reconnaissance</div></div>
+  </div>
+</div>
+
+<!-- REMEDIATION -->
+<div class="sec">
+  <div class="sl g">Działania i rekomendacje</div>
+
+  <div class="box green">
+    <strong>✔ Działania podjęte:</strong><br>
+    · Pełna analiza łańcucha ataku w Windows Sandbox - wszystkie 7 etapów przetestowane z fałszywymi danymi<br>
+    · Identyfikacja infrastruktury: Vercel subdomain, Google Forms URL, Facebook group, URL shorteners<br>
+    · Dokumentacja techniki real-time MFA harvesting<br>
+    · Potwierdzenie że dane użytkownika nie zostały skompromitowane
+  </div>
+
+  <div class="box yellow">
+    <strong>⚠ Zgłoszenia do wykonania:</strong><br>
+    · Zgłosić Vercel subdomain: <code>verication-casefb309505.vercel.app</code> → vercel.com/security<br>
+    · Zgłosić Google Forms → forms.google.com (Report abuse)<br>
+    · Zgłosić grupę "AI-Center Connect" na Facebooku jako spam/phishing<br>
+    · Zgłosić rebrand.ly/c7d400 i rebrand.ly/2eolfaa do rebrand.ly abuse team<br>
+    · Poinformować użytkowników organizacji o kampanii "Meta Blue Badge"
+  </div>
+
+  <div class="box red">
+    <strong>🔴 Krytyczna rekomendacja - ochrona przed MFA harvesting:</strong><br>
+    Klasyczne 2FA (SMS kody, TOTP/Google Authenticator) <strong>nie chroni</strong> przed real-time MFA relay attacks. Jedyne skuteczne zabezpieczenie to:<br>
+    · <strong>FIDO2 hardware key</strong> (YubiKey, Google Titan) - klucz jest kryptograficznie powiązany z domeną, nie zadziała na phishingowej stronie<br>
+    · <strong>Passkeys</strong> - ten sam mechanizm co FIDO2, wbudowany w nowoczesne urządzenia<br>
+    · Włączyć <strong>"Advanced Protection Program"</strong> na kontach Meta dla użytkowników wysokiego ryzyka
+  </div>
+
+  <div class="box blue">
+    <strong>Świadomość użytkowników - kluczowe zasady:</strong><br>
+    (1) Meta Verified to płatna subskrypcja - nikt nie daje blue badge za darmo przez email.<br>
+    (2) Zawsze sprawdź domenę w pasku adresu - <code>facebook.com</code> ≠ <code>*.vercel.app</code>.<br>
+    (3) Jeśli strona "odrzuca" Twoje hasło za pierwszym razem - to phishing zbierający drugie wpisanie.<br>
+    (4) Kod 2FA wpisany na nieznanej stronie = natychmiastowe przejęcie konta przez atakującego.
+  </div>
+</div>
+
+<footer><span>// THREAT-007 · 12.01.2026 · Phishing · MFA Harvesting · LoTS</span><span>Tools: Windows Sandbox · Manual chain analysis · Browser DevTools</span></footer>
+</div>
+</body>
+</html>

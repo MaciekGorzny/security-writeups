@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THREAT-005 - Fake PDF / DLL Sideloading · Materiał dowodowy</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{--bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;--purple:#c084fc;--text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 20%,rgba(255,123,44,.03) 0%,transparent 55%),radial-gradient(ellipse 50% 35% at 85% 75%,rgba(192,132,252,.025) 0%,transparent 55%),linear-gradient(rgba(0,217,245,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,217,245,.015) 1px,transparent 1px);background-size:100% 100%,100% 100%,44px 44px,44px 44px;pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--orange);}
+.nav span{color:var(--border);}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--orange);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--orange);box-shadow:0 0 6px var(--orange);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:20px;}
+h1 span{color:var(--orange);}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:32px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.o{color:var(--orange);}.mv.g{color:var(--green);}.mv.c{color:var(--cyan);}.mv.y{color:var(--yellow);}.mv.p{color:var(--purple);}
+
+/* positive / negative notice */
+.notice{border-radius:6px;padding:14px 20px;margin-bottom:28px;display:flex;align-items:flex-start;gap:14px;font-size:12px;line-height:1.8;}
+.notice.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.2);}
+.notice.yellow{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.2);}
+.notice-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.notice-body strong{color:var(--white);}
+.notice.green .notice-body strong{color:var(--green);}
+.notice.yellow .notice-body strong{color:var(--yellow);}
+
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--orange);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.r{color:var(--red);}.sl.g{color:var(--green);}.sl.c{color:var(--cyan);}.sl.y{color:var(--yellow);}.sl.p{color:var(--purple);}
+
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(255,123,44,.08);border:1px solid rgba(255,123,44,.2);color:var(--orange);padding:1px 6px;border-radius:2px;font-size:11px;}
+
+/* kill chain */
+.kc{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:20px;}
+.kcs{flex:1;min-width:90px;background:var(--card);padding:12px 14px;border-right:1px solid var(--border);}
+.kcs:last-child{border-right:none;}
+.kcs.a{background:rgba(255,123,44,.04);border-bottom:2px solid var(--orange);}
+.kcs.a .kcn{color:var(--orange);}
+.kcs.u{background:rgba(255,209,102,.04);border-bottom:2px solid var(--yellow);}
+.kcs.u .kcn{color:var(--yellow);}
+.kcnum{font-size:9px;color:var(--muted);margin-bottom:4px;}
+.kcn{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px;}
+.kct{font-size:10px;color:var(--muted);}
+
+/* analysis stages */
+.stage{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
+.stage-header{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.stage-num{font-size:9px;font-weight:700;color:var(--bg);background:var(--orange);padding:2px 8px;border-radius:2px;letter-spacing:1px;}
+.stage-title{font-size:12px;font-weight:700;color:var(--white);}
+.stage-body{padding:14px 18px;font-size:12px;color:var(--text);line-height:1.8;}
+.stage-body code{background:rgba(255,123,44,.08);border:1px solid rgba(255,123,44,.15);color:var(--orange);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage-body .highlight{background:rgba(255,69,96,.08);border:1px solid rgba(255,69,96,.2);color:var(--red);padding:1px 6px;border-radius:2px;font-size:11px;}
+
+/* terminal block */
+.term{background:#020508;border:1px solid var(--border);border-radius:4px;padding:16px 20px;margin:12px 0;font-size:12px;line-height:1.8;overflow-x:auto;}
+.term .prompt{color:var(--green);}
+.term .cmd{color:var(--white);}
+.term .out-key{color:var(--cyan);}
+.term .out-val{color:var(--yellow);}
+.term .out-malicious{color:var(--red);font-weight:700;}
+.term .out-suspicious{color:var(--orange);}
+.term .comment{color:var(--muted);}
+
+/* file table */
+.ft{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.ft th{background:rgba(255,123,44,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--orange);}
+.ft td{border:1px solid var(--border);padding:10px 12px;color:var(--text);vertical-align:top;}
+.ft tr:hover td{background:rgba(255,255,255,.015);}
+.fn{font-weight:700;color:var(--white);}
+.ft-suspicious{color:var(--orange);}
+.ft-malicious{color:var(--red);font-weight:700;}
+.bdg{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.bdg.r{background:rgba(255,69,96,.12);color:var(--red);border:1px solid rgba(255,69,96,.25);}
+.bdg.o{background:rgba(255,123,44,.12);color:var(--orange);border:1px solid rgba(255,123,44,.25);}
+.bdg.y{background:rgba(255,209,102,.12);color:var(--yellow);border:1px solid rgba(255,209,102,.25);}
+.bdg.c{background:rgba(0,217,245,.1);color:var(--cyan);border:1px solid rgba(0,217,245,.2);}
+.bdg.p{background:rgba(192,132,252,.1);color:var(--purple);border:1px solid rgba(192,132,252,.2);}
+.bdg.g{background:rgba(61,255,143,.1);color:var(--green);border:1px solid rgba(61,255,143,.2);}
+
+/* IOC table */
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(255,69,96,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.ioc-d{color:var(--orange);word-break:break-all;}
+.ioc-f{color:var(--yellow);}
+.ioc-h{color:var(--purple);font-size:10px;word-break:break-all;font-family:'JetBrains Mono',monospace;}
+
+/* MITRE */
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:8px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--orange);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+
+/* boxes */
+.box{border-radius:6px;padding:14px 18px;font-size:12px;line-height:1.8;margin-bottom:14px;}
+.box.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.15);border-left:3px solid var(--red);}
+.box.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.15);border-left:3px solid var(--green);}
+.box.yellow{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);border-left:3px solid var(--yellow);}
+.box.orange{background:rgba(255,123,44,.04);border:1px solid rgba(255,123,44,.15);border-left:3px solid var(--orange);}
+.box.purple{background:rgba(192,132,252,.04);border:1px solid rgba(192,132,252,.15);border-left:3px solid var(--purple);}
+.box strong{color:var(--white);}
+.box code{background:rgba(255,255,255,.06);padding:1px 6px;border-radius:2px;font-size:11px;color:var(--yellow);}
+
+/* next steps */
+.next-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:640px){.next-grid{grid-template-columns:1fr;}}
+.next-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;}
+.next-title{font-size:11px;font-weight:700;color:var(--white);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.next-body{font-size:11px;color:var(--text);line-height:1.7;}
+.next-body code{background:rgba(255,255,255,.06);padding:1px 5px;border-radius:2px;font-size:10px;color:var(--yellow);}
+
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+@media(max-width:600px){.kc{flex-direction:column;}.kcs{border-right:none;border-bottom:1px solid var(--border);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="nav"><a href="index.html">← Portfolio</a><span>/</span><span style="color:var(--text)">THREAT-005</span></nav>
+
+<header>
+  <div class="eyebrow">Incident Writeup · Malware Analysis</div>
+  <h1>THREAT-005 - <span>Fake PDF + DLL Sideloading</span><br>Phishing ZIP · MediaFire · oledlg.dll</h1>
+  <div class="meta">
+    <div class="mc"><div class="ml">ID</div><div class="mv o">THREAT-005</div></div>
+    <div class="mc"><div class="ml">Date</div><div class="mv">29 May 2025</div></div>
+    <div class="mc"><div class="ml">Severity</div><div class="mv r">HIGH</div></div>
+    <div class="mc"><div class="ml">Verdict</div><div class="mv r">True Positive</div></div>
+    <div class="mc"><div class="ml">Vector</div><div class="mv r">Phishing Email</div></div>
+    <div class="mc"><div class="ml">Lure</div><div class="mv y">Dokument sądowy (PDF)</div></div>
+    <div class="mc"><div class="ml">Technique</div><div class="mv o">DLL Sideloading</div></div>
+    <div class="mc"><div class="ml">Hosting</div><div class="mv c">MediaFire (legit)</div></div>
+    <div class="mc"><div class="ml">Analysis</div><div class="mv p">REMnux · file(1)</div></div>
+    <div class="mc"><div class="ml">Outcome</div><div class="mv g">Reported by user</div></div>
+  </div>
+</header>
+
+<div class="notice green">
+  <div class="notice-icon">✅</div>
+  <div class="notice-body"><strong>Zgłoszone przez użytkownika - plik nie został uruchomiony.</strong> Incydent wykryty dzięki czujności użytkownika który rozpoznał podejrzanego maila i przekazał go do analizy. Analiza statyczna przeprowadzona w izolowanym środowisku REMnux.</div>
+</div>
+
+<div class="notice yellow">
+  <div class="notice-icon">⚠️</div>
+  <div class="notice-body"><strong>Analiza częściowa - pending deeper investigation.</strong> Statyczna identyfikacja plików potwierdzona przez <code>file(1)</code>. Dynamiczna analiza (sandbox detonation, network traffic, strings, PE headers) nie została przeprowadzona ze względu na utratę materiału dowodowego. Klasyfikacja malware i finalny payload pozostają nieustalone.</div>
+</div>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="sec">
+  <div class="sl c">Executive Summary</div>
+  <p class="pr">29 maja 2025 użytkownik zgłosił podejrzanego maila zawierającego link do archiwum ZIP hostowanego na <strong>MediaFire</strong>. Nazwa pliku i zawartość opakowane jako <strong>"Materiał dowodowy"</strong> - lure naśladujący dokument sądowy lub prawny, celowo wzbudzający poczucie pilności i oficjalności.</p>
+  <p class="pr">Statyczna analiza archiwum przeprowadzona w środowisku <strong>REMnux</strong> przy użyciu narzędzia <code>file(1)</code> ujawniła kluczowe odkrycie: plik <code>Materiał dowodowy.pdf</code> nie jest dokumentem PDF - jest to <strong>plik wykonywalny PE32 (EXE)</strong> podszywający się pod PDF przez rozszerzenie i ikonę. Archiwum zawiera również <code>oledlg.dll</code> - złośliwą bibliotekę DLL przygotowaną do <strong>DLL Sideloading</strong>.</p>
+  <p class="pr">Technika polega na tym, że po uruchomieniu przez użytkownika fałszywego "PDF" system Windows ładuje <code>oledlg.dll</code> z bieżącego katalogu zamiast legitnej biblioteki systemowej o tej samej nazwie z <code>C:\Windows\System32\</code> - klasyczny mechanizm hijackingu DLL search order.</p>
+</div>
+
+<!-- KILL CHAIN -->
+<div class="sec">
+  <div class="sl">Attack Chain</div>
+  <div class="kc">
+    <div class="kcs a"><div class="kcnum">01</div><div class="kcn">Phishing Email</div><div class="kct">Link → MediaFire ZIP</div></div>
+    <div class="kcs a"><div class="kcnum">02</div><div class="kcn">Download ZIP</div><div class="kct">301 MB · MediaFire</div></div>
+    <div class="kcs a"><div class="kcnum">03</div><div class="kcn">Unzip</div><div class="kct">EXE + DLL + data</div></div>
+    <div class="kcs a"><div class="kcnum">04</div><div class="kcn">User runs "PDF"</div><div class="kct">PE32 EXE execution</div></div>
+    <div class="kcs u"><div class="kcnum">05</div><div class="kcn">DLL Sideload</div><div class="kct">oledlg.dll hijack</div></div>
+    <div class="kcs u"><div class="kcnum">06</div><div class="kcn">Payload (?)</div><div class="kct">undetermined</div></div>
+  </div>
+  <p class="pr" style="margin-top:8px;">Kroki 5-6 oznaczone jako <span class="bdg y">UNDETERMINED</span> - analiza dynamiczna nie została przeprowadzona.</p>
+</div>
+
+<!-- TECHNICAL ANALYSIS -->
+<div class="sec">
+  <div class="sl">Analiza statyczna - REMnux</div>
+
+  <div class="stage">
+    <div class="stage-header">
+      <span class="stage-num">STAGE 1</span>
+      <span class="stage-title">Phishing Email - Lure "Materiał dowodowy"</span>
+    </div>
+    <div class="stage-body">
+      Mail zawierający link do archiwum ZIP hostowanego na <code>mediafire.com</code>. Użycie legalnego file-hostingu to celowa technika omijania filtrów email i URL reputation - domeny takie jak MediaFire, Dropbox czy OneDrive mają wysoką reputację i rzadko są blokowane przez bramki pocztowe.<br><br>
+      Nazwa "Materiał dowodowy" to <strong>lure prawno-sądowy</strong> - jeden z najskuteczniejszych social engineering hooks, bo wywołuje natychmiastową reakcję emocjonalną (niepokój, ciekawość) i poczucie pilności. Odbiorca instynktownie chce sprawdzić "co to za materiał dowodowy".
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header">
+      <span class="stage-num">STAGE 2</span>
+      <span class="stage-title">Archiwum ZIP - MediaFire (301,99 MB)</span>
+    </div>
+    <div class="stage-body">
+      Duży rozmiar archiwum (301,99 MB) jest niecharakterystyczny dla dokumentów PDF - typowy dokument sądowy ma kilka MB. Duży rozmiar może wskazować na padding (wypełnianie pliku bezużyteczną zawartością aby ominąć skanery AV limitowane wielkością pliku) lub na bundling pełnego payloadu z zależnościami. Upload na MediaFire: 2025-05-29 04:16 - wczesna godzina, możliwy automatyczny upload przez infrastructure operatora kampanii.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header">
+      <span class="stage-num">STAGE 3</span>
+      <span class="stage-title">Zawartość ZIP - trzy pliki</span>
+    </div>
+    <div class="stage-body">
+      Po rozpakowaniu na REMnux archiwum zawiera trzy pliki:<br><br>
+      <table class="ft" style="margin-top:8px;">
+        <thead><tr><th>Nazwa pliku</th><th>Rozszerzenie</th><th>Rzeczywisty typ</th><th>VT</th><th>Ocena</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="fn">1</td>
+            <td>brak</td>
+            <td><span class="ft-suspicious">data - encrypted config / shellcode</span></td>
+            <td>-</td>
+            <td><span class="bdg y">Unknown</span></td>
+          </tr>
+          <tr>
+            <td class="fn">Materiał dowodowy.pdf<br><span style="color:var(--red);font-size:10px;">internal: hpreader.exe</span></td>
+            <td>.pdf (fałszywe)</td>
+            <td><span class="ft-malicious">PE32 executable (GUI) - loader</span></td>
+            <td><span style="color:var(--yellow);font-weight:700;">3/68</span></td>
+            <td><span class="bdg o">Low detect</span></td>
+          </tr>
+          <tr>
+            <td class="fn">oledlg.dll</td>
+            <td>.dll</td>
+            <td><span class="ft-malicious">PE32 executable (DLL) - payload</span></td>
+            <td><span style="color:var(--red);font-weight:700;">30/70</span></td>
+            <td><span class="bdg r">Malicious DLL</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header">
+      <span class="stage-num">STAGE 4</span>
+      <span class="stage-title">file(1) output - REMnux terminal</span>
+    </div>
+    <div class="stage-body">
+      Wynik komendy <code>file *</code> w katalogu z rozpakowanym archiwum:
+      <div class="term">
+        <span class="prompt">remnux@remnux</span>:<span class="out-val">~/Desktop/Phishing 29.05.2025/Materiał dowodowy</span>$ <span class="cmd">file *</span><br>
+        <span class="out-key">1:</span>                      <span class="out-suspicious">data</span><br>
+        <span class="out-key">Materiał dowodowy.pdf:</span> <span class="out-malicious">PE32 executable (GUI) Intel 80386, for MS Windows</span><br>
+        <span class="out-key">oledlg.dll:</span>            <span class="out-malicious">PE32 executable (DLL) (console) Intel 80386, for MS Windows</span>
+      </div>
+      Kluczowe ustalenie: plik z rozszerzeniem <code>.pdf</code> ma magic bytes i nagłówek PE32 - jest to plik wykonywalny Windows, nie dokument PDF. Windows domyślnie ukrywa rozszerzenia plików, więc użytkownik widzi tylko ikonę i nazwę "Materiał dowodowy.pdf" - ikona może być podmieniona na ikonę Adobe Reader przez atakującego.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header">
+      <span class="stage-num">STAGE 5</span>
+      <span class="stage-title">DLL Sideloading - mechanizm + analiza VT</span>
+    </div>
+    <div class="stage-body">
+      <strong style="color:var(--orange);">Wewnętrzna nazwa EXE: hpreader.exe</strong><br>
+      Plik <code>Materiał dowodowy.pdf</code> ma wewnętrzną nazwę PE <span class="highlight">hpreader.exe</span> - podszywanie pod aplikację HP Reader / HP Smart. To celowa technika: legalna nazwa wewnętrzna sprawia że plik wygląda jak sterownik lub aplikacja HP w logach systemowych, narzędziach AV i analizie procesów. Tłumaczy to niski wynik VT (<span class="highlight">3/70</span>) - loader jest zaprojektowany tak żeby wyglądać na czysty.<br><br>
+      <strong style="color:var(--red);">Rozkład detekcji VT potwierdza architekturę sideloading:</strong><br>
+      EXE (<code>hpreader.exe</code>) wykryty tylko przez <span style="color:var(--yellow);font-weight:700;">3/68</span> silników - celowo minimalistyczny loader, brak złośliwej logiki w samym EXE. DLL (<code>oledlg.dll</code>) wykryta przez <span style="color:var(--red);font-weight:700;">30/70</span> silników - tu znajduje się właściwy payload. To klasyczny podział ról w DLL sideloading: EXE jest "czysty" żeby ominąć AV przy pobraniu i uruchomieniu, DLL zawiera całą złośliwą funkcjonalność.<br><br>
+      <code>oledlg.dll</code> to nazwa prawdziwej biblioteki Windows (<em>OLE Dialog Library</em>) z <code>C:\Windows\System32\oledlg.dll</code>. Windows szuka DLL w kolejności: <strong>(1)</strong> katalog aplikacji → <strong>(2)</strong> System32. Złośliwa DLL w katalogu EXE zostaje załadowana <strong>zamiast</strong> systemowej - bez żadnego widocznego błędu dla użytkownika.<br><br>
+      Plik <code>1</code> (typ "data") prawdopodobnie stanowi zaszyfrowaną konfigurację C2 lub dodatkowy payload deszyfrowany przez DLL w runtime - analiza dynamiczna nieukończona.
+    </div>
+  </div>
+
+  <div class="box red">
+    <strong>⚠ Kluczowe ustalenie - maskarada rozszerzenia:</strong> System Windows domyślnie ukrywa rozszerzenia znanych typów plików. Użytkownik widzący plik <code>Materiał dowodowy.pdf</code> z ikoną Adobe Reader nie ma możliwości wizualnej identyfikacji zagrożenia bez sprawdzenia rzeczywistego typu pliku. Włączenie wyświetlania rozszerzeń plików w systemie Windows (<code>Eksplorator → Widok → Rozszerzenia nazw plików</code>) jest podstawowym środkiem prewencyjnym.
+  </div>
+
+  <div class="box purple">
+    <strong>Dlaczego MediaFire?</strong> Atakujący celowo używają legalnych platform do hostowania payloadów. Domeny takie jak <code>mediafire.com</code>, <code>dropbox.com</code> czy <code>onedrive.live.com</code> mają bardzo wysoką reputację w systemach filtrowania URL - rzadko trafiają na blocklists. Link do MediaFire w mailu phishingowym często przejdzie przez filtry pocztowe bez ostrzeżenia, podczas gdy bezpośredni link do złośliwej domeny zostałby zablokowany.
+  </div>
+</div>
+
+<!-- IOC -->
+<div class="sec">
+  <div class="sl r">Indicators of Compromise - Hashes & Files</div>
+  <table class="it">
+    <thead><tr><th>File</th><th>SHA256</th><th>Type</th><th>VT Detections</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="ioc-f">infected.zip</span></td>
+        <td><span class="ioc-h">d0a2750844038852c2f2957426835807180eaa9c259d0da45501373f68c1a996</span></td>
+        <td>ZIP archive - container</td>
+        <td><a href="https://www.virustotal.com/gui/file/d0a2750844038852c2f2957426835807180eaa9c259d0da45501373f68c1a996" target="_blank" style="color:var(--cyan);font-size:10px;">→ VT</a></td>
+        <td><span class="bdg r">Malicious</span></td>
+      </tr>
+      <tr>
+        <td>
+          <span class="ioc-f">Materiał dowodowy.pdf</span><br>
+          <span style="color:var(--red);font-size:10px;">⚠ internal name: <strong>hpreader.exe</strong></span><br>
+          <span style="color:var(--muted);font-size:10px;">masquerading as HP Reader / HP Smart</span>
+        </td>
+        <td><span class="ioc-h">e4628593185329daaaa0e48789e7656a25d523aa050a1645b3f7df41615e2f61</span></td>
+        <td><span style="color:var(--orange);font-weight:700;">PE32 EXE (GUI) - loader / dropper<br><span style="font-weight:400;color:var(--muted);">Low detection = clean loader design</span></span></td>
+        <td><a href="https://www.virustotal.com/gui/file/e4628593185329daaaa0e48789e7656a25d523aa050a1645b3f7df41615e2f61" target="_blank" style="color:var(--cyan);font-size:10px;">→ VT</a> <span style="color:var(--yellow);font-size:11px;font-weight:700;">3 / 68</span></td>
+        <td><span class="bdg o">Low detect</span></td>
+      </tr>
+      <tr>
+        <td><span class="ioc-f">oledlg.dll</span></td>
+        <td><span class="ioc-h">39b1ebed800c20a606fb80810948e6cf626179193f21bf31eebccfb5db20fb14</span></td>
+        <td><span style="color:var(--red);font-weight:700;">PE32 DLL - main malicious payload<br><span style="font-weight:400;color:var(--muted);">High detection = payload logic here</span></span></td>
+        <td><a href="https://www.virustotal.com/gui/file/39b1ebed800c20a606fb80810948e6cf626179193f21bf31eebccfb5db20fb14" target="_blank" style="color:var(--cyan);font-size:10px;">→ VT</a> <span style="color:var(--red);font-size:11px;font-weight:700;">30 / 70</span></td>
+        <td><span class="bdg r">Malicious DLL</span></td>
+      </tr>
+      <tr>
+        <td><span class="ioc-f">1 <span style="color:var(--muted);font-size:10px;">(no extension)</span></span></td>
+        <td><span class="ioc-h">28b0f5cc8a605eadbc42615e2a0a44160082c25a5a44ce640c6dc9a63137cdb8</span></td>
+        <td><span style="color:var(--yellow);">data - encrypted config / shellcode</span></td>
+        <td><a href="https://www.virustotal.com/gui/file/28b0f5cc8a605eadbc42615e2a0a44160082c25a5a44ce640c6dc9a63137cdb8" target="_blank" style="color:var(--cyan);font-size:10px;">→ VT</a></td>
+        <td><span class="bdg y">Suspicious</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sec" style="margin-bottom:0;margin-top:16px;">
+    <div class="sl r" style="margin-top:0;">Pozostałe IoC</div>
+    <table class="it">
+      <thead><tr><th>Type</th><th>Indicator</th><th>Context</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td>URL</td><td><span class="ioc-d">mediafire[.]com/file_premium/6xocnre7or9kzbn/Materia%C5%2582_dowodowy.zip/file</span></td><td>ZIP payload hosting - MediaFire abuse, uploaded 2025-05-29 04:16</td><td><span class="bdg r">Malicious</span></td></tr>
+        <tr><td>Lure</td><td><span class="ioc-d">"Materiał dowodowy" / dokument sądowy</span></td><td>Social engineering lure - legal/court document impersonation</td><td><span class="bdg o">Pattern</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MITRE -->
+<div class="sec">
+  <div class="sl p">MITRE ATT&amp;CK</div>
+  <div class="mg">
+    <div class="mc2"><div class="mid">T1566.002</div><div class="mname">Phishing - Spearphishing Link</div><div class="mtactic">Initial Access</div></div>
+    <div class="mc2"><div class="mid">T1204.002</div><div class="mname">User Execution - Malicious File</div><div class="mtactic">Execution</div></div>
+    <div class="mc2"><div class="mid">T1574.002</div><div class="mname">DLL Side-Loading</div><div class="mtactic">Defense Evasion · Persistence</div></div>
+    <div class="mc2"><div class="mid">T1036.007</div><div class="mname">Masquerade File Type (PE as PDF)</div><div class="mtactic">Defense Evasion</div></div>
+    <div class="mc2"><div class="mid">T1027</div><div class="mname">Obfuscated Files or Information</div><div class="mtactic">Defense Evasion</div></div>
+    <div class="mc2"><div class="mid">T1583.006</div><div class="mname">Acquire Infrastructure - Web Services (MediaFire)</div><div class="mtactic">Resource Development</div></div>
+  </div>
+</div>
+
+<!-- NEXT STEPS / REMEDIATION -->
+<div class="sec">
+  <div class="sl g">Działania i rekomendacje</div>
+
+  <div class="box green">
+    <strong>✔ Działania podjęte:</strong><br>
+    · Statyczna identyfikacja plików przez <code>file(1)</code> w REMnux<br>
+    · Potwierdzenie maskarady rozszerzenia - PDF jako PE32 EXE<br>
+    · Identyfikacja techniki DLL sideloading (<code>oledlg.dll</code>)<br>
+    · Potwierdzenie że user nie uruchomił pliku - brak kompromitacji systemu
+  </div>
+
+  <div class="box yellow">
+    <strong>📋 Pending - dalsze kroki (przy dostępności próbek):</strong><br>
+    · <code>strings</code> na EXE i DLL - wyciągnięcie embedded URLs, C2, registry keys<br>
+    · <code>pestudio</code> / <code>PE-bear</code> - analiza PE headers, imports, sekcji<br>
+    · <code>sha256sum</code> obu PE → sprawdzenie w VirusTotal<br>
+    · Sandbox detonation (ANY.RUN / Triage) - analiza dynamiczna, sieć, procesy<br>
+    · Analiza pliku <code>1</code> - hexdump, sprawdzenie magic bytes, entropy (możliwy zaszyfrowany shellcode)
+  </div>
+
+  <div class="box red">
+    <strong>🔴 Rekomendacje organizacyjne:</strong><br>
+    · Włączyć wyświetlanie rozszerzeń plików we wszystkich systemach Windows organizacji (GPO)<br>
+    · Skonfigurować blokowanie pobierania archiwów ZIP/RAR z domen file-hostingowych (MediaFire, WeTransfer) przez proxy/email gateway lub wymagać manualnej weryfikacji<br>
+    · Wdrożyć regułę detekcji alertującą na DLL o nazwach systemowych (<code>oledlg.dll</code>, <code>kernel32.dll</code> itp.) uruchamiane spoza <code>System32</code><br>
+    · Zgłosić plik na MediaFire do usunięcia (<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="eb8a899e988eab868e8f828a8d82998ec5888486">[email&#160;protected]</a>)
+  </div>
+
+  <div class="sec" style="margin-bottom:0;">
+    <div class="sl y" style="margin-top:16px;">KQL Detection - DLL Sideloading z katalogu użytkownika</div>
+    <div class="box orange">
+      <code>DeviceImageLoadEvents<br>
+      | where FileName =~ "oledlg.dll"<br>
+      | where FolderPath !startswith "C:\\Windows\\System32"<br>
+      | where FolderPath !startswith "C:\\Windows\\SysWOW64"<br>
+      | project Timestamp, DeviceName, InitiatingProcessFileName,<br>
+      &nbsp;&nbsp;InitiatingProcessFolderPath, FolderPath, FileName</code>
+    </div>
+  </div>
+</div>
+
+<footer><span>// THREAT-005 · 29.05.2025 · Static Malware Analysis</span><spa
