@@ -120,7 +120,7 @@ footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);displ
     <div class="tlr r"><div class="tltime">14 Jan 2025 * 12:38</div><div class="tlevent">chrome.exe → outbound → 176[.]53[.]147[.]97:443</div><div class="tldetail">Network Protection blocked C2. 3 alerty: Medium + Informational. Defender wygenerował incydent.</div></div>
     <div class="tlr o"><div class="tltime">14 Jan 2025 * ~13:00</div><div class="tlevent">Timeline analysis → identyfikacja radoscdawania[.]pl jako initial access</div><div class="tldetail">TLS connection do radoscdawania[.]pl widoczne 30s przed C2 beaconing. Użytkownik potwierdził wizytę.</div></div>
     <div class="tlr"><div class="tltime">14 Jan 2025 * ~13:30</div><div class="tlevent">Sandbox - ANY.RUN → TA569 attribution + IoC expansion</div><div class="tldetail">Powiązanie z TA569. Uzyskano dodatkowe domeny i IP nieobecne w pierwotnym alercie.</div></div>
-    <div class="tlr g"><div class="tltime">14 Jan 2025 * ~14:00</div><div class="tlevent">Org-wide KQL hunt → odkrycie KWORKSTATION-B</div><div class="tldetail">Advanced Hunting (DeviceNetworkEvents, ostatnie 4 dni). KWORKSTATION-B łączyło się z loopconstruct[.]com 11.01. Timeline + skan potwierdziły ostropizza[.]pl jako initial access.</div></div>
+    <div class="tlr g"><div class="tltime">14 Jan 2025 * ~14:00</div><div class="tlevent">Org-wide KQL hunt → odkrycie WORKSTATION-B</div><div class="tldetail">Advanced Hunting (DeviceNetworkEvents, ostatnie 4 dni). KWORKSTATION-B łączyło się z loopconstruct[.]com 11.01. Timeline + skan potwierdziły ostropizza[.]pl jako initial access.</div></div>
   </div>
 </div>
 
@@ -130,7 +130,7 @@ footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);displ
     <thead><tr><th>Type</th><th>Indicator</th><th>Context</th><th>Verdict</th></tr></thead>
     <tbody>
       <tr><td>Domain</td><td><span class="ioc-d">radoscdawania[.]pl</span></td><td>Compromised WP - initial access WORKSTATION-A</td><td><span class="bdg r">Malicious</span></td></tr>
-      <tr><td>Domain</td><td><span class="ioc-d">ostropizza[.]pl</span></td><td>Compromised WP - initial access KWORKSTATION-B</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">ostropizza[.]pl</span></td><td>Compromised WP - initial access WORKSTATION-B</td><td><span class="bdg r">Malicious</span></td></tr>
       <tr><td>Domain</td><td><span class="ioc-d">blacksaltys[.]com</span></td><td>C2 domain - injected script</td><td><span class="bdg r">C2</span></td></tr>
       <tr><td>Domain</td><td><span class="ioc-d">blackshelter[.]org</span></td><td>C2 domain</td><td><span class="bdg r">C2</span></td></tr>
       <tr><td>Domain</td><td><span class="ioc-d">speedchaoptimise[.]com</span></td><td>C2 domain</td><td><span class="bdg r">C2</span></td></tr>
