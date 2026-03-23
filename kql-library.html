@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KQL Detection Library — Microsoft Defender Advanced Hunting</title>
+<title>KQL Detection Library - Microsoft Defender Advanced Hunting</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
 :root{--bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--border2:#1e2e45;--cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;--purple:#c084fc;--blue:#4da6ff;--text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;}
@@ -91,7 +91,7 @@ footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--border);displ
 <div class="eyebrow">Microsoft Defender · Advanced Hunting</div>
 <h1>KQL <span>Detection Library</span></h1>
 <p class="subtitle">
-  Kolekcja reguł detekcji i zapytań Advanced Hunting używanych w Microsoft Defender XDR i Microsoft Sentinel. Każde zapytanie oparte na realnych przypadkach z produkcji — dostosowane do eliminacji false positives. Mapowanie MITRE ATT&CK dla każdej reguły.
+  Kolekcja reguł detekcji i zapytań Advanced Hunting używanych w Microsoft Defender XDR i Microsoft Sentinel. Każde zapytanie oparte na realnych przypadkach z produkcji - dostosowane do eliminacji false positives. Mapowanie MITRE ATT&CK dla każdej reguły.
 </p>
 
   <div class="stats">
@@ -108,13 +108,13 @@ footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--border);displ
   <div class="qcard-header">
     <span class="qcard-tactic tactic-cred">Credential Access</span>
     <span class="qcard-title">Failed Logon Detection</span>
-    <span class="qcard-mitre">T1110 — Brute Force</span>
+    <span class="qcard-mitre">T1110 - Brute Force</span>
   </div>
   <div class="qcard-body">
-    <div class="qcard-desc">Wykrywa nieudane próby logowania z agregacją per konto i źródłowe IP. Próg 5 prób w oknie 1h ogranicza szum — dostosuj do środowiska. Wyklucza znane wewnętrzne IP. Oryginalne zapytanie używało okna 1m które w Custom Detection Rule (min. harmonogram 1h) było bezużyteczne — poprawiono na agregację z progiem.</div>
+    <div class="qcard-desc">Wykrywa nieudane próby logowania z agregacją per konto i źródłowe IP. Próg 5 prób w oknie 1h ogranicza szum - dostosuj do środowiska. Wyklucza znane wewnętrzne IP. Oryginalne zapytanie używało okna 1m które w Custom Detection Rule (min. harmonogram 1h) było bezużyteczne - poprawiono na agregację z progiem.</div>
     <div class="code-wrap">
       <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-      <pre class="code-block"><span class="cm">// [Credential Access] Failed logon — aggregated (v2)</span>
+      <pre class="code-block"><span class="cm">// [Credential Access] Failed logon - aggregated (v2)</span>
 <span class="kw">DeviceLogonEvents</span>
 <span class="op">|</span> <span class="fn">where</span> Timestamp <span class="op">&gt;</span> <span class="fn">ago</span>(1h)
 <span class="op">|</span> <span class="fn">where</span> ActionType <span class="fn">contains</span> <span class="str">"LogonFailed"</span>
@@ -130,7 +130,7 @@ footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--border);displ
     AccountName, RemoteIP, FailCount, ReportId, DeviceId
 <span class="op">|</span> <span class="fn">sort by</span> FailCount <span class="fn">desc</span></pre>
     </div>
-    <div class="qcard-tags"><span class="tag r">Brute Force</span><span class="tag c">DeviceLogonEvents</span><span class="tag g">T1110</span><span class="tag o">v2 — aggregated</span></div>
+    <div class="qcard-tags"><span class="tag r">Brute Force</span><span class="tag c">DeviceLogonEvents</span><span class="tag g">T1110</span><span class="tag o">v2 - aggregated</span></div>
   </div>
 </div>
 
@@ -138,7 +138,7 @@ footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--border);displ
   <div class="qcard-header">
     <span class="qcard-tactic tactic-cred">Credential Access</span>
     <span class="qcard-title">LSASS Memory Dump (Credential Dumping)</span>
-    <span class="qcard-mitre">T1003.001 — LSASS Memory</span>
+    <span class="qcard-mitre">T1003.001 - LSASS Memory</span>
   </div>
   <div class="qcard-body">
     <div class="qcard-desc">Wykrywa próby dumpowania pamięci procesu lsass.exe przy użyciu narzędzi takich jak ProcDump. Technika używana do kradzieży hashy i ticketów Kerberos.</div>
@@ -157,7 +157,7 @@ footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--border);displ
   <div class="qcard-header">
     <span class="qcard-tactic tactic-cred">Initial Access · Credential Access</span>
     <span class="qcard-title">Login from Outside Poland</span>
-    <span class="qcard-mitre">T1078 — Valid Accounts</span>
+    <span class="qcard-mitre">T1078 - Valid Accounts</span>
   </div>
   <div class="qcard-body">
     <div class="qcard-desc">Wykrywa udane logowania do Entra ID z lokalizacji poza Polską. Przydatne do wykrywania przejętych kont i podejrzanego dostępu z nieznanych lokalizacji. Lista wykluczeń kont pozwala na tuning pod konta techniczne i serwisowe.</div>
@@ -183,10 +183,10 @@ footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--border);displ
   <div class="qcard-header">
     <span class="qcard-tactic tactic-cred">Credential Access</span>
     <span class="qcard-title">Failed Login Attempt from Outside Poland</span>
-    <span class="qcard-mitre">T1110 · T1078 — Brute Force / Valid Accounts</span>
+    <span class="qcard-mitre">T1110 · T1078 - Brute Force / Valid Accounts</span>
   </div>
   <div class="qcard-body">
-    <div class="qcard-desc">Uzupełnienie poprzedniego zapytania — wykrywa <strong>nieudane</strong> próby logowania spoza Polski. Próba logowania z Rosji, Chin czy Korei jest interesująca nawet jeśli się nie powiodła — może wskazywać na credential stuffing lub aktywne targetowanie konta. Agregacja per konto i kraj eliminuje szum.</div>
+    <div class="qcard-desc">Uzupełnienie poprzedniego zapytania - wykrywa <strong>nieudane</strong> próby logowania spoza Polski. Próba logowania z Rosji, Chin czy Korei jest interesująca nawet jeśli się nie powiodła - może wskazywać na credential stuffing lub aktywne targetowanie konta. Agregacja per konto i kraj eliminuje szum.</div>
     <div class="code-wrap">
       <button class="copy-btn" onclick="copyCode(this)">Copy</button>
       <pre class="code-block"><span class="cm">// [Credential Access] Failed login from outside PL</span>
@@ -218,7 +218,7 @@ footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--border);displ
   <div class="qcard-header">
     <span class="qcard-tactic tactic-lat">Lateral Movement</span>
     <span class="qcard-title">SSH Connection Attempt</span>
-    <span class="qcard-mitre">T1021.004 — Remote Services: SSH</span>
+    <span class="qcard-mitre">T1021.004 - Remote Services: SSH</span>
   </div>
   <div class="qcard-body">
     <div class="qcard-desc">Wykrywa próby nawiązania połączeń SSH zarówno z procesów jak i na poziomie sieci. Wyklucza znane legitne wywołania (diagnostyczne, Azure DevOps). Obsługuje środowiska Windows i Linux.</div>
@@ -261,7 +261,7 @@ ssh_process_events
     <span class="qcard-mitre">T1021.006 · T1569.002</span>
   </div>
   <div class="qcard-body">
-    <div class="qcard-desc">Wykrywa zdalne wykonanie poleceń przez PsExec lub PowerShell Remoting. Lista wykluczeń obejmuje znane legitne przypadki (Exchange management, AD Sync) — tuning krytyczny dla ograniczenia false positives.</div>
+    <div class="qcard-desc">Wykrywa zdalne wykonanie poleceń przez PsExec lub PowerShell Remoting. Lista wykluczeń obejmuje znane legitne przypadki (Exchange management, AD Sync) - tuning krytyczny dla ograniczenia false positives.</div>
     <div class="code-wrap">
       <button class="copy-btn" onclick="copyCode(this)">Copy</button>
       <pre class="code-block"><span class="cm">// [Lateral Movement] Remote command execution (PsExec, PowerShell Remoting)</span>
@@ -292,7 +292,7 @@ ssh_process_events
     <span class="qcard-mitre">T1059.001 · T1027</span>
   </div>
   <div class="qcard-body">
-    <div class="qcard-desc">Wykrywa uruchomienie PowerShell z flagą -EncodedCommand lub -enc — klasyczna technika obfuskacji payloadów. Wyklucza znane legitne zakodowane polecenia (np. systemowe sprawdzanie wersji OS).</div>
+    <div class="qcard-desc">Wykrywa uruchomienie PowerShell z flagą -EncodedCommand lub -enc - klasyczna technika obfuskacji payloadów. Wyklucza znane legitne zakodowane polecenia (np. systemowe sprawdzanie wersji OS).</div>
     <div class="code-wrap">
       <button class="copy-btn" onclick="copyCode(this)">Copy</button>
       <pre class="code-block"><span class="cm">// [Exploitation] PowerShell with EncodedCommand</span>
@@ -311,13 +311,13 @@ ssh_process_events
   <div class="qcard-header">
     <span class="qcard-tactic tactic-exec">Execution · Defense Evasion</span>
     <span class="qcard-title">Suspicious LOLBin Usage</span>
-    <span class="qcard-mitre">T1218 — Signed Binary Proxy Execution</span>
+    <span class="qcard-mitre">T1218 - Signed Binary Proxy Execution</span>
   </div>
   <div class="qcard-body">
-    <div class="qcard-desc">Wykrywa użycie popularnych Living-off-the-Land Binaries. Rozszerzona lista o <code>rundll32.exe</code> i <code>regasm.exe</code> — równie popularne LOLBin często pomijane w regułach. Poprawiono exclusion: każdy plik ma oddzielne wykluczenia żeby uniknąć sytuacji gdzie warunki dla jednego binarnego blokują wykrywanie innego.</div>
+    <div class="qcard-desc">Wykrywa użycie popularnych Living-off-the-Land Binaries. Rozszerzona lista o <code>rundll32.exe</code> i <code>regasm.exe</code> - równie popularne LOLBin często pomijane w regułach. Poprawiono exclusion: każdy plik ma oddzielne wykluczenia żeby uniknąć sytuacji gdzie warunki dla jednego binarnego blokują wykrywanie innego.</div>
     <div class="code-wrap">
       <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-      <pre class="code-block"><span class="cm">// [Execution] Suspicious LOLBin usage (v2 — extended)</span>
+      <pre class="code-block"><span class="cm">// [Execution] Suspicious LOLBin usage (v2 - extended)</span>
 <span class="kw">DeviceProcessEvents</span>
 <span class="op">|</span> <span class="fn">where</span> FileName <span class="fn">in~</span> (
     <span class="str">"mshta.exe"</span>,
@@ -327,21 +327,21 @@ ssh_process_events
     <span class="str">"rundll32.exe"</span>,   <span class="cm">// added: common LOLBin</span>
     <span class="str">"regasm.exe"</span>       <span class="cm">// added: .NET assembly execution</span>
 )
-<span class="cm">// wmic exclusions — monitoring queries</span>
+<span class="cm">// wmic exclusions - monitoring queries</span>
 <span class="op">|</span> <span class="fn">where</span> <span class="fn">not</span> (FileName <span class="op">=~</span> <span class="str">"wmic.exe"</span> <span class="fn">and</span> ProcessCommandLine <span class="fn">has_any</span> (
     <span class="str">"cpu get loadpercentage"</span>,
     <span class="str">"FreePhysicalMemory"</span>))
-<span class="cm">// certutil exclusions — legitimate certificate operations</span>
+<span class="cm">// certutil exclusions - legitimate certificate operations</span>
 <span class="op">|</span> <span class="fn">where</span> <span class="fn">not</span> (FileName <span class="op">=~</span> <span class="str">"certutil.exe"</span> <span class="fn">and</span> ProcessCommandLine <span class="fn">has_any</span> (
     <span class="str">"-store"</span>, <span class="str">"-viewstore"</span>, <span class="str">"-addstore"</span>))
-<span class="cm">// rundll32 exclusions — known system calls</span>
+<span class="cm">// rundll32 exclusions - known system calls</span>
 <span class="op">|</span> <span class="fn">where</span> <span class="fn">not</span> (FileName <span class="op">=~</span> <span class="str">"rundll32.exe"</span> <span class="fn">and</span> ProcessCommandLine <span class="fn">has_any</span> (
     <span class="str">"printui.dll"</span>, <span class="str">"shell32.dll,Control_RunDLL"</span>))
 <span class="op">|</span> <span class="fn">project</span> Timestamp, DeviceName, AccountName, FileName,
     ProcessCommandLine, InitiatingProcessFileName,
     InitiatingProcessCommandLine, ReportId, DeviceId</pre>
     </div>
-    <div class="qcard-tags"><span class="tag p">LOLBin · LOTL</span><span class="tag p">mshta · certutil · rundll32</span><span class="tag c">DeviceProcessEvents</span><span class="tag g">T1218</span><span class="tag o">v2 — extended</span></div>
+    <div class="qcard-tags"><span class="tag p">LOLBin · LOTL</span><span class="tag p">mshta · certutil · rundll32</span><span class="tag c">DeviceProcessEvents</span><span class="tag g">T1218</span><span class="tag o">v2 - extended</span></div>
   </div>
 </div>
 
@@ -352,13 +352,13 @@ ssh_process_events
   <div class="qcard-header">
     <span class="qcard-tactic tactic-pers">Persistence</span>
     <span class="qcard-title">Suspicious File in Startup Folder</span>
-    <span class="qcard-mitre">T1547.001 — Registry Run Keys / Startup Folder</span>
+    <span class="qcard-mitre">T1547.001 - Registry Run Keys / Startup Folder</span>
   </div>
   <div class="qcard-body">
-    <div class="qcard-desc">Wykrywa utworzenie pliku wykonywalnego lub skryptu w folderach Startup. Poprawiono błąd logiczny w oryginalnym zapytaniu — warunek wykluczenia używał <code>and</code> zamiast <code>or</code>, przez co wykluczał tylko sytuację gdy WSZYSTKIE warunki były prawdziwe jednocześnie (praktycznie nigdy). Zmieniono na oddzielne wykluczenia per aplikacja.</div>
+    <div class="qcard-desc">Wykrywa utworzenie pliku wykonywalnego lub skryptu w folderach Startup. Poprawiono błąd logiczny w oryginalnym zapytaniu - warunek wykluczenia używał <code>and</code> zamiast <code>or</code>, przez co wykluczał tylko sytuację gdy WSZYSTKIE warunki były prawdziwe jednocześnie (praktycznie nigdy). Zmieniono na oddzielne wykluczenia per aplikacja.</div>
     <div class="code-wrap">
       <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-      <pre class="code-block"><span class="cm">// [Persistence] Suspicious file in startup folder (v2 — fixed logic)</span>
+      <pre class="code-block"><span class="cm">// [Persistence] Suspicious file in startup folder (v2 - fixed logic)</span>
 <span class="fn">let</span> legitApps = <span class="fn">pack_array</span>(
     <span class="str">"LegitApp1.exe"</span>,   <span class="cm">// add known-good startup files</span>
     <span class="str">"LegitApp2.lnk"</span>    <span class="cm">// per environment tuning</span>
@@ -381,7 +381,7 @@ ssh_process_events
     InitiatingProcessFileName, InitiatingProcessCommandLine,
     ActionType, ReportId, DeviceId</pre>
     </div>
-    <div class="qcard-tags"><span class="tag y">Persistence</span><span class="tag y">Startup Folder</span><span class="tag c">DeviceFileEvents</span><span class="tag g">T1547.001</span><span class="tag o">v2 — logic fix</span></div>
+    <div class="qcard-tags"><span class="tag y">Persistence</span><span class="tag y">Startup Folder</span><span class="tag c">DeviceFileEvents</span><span class="tag g">T1547.001</span><span class="tag o">v2 - logic fix</span></div>
   </div>
 </div>
 
@@ -389,10 +389,10 @@ ssh_process_events
   <div class="qcard-header">
     <span class="qcard-tactic tactic-pers">Persistence</span>
     <span class="qcard-title">Registry Autostart Key Added</span>
-    <span class="qcard-mitre">T1547.001 — Registry Run Keys</span>
+    <span class="qcard-mitre">T1547.001 - Registry Run Keys</span>
   </div>
   <div class="qcard-body">
-    <div class="qcard-desc">Wykrywa dodanie wartości do kluczy rejestru Run i RunOnce — najczęściej używany mechanizm persistence przez malware. Proste i skuteczne — warto połączyć z whitelistą znanych legitnych wpisów.</div>
+    <div class="qcard-desc">Wykrywa dodanie wartości do kluczy rejestru Run i RunOnce - najczęściej używany mechanizm persistence przez malware. Proste i skuteczne - warto połączyć z whitelistą znanych legitnych wpisów.</div>
     <div class="code-wrap">
       <button class="copy-btn" onclick="copyCode(this)">Copy</button>
       <pre class="code-block"><span class="cm">// [Persistence] Added registry autostart key</span>
@@ -412,10 +412,10 @@ ssh_process_events
   <div class="qcard-header">
     <span class="qcard-tactic tactic-recon">Reconnaissance</span>
     <span class="qcard-title">Possible Port Scan Detected</span>
-    <span class="qcard-mitre">T1046 — Network Service Discovery</span>
+    <span class="qcard-mitre">T1046 - Network Service Discovery</span>
   </div>
   <div class="qcard-body">
-    <div class="qcard-desc">Wykrywa potencjalny port scan na podstawie liczby nieudanych/zablokowanych połączeń z jednego źródłowego IP w oknie 1h. Próg 30 prób — dostosuj do środowiska. Dodano kierunek skanu (Inbound/Outbound) i LocalIP do projektu dla lepszego kontekstu przy triażu alertu. Wyklucza Defender Sense i znane wewnętrzne skanery.</div>
+    <div class="qcard-desc">Wykrywa potencjalny port scan na podstawie liczby nieudanych/zablokowanych połączeń z jednego źródłowego IP w oknie 1h. Próg 30 prób - dostosuj do środowiska. Dodano kierunek skanu (Inbound/Outbound) i LocalIP do projektu dla lepszego kontekstu przy triażu alertu. Wyklucza Defender Sense i znane wewnętrzne skanery.</div>
     <div class="code-wrap">
       <button class="copy-btn" onclick="copyCode(this)">Copy</button>
       <pre class="code-block"><span class="cm">// [Recon] Possible port scan detected (v2)</span>
@@ -445,7 +445,7 @@ base
     ScanAttempt, PortsScanned, ReportId
 <span class="op">|</span> <span class="fn">sort by</span> ScanAttempt <span class="fn">desc</span></pre>
     </div>
-    <div class="qcard-tags"><span class="tag g">Port Scan</span><span class="tag c">DeviceNetworkEvents</span><span class="tag g">T1046</span><span class="tag o">v2 — direction + ports</span></div>
+    <div class="qcard-tags"><span class="tag g">Port Scan</span><span class="tag c">DeviceNetworkEvents</span><span class="tag g">T1046</span><span class="tag o">v2 - direction + ports</span></div>
   </div>
 </div>
 
@@ -453,10 +453,10 @@ base
   <div class="qcard-header">
     <span class="qcard-tactic tactic-disc">Discovery</span>
     <span class="qcard-title">New Device Discovered (Unonboarded)</span>
-    <span class="qcard-mitre">T1018 — Remote System Discovery</span>
+    <span class="qcard-mitre">T1018 - Remote System Discovery</span>
   </div>
   <div class="qcard-body">
-    <div class="qcard-desc">Wykrywa nowe urządzenia w sieci które nie są onboardowane do Defendera. Mechanizm stabilizacji (minSamples) eliminuje "mignięcia" — urządzenie musi być widoczne co najmniej 2 razy w oknie. Wyklucza urządzenia ze wcześniejszych okien czasowych aby ograniczyć szum.</div>
+    <div class="qcard-desc">Wykrywa nowe urządzenia w sieci które nie są onboardowane do Defendera. Mechanizm stabilizacji (minSamples) eliminuje "mignięcia" - urządzenie musi być widoczne co najmniej 2 razy w oknie. Wyklucza urządzenia ze wcześniejszych okien czasowych aby ograniczyć szum.</div>
     <div class="code-wrap">
       <button class="copy-btn" onclick="copyCode(this)">Copy</button>
       <pre class="code-block"><span class="cm">// [Device Discovery] New Device Discovered</span>
@@ -499,10 +499,10 @@ base
   <div class="qcard-header">
     <span class="qcard-tactic tactic-mal">Malware</span>
     <span class="qcard-title">Possible Remcos RAT Connection</span>
-    <span class="qcard-mitre">T1071 · T1055 — C2 via RAT</span>
+    <span class="qcard-mitre">T1071 · T1055 - C2 via RAT</span>
   </div>
   <div class="qcard-body">
-    <div class="qcard-desc">Reguła detekcji stworzona podczas aktywnego incydentu — wykrywa połączenia z domeną C2 Remcos RAT przez proces colorcpl.exe (Color Control Panel — technika DLL hijacking / process masquerading). Przykład reguły pisanej reaktywnie podczas IR.</div>
+    <div class="qcard-desc">Reguła detekcji stworzona podczas aktywnego incydentu - wykrywa połączenia z domeną C2 Remcos RAT przez proces colorcpl.exe (Color Control Panel - technika DLL hijacking / process masquerading). Przykład reguły pisanej reaktywnie podczas IR.</div>
     <div class="code-wrap">
       <button class="copy-btn" onclick="copyCode(this)">Copy</button>
       <pre class="code-block"><span class="cm">// [Malware] Possible Remcos RAT connection</span>
@@ -522,10 +522,10 @@ base
     <span class="qcard-mitre">Threat Hunting · IR Support</span>
   </div>
   <div class="qcard-body">
-    <div class="qcard-desc">Szablon do przeszukiwania całej organizacji pod kątem znanych IoC — domeny, IP, hashe plików, nazwy plików. Używany podczas IR do sprawdzania czy dany IoC pojawił się gdziekolwiek w środowisku. Obsługuje jednoczesne przeszukiwanie wielu tabel Defendera.</div>
+    <div class="qcard-desc">Szablon do przeszukiwania całej organizacji pod kątem znanych IoC - domeny, IP, hashe plików, nazwy plików. Używany podczas IR do sprawdzania czy dany IoC pojawił się gdziekolwiek w środowisku. Obsługuje jednoczesne przeszukiwanie wielu tabel Defendera.</div>
     <div class="code-wrap">
       <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-      <pre class="code-block"><span class="cm">// IoC Search — multi-table hunt template</span>
+      <pre class="code-block"><span class="cm">// IoC Search - multi-table hunt template</span>
 <span class="fn">let</span> payloadsdomain = <span class="fn">pack_array</span>(<span class="str">""</span>);     <span class="cm">// C2 / payload domains</span>
 <span class="fn">let</span> redirectdomain = <span class="fn">pack_array</span>(<span class="str">""</span>);     <span class="cm">// redirect domains</span>
 <span class="fn">let</span> ips            = <span class="fn">pack_array</span>(<span class="str">""</span>);     <span class="cm">// malicious IPs</span>
@@ -563,7 +563,7 @@ Timestamp <span class="fn">between</span> (<span class="fn">ago</span>(30d) .. <
     <span class="qcard-mitre">Security Hygiene · Compliance</span>
   </div>
   <div class="qcard-body">
-    <div class="qcard-desc">Wykrywa urządzenia które nie ukończyły pełnego skanu Defendera od ponad 14 dni — obejmuje zarówno anulowane jak i nierozpoczęte skany. Wyklucza urządzenia oznaczone flagą IsExcluded (np. serwery z wyłączonym AV).</div>
+    <div class="qcard-desc">Wykrywa urządzenia które nie ukończyły pełnego skanu Defendera od ponad 14 dni - obejmuje zarówno anulowane jak i nierozpoczęte skany. Wyklucza urządzenia oznaczone flagą IsExcluded (np. serwery z wyłączonym AV).</div>
     <div class="code-wrap">
       <button class="copy-btn" onclick="copyCode(this)">Copy</button>
       <pre class="code-block"><span class="cm">// [INFO] Missing Full Scan (14+ days)</span>
@@ -607,13 +607,13 @@ Timestamp <span class="fn">between</span> (<span class="fn">ago</span>(30d) .. <
   <div class="qcard-header">
     <span class="qcard-tactic tactic-info">Informational</span>
     <span class="qcard-title">Mass Email Send (300+ in 5 minutes)</span>
-    <span class="qcard-mitre">T1534 · T1566 — Internal Spearphishing / BEC</span>
+    <span class="qcard-mitre">T1534 · T1566 - Internal Spearphishing / BEC</span>
   </div>
   <div class="qcard-body">
-    <div class="qcard-desc">Wykrywa konta wysyłające ponad 300 maili w ciągu 5 minut — wskaźnik przejętego konta email lub kampanii BEC. Próg dostosowany do typowego wolumenu wysyłki w środowisku — może wymagać tuningu.</div>
+    <div class="qcard-desc">Wykrywa konta wysyłające ponad 300 maili w ciągu 5 minut - wskaźnik przejętego konta email lub kampanii BEC. Próg dostosowany do typowego wolumenu wysyłki w środowisku - może wymagać tuningu.</div>
     <div class="code-wrap">
       <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-      <pre class="code-block"><span class="cm">// [INFO] Mass email send — possible BEC / compromised account</span>
+      <pre class="code-block"><span class="cm">// [INFO] Mass email send - possible BEC / compromised account</span>
 <span class="kw">EmailEvents</span>
 <span class="op">|</span> <span class="fn">where</span> Timestamp <span class="op">&gt;</span> <span class="fn">ago</span>(5m)
 <span class="op">|</span> <span class="fn">summarize</span>
