@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THREAT-008 - PGE eBOK Phishing · Card Harvesting · IP Blocking Panel</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{--bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--border2:#1e2e45;--cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;--purple:#c084fc;--blue:#4da6ff;--text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 20%,rgba(255,69,96,.03) 0%,transparent 55%),radial-gradient(ellipse 50% 35% at 85% 75%,rgba(255,123,44,.02) 0%,transparent 55%),linear-gradient(rgba(0,217,245,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,217,245,.015) 1px,transparent 1px);background-size:100% 100%,100% 100%,44px 44px,44px 44px;pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--red);}
+.nav span{color:var(--border);}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--red);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--red);box-shadow:0 0 6px var(--red);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:20px;}
+h1 span{color:var(--red);}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:32px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.o{color:var(--orange);}.mv.g{color:var(--green);}.mv.c{color:var(--cyan);}.mv.y{color:var(--yellow);}.mv.p{color:var(--purple);}
+.notice{border-radius:6px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px;font-size:12px;line-height:1.8;}
+.notice.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.2);}
+.notice.orange{background:rgba(255,123,44,.04);border:1px solid rgba(255,123,44,.2);}
+.notice.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.2);}
+.notice-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.notice-body strong{color:var(--white);}
+.notice.green .notice-body strong{color:var(--green);}
+.notice.orange .notice-body strong{color:var(--orange);}
+.notice.red .notice-body strong{color:var(--red);}
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.g{color:var(--green);}.sl.c{color:var(--cyan);}.sl.o{color:var(--orange);}.sl.y{color:var(--yellow);}.sl.p{color:var(--purple);}
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(255,69,96,.08);border:1px solid rgba(255,69,96,.2);color:var(--red);padding:1px 6px;border-radius:2px;font-size:11px;}
+/* kill chain */
+.kc{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:20px;}
+.kcs{flex:1;min-width:80px;background:var(--card);padding:12px 14px;border-right:1px solid var(--border);}
+.kcs:last-child{border-right:none;}
+.kcs.a{background:rgba(255,69,96,.04);border-bottom:2px solid var(--red);}
+.kcs.a .kcn{color:var(--red);}
+.kcs.g{background:rgba(61,255,143,.04);border-bottom:2px solid var(--green);}
+.kcs.g .kcn{color:var(--green);}
+.kcnum{font-size:9px;color:var(--muted);margin-bottom:4px;}
+.kcn{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px;}
+.kct{font-size:10px;color:var(--muted);}
+/* stages */
+.stage{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
+.stage-header{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.stage-num{font-size:9px;font-weight:700;color:var(--white);background:var(--red);padding:2px 8px;border-radius:2px;letter-spacing:1px;}
+.stage-num.o{background:var(--orange);}
+.stage-num.p{background:var(--purple);}
+.stage-title{font-size:12px;font-weight:700;color:var(--white);}
+.stage-body{padding:14px 18px;font-size:12px;color:var(--text);line-height:1.8;}
+.stage-body code{background:rgba(255,69,96,.08);border:1px solid rgba(255,69,96,.15);color:var(--red);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage-body .hl{color:var(--orange);font-weight:700;}
+.stage-body .hl-r{color:var(--red);font-weight:700;}
+/* code block */
+.code-wrap{position:relative;margin:12px 0;}
+.code-block{background:#020508;border:1px solid var(--border);border-radius:4px;padding:16px 18px;font-size:11px;line-height:1.8;overflow-x:auto;color:#a8c0d6;white-space:pre;}
+.code-block .kw{color:var(--cyan);}
+.code-block .fn{color:var(--yellow);}
+.code-block .str{color:var(--green);}
+.code-block .cm{color:var(--muted);font-style:italic;}
+.code-block .hl{color:var(--red);font-weight:700;}
+/* IOC */
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(255,69,96,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.ioc-d{color:var(--orange);word-break:break-all;}
+.ioc-url{color:var(--red);word-break:break-all;font-size:10px;}
+.bdg{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.bdg.r{background:rgba(255,69,96,.12);color:var(--red);border:1px solid rgba(255,69,96,.25);}
+.bdg.o{background:rgba(255,123,44,.12);color:var(--orange);border:1px solid rgba(255,123,44,.25);}
+.bdg.y{background:rgba(255,209,102,.12);color:var(--yellow);border:1px solid rgba(255,209,102,.25);}
+.bdg.g{background:rgba(61,255,143,.1);color:var(--green);border:1px solid rgba(61,255,143,.2);}
+.bdg.p{background:rgba(192,132,252,.1);color:var(--purple);border:1px solid rgba(192,132,252,.2);}
+/* MITRE */
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--red);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+/* boxes */
+.box{border-radius:6px;padding:14px 18px;font-size:12px;line-height:1.8;margin-bottom:14px;}
+.box.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.15);border-left:3px solid var(--red);}
+.box.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.15);border-left:3px solid var(--green);}
+.box.yellow{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);border-left:3px solid var(--yellow);}
+.box.orange{background:rgba(255,123,44,.04);border:1px solid rgba(255,123,44,.15);border-left:3px solid var(--orange);}
+.box.purple{background:rgba(192,132,252,.04);border:1px solid rgba(192,132,252,.15);border-left:3px solid var(--purple);}
+.box strong{color:var(--white);}
+.box code{background:rgba(255,255,255,.06);padding:1px 6px;border-radius:2px;font-size:11px;color:var(--yellow);}
+/* panel insight box */
+.panel-box{background:rgba(192,132,252,.04);border:2px solid rgba(192,132,252,.25);border-radius:6px;padding:16px 20px;margin:16px 0;}
+.panel-box-title{font-size:11px;font-weight:700;color:var(--purple);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.panel-box-title::before{content:'🔍';font-size:14px;}
+.panel-box-body{font-size:12px;color:var(--text);line-height:1.8;}
+.panel-box-body strong{color:var(--white);}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+@media(max-width:600px){.kc{flex-direction:column;}.kcs{border-right:none;border-bottom:1px solid var(--border);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="nav"><a href="index.html">← Portfolio</a><span>/</span><span style="color:var(--text)">THREAT-008</span></nav>
+
+<header>
+  <div class="eyebrow">Incident Writeup · Phishing · Panel Analysis</div>
+  <h1>THREAT-008 - <span>PGE eBOK Phishing</span><br>Card Harvesting · Credential Theft · IP Blocking Panel</h1>
+  <div class="meta">
+    <div class="mc"><div class="ml">ID</div><div class="mv r">THREAT-008</div></div>
+    <div class="mc"><div class="ml">Date</div><div class="mv">30 Mar 2026</div></div>
+    <div class="mc"><div class="ml">Severity</div><div class="mv r">HIGH</div></div>
+    <div class="mc"><div class="ml">Verdict</div><div class="mv r">True Positive</div></div>
+    <div class="mc"><div class="ml">Vector</div><div class="mv r">Phishing Email</div></div>
+    <div class="mc"><div class="ml">Lure</div><div class="mv y">Zwrot nadpłaty PGE</div></div>
+    <div class="mc"><div class="ml">Harvest</div><div class="mv r">Credentials + Card</div></div>
+    <div class="mc"><div class="ml">Infrastructure</div><div class="mv o">nlpnetwork.me</div></div>
+    <div class="mc"><div class="ml">Panel feature</div><div class="mv p">IP Blocking + Live tracking</div></div>
+    <div class="mc"><div class="ml">Reported to</div><div class="mv g">CERT Polska ✓</div></div>
+  </div>
+</header>
+
+<div class="notice green">
+  <div class="notice-icon">✅</div>
+  <div class="notice-body"><strong>Zgłoszone przez użytkownika + zgłoszone do CERT Polska.</strong> Incydent wykryty dzięki czujności użytkownika. Kampania zgłoszona do CERT Polska. Pełny łańcuch przeanalizowany manualnie w Windows Sandbox z inspekcją kodu źródłowego strony phishingowej.</div>
+</div>
+
+<div class="notice orange">
+  <div class="notice-icon">🔍</div>
+  <div class="notice-body"><strong>Unikalne ustalenie: kod panelu phishingowego w źródle strony.</strong> Analiza kodu źródłowego ujawniła mechanizm IP blocking z plikiem <code>blocked_ips.txt</code> oraz real-time user tracking (online/offline status). To jest rzadkość w analizie phishingu - zwykle widać tylko front-end harvesting form, nie backend panel logic.</div>
+</div>
+
+<!-- EXEC SUMMARY -->
+<div class="sec">
+  <div class="sl c">Executive Summary</div>
+  <p class="pr">30 marca 2026 użytkownik zgłosił wiadomość email podszywającą się pod <strong>PGE Polska Grupa Energetyczna</strong> z informacją o zwrocie nadpłaty w wysokości <strong>279,79 PLN</strong> z tytułu podwójnej płatności. Link w mailu prowadził na domenę <code>settlement-poland.nlpnetwork[.]me</code> - pixel-perfect kopię systemu <strong>PGE eBOK</strong>.</p>
+  <p class="pr">Kampania realizowała <strong>dwuetapowy harvesting</strong>: najpierw kradzież danych logowania (email + hasło do konta PGE), następnie kradzież danych karty kredytowej (numer, data ważności, CVV) pod pretekstem "wymaganej metody zwrotu". Analiza kodu źródłowego strony ujawniła mechanizm <strong>IP blocking</strong> - strona sprawdza IP odwiedzającego co 500ms i przekierowuje na zewnętrzną stronę jeśli IP jest na liście blokowanych (np. analitycy, sandboxes, CERT). Dodatkowo panel śledzi status użytkownika (online/offline) w czasie rzeczywistym.</p>
+</div>
+
+<!-- KILL CHAIN -->
+<div class="sec">
+  <div class="sl">Attack Chain - 5 etapów</div>
+  <div class="kc">
+    <div class="kcs a"><div class="kcnum">01</div><div class="kcn">Phishing Email</div><div class="kct">Zwrot nadpłaty PGE</div></div>
+    <div class="kcs a"><div class="kcnum">02</div><div class="kcn">Fake PGE Login</div><div class="kct">Credential harvest</div></div>
+    <div class="kcs a"><div class="kcnum">03</div><div class="kcn">Loading redirect</div><div class="kct">loading.php - weryfikacja</div></div>
+    <div class="kcs a"><div class="kcnum">04</div><div class="kcn">Card Harvest</div><div class="kct">PAN · expiry · CVV</div></div>
+    <div class="kcs g"><div class="kcnum">✓</div><div class="kcn">Reported</div><div class="kct">User + CERT Polska</div></div>
+  </div>
+</div>
+
+<!-- TECHNICAL ANALYSIS -->
+<div class="sec">
+  <div class="sl">Analiza techniczna - etap po etapie</div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">STAGE 1</span><span class="stage-title">Phishing Email - lure "Zwrot nadpłaty PGE 279,79 PLN"</span></div>
+    <div class="stage-body">
+      Mail wysłany przez system certcapture.avalara.io - autentyczną platformę do obsługi compliance podatkowego, prawdopodobnie skompromitowaną lub nadużytą do wysyłki. Temat: <span class="hl">"DOTYCZY: ZWROTU NADPŁATY Z TYTUŁU PODWóJNEJ PŁATNOŚCI"</span>. Treść informuje o nadpłacie 279,79 PLN i kieruje do linka "Przejdź do potwierdzenia zwrotu".<br><br>
+      Link w mailu jest owijany przez certcapture.avalara.io/ls/click - co maskuje docelową domenę phishingową i nadaje mu wiarygodność przez reputację avalara.io. Kwota 279,79 PLN jest wystarczająco konkretna i niska żeby nie wzbudzać podejrzeń - klasyczny lure finansowy.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">STAGE 2</span><span class="stage-title">Fake PGE eBOK Login - credential harvesting</span></div>
+    <div class="stage-body">
+      Domena: <code>settlement-poland.nlpnetwork[.]me/klsjiudf/pages/login.php</code><br><br>
+      Strona to pixel-perfect kopia PGE eBOK - logo, kolory, layout, stopka z numerami telefonów, linki do App Store i Google Play. Formularz logowania zbiera email i hasło. Widoczne w DevTools: zasoby z <code>fonts.googleapis.com</code> i <code>fonts.gstatic.com</code> - prawdziwe CDN używane dla uwiarygodnienia. Strona oferuje też "Zaloguj przez Google" i "Zaloguj przez Facebook" - prawdopodobnie dodatkowe wektory kradzieży kont social media.<br><br>
+      <span class="hl-r">Subdomena klsjiudf</span> - randomowy string identyfikujący kampanię lub ofiarę, podobnie jak w poprzednich przypadkach (verication-casefb309505, invaginate.mom).
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num o">STAGE 3</span><span class="stage-title">loading.php + alert.php - fake "weryfikacja konta"</span></div>
+    <div class="stage-body">
+      Po wpisaniu danych logowania użytkownik trafia na <code>loading.php</code> z komunikatem "Weryfikujemy Twoje dane. Wkrótce zostaniesz przekierowany na następną stronę." - identyczny mechanizm jak w THREAT-004 (PayU) i THREAT-006 (Sway). Następnie <code>alert.php</code> wyświetla "Informacja: Na Twoim koncie stwierdzono nadpłatę w wysokości <strong>279,79 PLN</strong>. Możesz zlecić zwrot środków na rachunek bankowy." z przyciskiem "Zleć zwrot nadpłaty".<br><br>
+      Ten etap pełni dwie funkcje: <span class="hl">uwiarygodnienie</span> (symuluje prawdziwy proces weryfikacji w systemie) oraz <span class="hl">czas</span> na przetworzenie przez panel skradzionych credentials przed przejściem do kolejnego etapu.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">STAGE 4</span><span class="stage-title">step-one.php - card harvesting z fałszywymi "danymi zlecenia"</span></div>
+    <div class="stage-body">
+      Formularz karty kredytowej (numer, data ważności MM/YY, CVV) obok sekcji "Bliższe dane" zawierającej szczegóły pozornie autentycznej transakcji:<br><br>
+      · Kwota do zwrócenia: <span class="hl">PLN 279,79</span><br>
+      · Numer zamówienia: <span class="hl">ffba7993e4a923735e0fa99bb8ab284b</span> (losowy hash)<br>
+      · Odbiorca: PGE Polska<br>
+      · Numer klienta: 101061041<br>
+      · Numer faktury: 101061041/239S/2025<br><br>
+      Szczegóły po prawej stronie mają jeden cel - sprawić wrażenie że formularz karty to jednorazowe uwierzytelnienie do konkretnej transakcji, nie kradzież danych. Użytkownik widzi "oficjalnie wyglądające" numery i instynktownie ufa że to autentyczny formularz bankowy.
+    </div>
+  </div>
+
+  <!-- PANEL ANALYSIS -->
+  <div class="panel-box">
+    <div class="panel-box-title">Unikalne ustalenie - kod panelu phishingowego w źródle strony</div>
+    <div class="panel-box-body">
+      Analiza kodu źródłowego strony ujawniła fragment JavaScript który normalnie nie jest widoczny dla ofiary - logika backendu panelu phishingowego pozostawiona przez atakującego w źródle strony. Zawiera dwa mechanizmy:<br><br>
+      <strong>1. IP Blocking z automatycznym przekierowaniem:</strong><br>
+      Skrypt pobiera plik <code>../panel/actions/blocked_ips.txt</code> co 500ms i sprawdza czy IP odwiedzającego jest na liście. Jeśli tak - natychmiastowe przekierowanie na <code>https://www.superhonda.com/</code> (legalna strona dealera Honda - prawdopodobnie losowo wybrana jako "niewinny" cel przekierowania). Mechanizm ten chroni stronę phishingową przed skanerami bezpieczeństwa, sandboxami CERT i analitykami których IP jest znane.<br><br>
+      <strong>2. Real-time user presence tracking:</strong><br>
+      Skrypt wysyła POST co 1 sekundę do <code>../includes/check-status.php</code> z parametrem <code>id_user=759947</code> i statusem online/offline. Operator panelu widzi w czasie rzeczywistym czy ofiara jest aktywna na stronie - to pozwala na natychmiastową reakcję (np. ręczne logowanie na konto ofiary ze skradzionymi credentials zanim ofiara zorientuje się że coś jest nie tak).
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <pre class="code-block"><span class="cm">// Fragment kodu źródłowego strony phishingowej - panel backend logic</span>
+<span class="cm">// userId identyfikuje konkretną sesję/ofiarę w panelu atakującego</span>
+<span class="kw">var</span> userId=<span class="str">'759947'</span>;
+
+<span class="cm">// IP Blocking - sprawdzane co 500ms</span>
+<span class="kw">function</span> <span class="fn">checkBlockedIP</span>(){
+  <span class="fn">fetch</span>(<span class="str">"../panel/actions/blocked_ips.txt"</span>)
+    .<span class="fn">then</span>(n => n.<span class="fn">text</span>())
+    .<span class="fn">then</span>(n => {
+      <span class="kw">let</span> s = n.<span class="fn">trim</span>().<span class="fn">split</span>(<span class="str">"\n"</span>);
+      <span class="cm">// jeśli IP analityka/CERT jest na liście → redirect na niewinną stronę</span>
+      s.<span class="fn">includes</span>(<span class="hl">"37.248.163.247"</span>) &&
+        window.location.<span class="fn">replace</span>(<span class="str">"https://www.superhonda.com/"</span>)
+    })
+}
+
+<span class="cm">// Real-time presence tracking - online/offline co 1 sekundę</span>
+<span class="fn">setInterval</span>(<span class="kw">function</span>(){
+  document.<span class="fn">hasFocus</span>()
+    ? <span class="fn">updateStatus</span>(<span class="str">'&lt;span class="online"&gt;Online&lt;/span&gt;'</span>)
+    : <span class="fn">updateStatus</span>(<span class="str">'&lt;span class="offline"&gt;Offline&lt;/span&gt;'</span>)
+}, 1000);
+
+<span class="cm">// Panel endpoint - zbiera status dla userId=759947</span>
+$.ajax({
+  url: <span class="str">"../includes/check-status.php"</span>,
+  type: <span class="str">"POST"</span>,
+  data: { userStatus: status, <span class="hl">id_user: userId</span> }
+});
+
+<span class="fn">checkBlockedIP</span>();
+<span class="fn">setInterval</span>(checkBlockedIP, <span class="hl">500</span>); <span class="cm">// co 500ms sprawdzaj IP</span></pre>
+  </div>
+</div>
+
+<!-- IOC -->
+<div class="sec">
+  <div class="sl r">Indicators of Compromise</div>
+  <table class="it">
+    <thead><tr><th>Type</th><th>Indicator</th><th>Context</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>Domain</td><td><span class="ioc-d">settlement-poland.nlpnetwork[.]me</span></td><td>Primary phishing domain - fake PGE eBOK</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-url">settlement-poland.nlpnetwork[.]me/klsjiudf/pages/login.php</span></td><td>Fake PGE login - credential harvest</td><td><span class="bdg r">Phishing</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-url">settlement-poland.nlpnetwork[.]me/klsjiudf/pages/loading.php</span></td><td>Fake "weryfikacja" redirect</td><td><span class="bdg r">Phishing</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-url">settlement-poland.nlpnetwork[.]me/klsjiudf/pages/step-one.php</span></td><td>Card harvesting form - PAN · expiry · CVV</td><td><span class="bdg r">Phishing</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-url">settlement-poland.nlpnetwork[.]me/klsjiudf/pages/alert.php</span></td><td>Fake "nadpłata" info page</td><td><span class="bdg r">Phishing</span></td></tr>
+      <tr><td>Panel endpoint</td><td><span class="ioc-url">settlement-poland.nlpnetwork[.]me/klsjiudf/panel/actions/blocked_ips.txt</span></td><td>IP blocklist - analysts/CERT IPs</td><td><span class="bdg p">Panel IoC</span></td></tr>
+      <tr><td>Panel endpoint</td><td><span class="ioc-url">settlement-poland.nlpnetwork[.]me/klsjiudf/includes/check-status.php</span></td><td>Real-time victim tracking endpoint</td><td><span class="bdg p">Panel IoC</span></td></tr>
+      <tr><td>Campaign ID</td><td><span class="ioc-d">userId = 759947</span></td><td>Session/campaign identifier in panel</td><td><span class="bdg y">IOC</span></td></tr>
+      <tr><td>Lure amount</td><td><span class="ioc-d">PLN 279,79 - "zwrot nadpłaty"</span></td><td>Social engineering amount - specific to appear legitimate</td><td><span class="bdg o">Pattern</span></td></tr>
+      <tr><td>Email relay</td><td><span class="ioc-d">certcapture.avalara.io</span></td><td>Legitimate compliance platform abused for email delivery</td><td><span class="bdg o">Abused legit</span></td></tr>
+      <tr><td>Redirect target</td><td><span class="ioc-d">superhonda.com</span></td><td>Innocent redirect target for blocked IPs</td><td><span class="bdg y">Informational</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- MITRE -->
+<div class="sec">
+  <div class="sl p">MITRE ATT&amp;CK</div>
+  <div class="mg">
+    <div class="mc2"><div class="mid">T1566.002</div><div class="mname">Phishing - Spearphishing Link</div><div class="mtactic">Initial Access</div></div>
+    <div class="mc2"><div class="mid">T1056.003</div><div class="mname">Web Portal Capture - Credential + Card Harvest</div><div class="mtactic">Collection</div></div>
+    <div class="mc2"><div class="mid">T1036.005</div><div class="mname">Masquerade - Match Legitimate Name (PGE eBOK)</div><div class="mtactic">Defense Evasion</div></div>
+    <div class="mc2"><div class="mid">T1497.001</div><div class="mname">Virtualization/Sandbox Evasion - IP Blocking</div><div class="mtactic">Defense Evasion</div></div>
+    <div class="mc2"><div class="mid">T1102</div><div class="mname">Web Service Abuse (avalara.io email relay)</div><div class="mtactic">C2 · Resource Development</div></div>
+    <div class="mc2"><div class="mid">T1598.003</div><div class="mname">Phishing for Information - PII + financial data</div><div class="mtactic">Reconnaissance</div></div>
+  </div>
+</div>
+
+<!-- RED FLAGS -->
+<div class="sec">
+  <div class="sl y">Red Flags - jak rozpoznać tę kampanię</div>
+  <div class="box yellow">
+    <strong>1. Domena ≠ pge.pl:</strong> Autentyczny PGE eBOK to wyłącznie <code>ebok.pge.pl</code>. Każda inna domena - niezależnie od wyglądu strony - to phishing. <code>settlement-poland.nlpnetwork.me</code> nie ma żadnego związku z PGE.<br><br>
+    <strong>2. PGE nigdy nie prosi o dane karty kredytowej do "zwrotu":</strong> Zwrot nadpłaty trafia na konto bankowe powiązane z umową - nie wymaga podania numeru karty. Formularz karty = red flag bezwzględny.<br><br>
+    <strong>3. Link w mailu przez pośrednika (avalara.io):</strong> Legalne powiadomienia PGE są wysyłane z domeny @pge.pl i zawierają linki bezpośrednio do ebok.pge.pl - nie przez zewnętrzne platformy trackingowe.<br><br>
+    <strong>4. "Numer zamówienia" jako losowy hash:</strong> <code>ffba7993e4a923735e0fa99bb8ab284b</code> to losowo wygenerowany MD5 - prawdziwe systemy używają numerycznych identyfikatorów w określonym formacie.
+  </div>
+</div>
+
+<!-- REMEDIATION -->
+<div class="sec">
+  <div class="sl g">Działania i rekomendacje</div>
+  <div class="box green">
+    <strong>✔ Działania podjęte:</strong><br>
+    · Pełna analiza łańcucha ataku w Windows Sandbox<br>
+    · Analiza kodu źródłowego - identyfikacja IP blocking i user tracking<br>
+    · Zgłoszenie do CERT Polska (incydent.cert.pl)<br>
+    · Potwierdzenie że dane użytkownika nie zostały skompromitowane
+  </div>
+  <div class="box orange">
+    <strong>⚠ Dodatkowe zgłoszenia do wykonania:</strong><br>
+    · Zgłosić domenę <code>nlpnetwork.me</code> do rejestratora (.me registry - ICANN)<br>
+    · Zgłosić abuse avalara.io do security@avalara.com - platforma była używana jako email relay<br>
+    · Zgłosić do CERT Polska IP z blocked_ips.txt jako potencjalny IoC infrastruktury atakującego
+  </div>
+  <div class="box purple">
+    <strong>💡 Threat Intelligence - IP blocking jako wskaźnik profesjonalizmu kampanii:</strong><br>
+    Obecność mechanizmu IP blocking w panelu phishingowym wskazuje że kampania jest prowadzona przez doświadczonych operatorów lub używa komercyjnego phishing-as-a-service kit. Amatorskie kampanie takiego mechanizmu nie mają. Sprawdzenie czy <code>nlpnetwork.me</code> hostuje inne kampanie phishingowe (VirusTotal passive DNS, urlscan.io) może ujawnić szerszą infrastrukturę tego samego aktora.
+  </div>
+  <div class="box red">
+    <strong>🔴 Rekomendacje dla organizacji:</strong><br>
+    · Szkolenie użytkowników: PGE / dostawcy energii nigdy nie proszą o dane karty do zwrotu nadpłaty - zawsze weryfikuj domenę przed wpisaniem czegokolwiek<br>
+    · Email gateway: dodać regułę flagującą maile z linkami przez certcapture.avalara.io do zewnętrznych domen<br>
+    · Phishing awareness: pokazać użytkownikom jak sprawdzić domenę w pasku adresu - ten przypadek jest szczególnie dobry do szkolenia bo strona wygląda perfekcyjnie
+  </div>
+</div>
+
+<footer><span>// THREAT-008 · 30.03.2026 · Phishing Analysis · Panel Reverse Engineering</span><span>Tools: Windows Sandbox · DevTools · Manual source analysis · Reported to CERT Polska</span></footer>
+</div>
+</body>
+</html>
