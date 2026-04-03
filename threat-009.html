@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THREAT-009 - iCloud / Google Cloud Scareware Campaign · Multi-Variant Affiliate · Card Harvesting</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{--bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--border2:#1e2e45;--cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;--purple:#c084fc;--blue:#4da6ff;--text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 20%,rgba(192,132,252,.03) 0%,transparent 55%),radial-gradient(ellipse 50% 35% at 85% 75%,rgba(255,123,44,.02) 0%,transparent 55%),linear-gradient(rgba(0,217,245,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,217,245,.015) 1px,transparent 1px);background-size:100% 100%,100% 100%,44px 44px,44px 44px;pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--purple);}
+.nav span{color:var(--border);}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--purple);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--purple);box-shadow:0 0 6px var(--purple);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:20px;}
+h1 span{color:var(--purple);}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:32px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.o{color:var(--orange);}.mv.g{color:var(--green);}.mv.c{color:var(--cyan);}.mv.y{color:var(--yellow);}.mv.p{color:var(--purple);}
+.notice{border-radius:6px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px;font-size:12px;line-height:1.8;}
+.notice.purple{background:rgba(192,132,252,.04);border:1px solid rgba(192,132,252,.2);}
+.notice.orange{background:rgba(255,123,44,.04);border:1px solid rgba(255,123,44,.2);}
+.notice.yellow{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.2);}
+.notice-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.notice-body strong{color:var(--white);}
+.notice.purple .notice-body strong{color:var(--purple);}
+.notice.orange .notice-body strong{color:var(--orange);}
+.notice.yellow .notice-body strong{color:var(--yellow);}
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--purple);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.r{color:var(--red);}.sl.g{color:var(--green);}.sl.c{color:var(--cyan);}.sl.o{color:var(--orange);}.sl.y{color:var(--yellow);}
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.2);color:var(--purple);padding:1px 6px;border-radius:2px;font-size:11px;}
+/* kill chain */
+.kc{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:20px;}
+.kcs{flex:1;min-width:80px;background:var(--card);padding:12px 14px;border-right:1px solid var(--border);}
+.kcs:last-child{border-right:none;}
+.kcs.p{background:rgba(192,132,252,.04);border-bottom:2px solid var(--purple);}
+.kcs.p .kcn{color:var(--purple);}
+.kcs.r{background:rgba(255,69,96,.04);border-bottom:2px solid var(--red);}
+.kcs.r .kcn{color:var(--red);}
+.kcs.o{background:rgba(255,123,44,.04);border-bottom:2px solid var(--orange);}
+.kcs.o .kcn{color:var(--orange);}
+.kcnum{font-size:9px;color:var(--muted);margin-bottom:4px;}
+.kcn{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px;}
+.kct{font-size:10px;color:var(--muted);}
+/* campaign timeline */
+.timeline{display:flex;flex-direction:column;gap:0;margin-bottom:16px;}
+.tl-item{display:grid;grid-template-columns:110px 1fr;gap:0;border-bottom:1px solid var(--border);}
+.tl-item:last-child{border-bottom:none;}
+.tl-date{background:var(--card);padding:12px 14px;font-size:11px;font-weight:700;color:var(--yellow);border-right:1px solid var(--border);}
+.tl-content{padding:12px 16px;font-size:11px;color:var(--text);line-height:1.7;}
+.tl-content code{background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.15);color:var(--purple);padding:1px 5px;border-radius:2px;font-size:10px;}
+.tl-content .sender{color:var(--orange);}
+/* stages */
+.stage{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
+.stage-header{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.stage-num{font-size:9px;font-weight:700;color:var(--white);background:var(--purple);padding:2px 8px;border-radius:2px;letter-spacing:1px;}
+.stage-num.r{background:var(--red);}
+.stage-num.o{background:var(--orange);}
+.stage-title{font-size:12px;font-weight:700;color:var(--white);}
+.stage-body{padding:14px 18px;font-size:12px;color:var(--text);line-height:1.8;}
+.stage-body code{background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.15);color:var(--purple);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage-body .hl{color:var(--orange);font-weight:700;}
+.stage-body .hlr{color:var(--red);font-weight:700;}
+/* affiliate diagram */
+.aff-grid{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:0;margin:16px 0;}
+.aff-node{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;text-align:center;}
+.aff-node .an-label{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.aff-node .an-val{font-size:11px;font-weight:700;}
+.aff-node.affiliate .an-val{color:var(--yellow);}
+.aff-node.network .an-val{color:var(--purple);}
+.aff-node.merchant .an-val{color:var(--red);}
+.aff-arrow{font-size:18px;color:var(--muted);padding:0 8px;text-align:center;}
+/* code block */
+.code-wrap{position:relative;margin:12px 0;}
+.code-block{background:#020508;border:1px solid var(--border);border-radius:4px;padding:16px 18px;font-size:11px;line-height:1.8;overflow-x:auto;color:#a8c0d6;white-space:pre;}
+.code-block .kw{color:var(--cyan);}
+.code-block .fn{color:var(--yellow);}
+.code-block .str{color:var(--green);}
+.code-block .cm{color:var(--muted);font-style:italic;}
+.code-block .hl{color:var(--orange);font-weight:700;}
+.code-block .hlp{color:var(--purple);font-weight:700;}
+/* IOC */
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(192,132,252,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--purple);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.ioc-d{color:var(--orange);word-break:break-all;}
+.ioc-p{color:var(--purple);word-break:break-all;font-size:10px;}
+.bdg{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.bdg.r{background:rgba(255,69,96,.12);color:var(--red);border:1px solid rgba(255,69,96,.25);}
+.bdg.o{background:rgba(255,123,44,.12);color:var(--orange);border:1px solid rgba(255,123,44,.25);}
+.bdg.y{background:rgba(255,209,102,.12);color:var(--yellow);border:1px solid rgba(255,209,102,.25);}
+.bdg.p{background:rgba(192,132,252,.1);color:var(--purple);border:1px solid rgba(192,132,252,.2);}
+.bdg.g{background:rgba(61,255,143,.1);color:var(--green);border:1px solid rgba(61,255,143,.2);}
+/* MITRE */
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--purple);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+/* boxes */
+.box{border-radius:6px;padding:14px 18px;font-size:12px;line-height:1.8;margin-bottom:14px;}
+.box.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.15);border-left:3px solid var(--red);}
+.box.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.15);border-left:3px solid var(--green);}
+.box.yellow{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);border-left:3px solid var(--yellow);}
+.box.orange{background:rgba(255,123,44,.04);border:1px solid rgba(255,123,44,.15);border-left:3px solid var(--orange);}
+.box.purple{background:rgba(192,132,252,.04);border:1px solid rgba(192,132,252,.15);border-left:3px solid var(--purple);}
+.box strong{color:var(--white);}
+.box code{background:rgba(255,255,255,.06);padding:1px 6px;border-radius:2px;font-size:11px;color:var(--yellow);}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+@media(max-width:640px){.kc{flex-direction:column;}.kcs{border-right:none;border-bottom:1px solid var(--border);}.aff-grid{grid-template-columns:1fr;}.aff-arrow{transform:rotate(90deg);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="nav"><a href="index.html">← Portfolio</a><span>/</span><span style="color:var(--text)">THREAT-009</span></nav>
+
+<header>
+  <div class="eyebrow">Incident Writeup · Scareware · Affiliate Campaign · Multi-Variant</div>
+  <h1>THREAT-009 - <span>iCloud / Google Cloud Scareware Campaign</span><br>Affiliate Tracking · Multi-Lure · Multi-Variant · Card Harvesting</h1>
+  <div class="meta">
+    <div class="mc"><div class="ml">ID</div><div class="mv p">THREAT-009</div></div>
+    <div class="mc"><div class="ml">Dates</div><div class="mv">10 Mar - 3 Apr 2026</div></div>
+    <div class="mc"><div class="ml">Severity</div><div class="mv o">MEDIUM</div></div>
+    <div class="mc"><div class="ml">Verdict</div><div class="mv r">True Positive</div></div>
+    <div class="mc"><div class="ml">Vector</div><div class="mv r">Spam Email × 13+</div></div>
+    <div class="mc"><div class="ml">Warianty</div><div class="mv y">iCloud · Google Cloud · Scareware</div></div>
+    <div class="mc"><div class="ml">Type</div><div class="mv p">Scareware + Card Harvest</div></div>
+    <div class="mc"><div class="ml">Infrastructure</div><div class="mv o">Affiliate network</div></div>
+    <div class="mc"><div class="ml">Tracker A</div><div class="mv p">trk-brevinate.com</div></div>
+    <div class="mc"><div class="ml">Tracker B</div><div class="mv c">further-choose-fat-addition.run</div></div>
+    <div class="mc"><div class="ml">Final payload</div><div class="mv r">TotalDrive / TotalAV / Adblock</div></div>
+  </div>
+</header>
+
+<div class="notice purple">
+  <div class="notice-icon">🔍</div>
+  <div class="notice-body"><strong>Kluczowe ustalenie: ta sama sieć affiliate - wiele wariantów, wiele skrzynek.</strong> Kampania zaobserwowana na dwóch różnych skrzynkach pocztowych, z różnych adresów nadawców, używająca różnych lure'ów (iCloud, Google Cloud®, generic "Cloud®") i różnych domen pośrednich - ale prowadząca do tej samej rodziny produktów końcowych (TotalDrive / TotalAV / TotalAdblock). Dwa różne trackery konwersji (<code>trk-brevinate.com</code>, <code>trk.further-choose-fat-addition.run</code>) wskazują na co najmniej dwóch różnych operatorów affiliate w tej samej sieci.</div>
+</div>
+
+<div class="notice orange">
+  <div class="notice-icon">⚠️</div>
+  <div class="notice-body"><strong>Technika: brand impersonation + scareware + urgency engineering.</strong> Kampania rotuje imitowane brandy (Apple iCloud, Google Cloud) i typy lure'ów (przepełnienie miejsca, przejęcie konta, skanowanie złośliwych plików). Geotargeting: wariant B używa ceny <strong>7,00 zł</strong> zamiast 19€ - wskazuje na dynamiczne dostosowanie oferty do lokalizacji ofiary (PL). Cel identyczny: formularz karty kredytowej + auto-odnowienie 99€/rok.</div>
+</div>
+
+<div class="notice yellow">
+  <div class="notice-icon">💡</div>
+  <div class="notice-body"><strong>Klasyfikacja: Scareware / Crapware / Subscription fraud.</strong> Produkty "TotalDrive", "TotalAV" i "TotalAdblock" są prawdopodobnie realnie istniejącymi ale bezużytecznymi aplikacjami sprzedawanymi przez agresywną sieć affiliate. Celem jest zarówno kradzież danych karty jak i wyłudzenie opłaty (19€ / 7 zł → 99€/rok auto-odnowienie). Wariant B blokuje view-source przez JavaScript jako dodatkową technikę anty-analizy.</div>
+</div>
+
+<!-- EXEC SUMMARY -->
+<div class="sec">
+  <div class="sl c">Executive Summary</div>
+  <p class="pr">W okresie 16 marca - 3 kwietnia 2026 kampania zaobserwowana na <strong>dwóch różnych skrzynkach pocztowych</strong>, łącznie co najmniej 6 emaili z różnych domen nadawcy. Kampania operuje w modelu affiliate CPA z rotacją imitowanych brandów: <strong>Wariant A</strong> - fake iCloud/scareware przejęcia konta, <strong>Wariant B</strong> - fake Google Cloud® z geotargetingiem PLN i systemowym skanowaniem złośliwych plików.</p>
+  <p class="pr">Oba warianty prowadzą do tej samej rodziny produktów końcowych: <code>secure.totaldrive[.]com</code>, <code>secure.totaladblock[.]com</code>, <code>secure.totalav[.]com</code> - formularz zakupu z pełnym harvesting danych karty. Infrastruktura pośrednia (domeny landing page, trackery konwersji) różni się między wariantami, co wskazuje na <strong>co najmniej dwóch różnych operatorów affiliate</strong> działających w tej samej sieci.</p>
+  <p class="pr">Wariant B dodatkowo blokuje inspekcję kodu źródłowego (Ctrl+U) przez JavaScript - prawdopodobnie przez override zdarzenia klawiatury lub przekierowanie URL - jako technikę anty-analizy. Kod udało się pozyskać dopiero po wielokrotnym kliknięciu Wstecz, które ujawniło alternatywną gałąź kampanii (<code>programsmartspeedfast[.]autos</code>) z własnym trackerem i anti-back-button.</p>
+</div>
+
+<!-- CAMPAIGN TIMELINE -->
+<div class="sec">
+  <div class="sl y">Timeline kampanii - 13 emaili · 24 dni aktywności · 3 wzorce infrastruktury</div>
+
+  <div class="box orange" style="margin-bottom:16px;">
+    <strong>📊 Skala kampanii:</strong> Łącznie <strong>13 emaili</strong> (10 Mar - 3 Apr 2026) na tej samej skrzynce Gmail. Trzy wzorce generowania adresów nadawców wskazują na automatyczny system masowego spamowania z rotacją relay co kilka dni. Współdzielone relay: <code>allergywinter.org.uk</code> (×2), <code>ran1.*</code> (×2) - dowód wspólnej infrastruktury wysyłkowej między wzorcami P1 i P2.
+  </div>
+
+  <div class="timeline" style="background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">10 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--purple);font-weight:700;">[P2]</span> <code>noor...@639260998.ettepwltigwmzixus[.]org[.]uk</code> przez <code>jbekdbrbwk.ran1.wjbet-4[.]com</code></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">10 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--orange);font-weight:700;">[P1]</span> <code>uvwp35...@bduoc17hps6[.]us</code> przez <code>jmmbdeueyvqieovlvf.sgwlcdag5xf2wex.oasiscodespace[.]co</code></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">11 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--orange);font-weight:700;">[P1]</span> <code>l5p0i...@28x37wrgcr[.]us</code> przez <code>mwwogqccws.hl0jrx9wuob6abp9.allergywinter[.]org[.]uk</code> ← relay #1</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">11 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--purple);font-weight:700;">[P2]</span> <code>noor...@1374275605347.qtbaveqyjjuaisya[.]org[.]uk</code> przez <code>dqtzrvyngt.ran1.77sorte9[.]com</code></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">12 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--orange);font-weight:700;">[P1]</span> <code>6ojmbs...@im2zru1veodj[.]us</code> przez <code>keystonestream[.]info</code></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">14 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--orange);font-weight:700;">[P1]</span> <code>7e932...@isgdx6i41t[.]us</code> przez <code>sljioetzanmddt.rsb2lhhzu0ns6oyvaei.allergywinter[.]org[.]uk</code> ← relay #2 · ten sam <code>allergywinter.org.uk</code></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">16 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--purple);font-weight:700;">[P2-iCloud]</span> <code>corwin@...asinn-stiftung[.]de</code> · lure: iCloud storage · skompromitowana subdomena niemiecka</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">17 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--purple);font-weight:700;">[P2-iCloud]</span> <code>carroll@...sipgreen[.]uk</code> · lure: iCloud storage · VoIP provider, przejęta subdomena</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">17 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--purple);font-weight:700;">[P2-iCloud]</span> <code>labadie@...vende-tu-movil[.]com</code> · lure: iCloud storage · hiszpański marketplace</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">20 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--orange);font-weight:700;">[P1]</span> <code>x2p4x...@9pj8k7s8z23[.]us</code> przez <code>joinaxisgroup[.]co</code></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">22 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--purple);font-weight:700;">[P2-iCloud]</span> <code>info@diathils[.]info</code> · lure: iCloud storage · dedykowana domena kampanii</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">23 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--purple);font-weight:700;">[P2]</span> <code>noor...@14335906.otcwbvxnpwrsniuiaq[.]org[.]uk</code> przez <code>oxkzsrrwvm.etufegypt[.]com</code></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">23 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--purple);font-weight:700;">[P2]</span> <code>noor...@123286610.yevwqodmdhmdhaznn[.]org[.]uk</code> przez <code>csushuwbyj.microsoft365brasil[.]com[.]br</code> · relay przez abused Microsoft-branded domain</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">23 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--purple);font-weight:700;">[P2]</span> <code>noor...@6071685787420.juuelrssyeersybh[.]org[.]uk</code> przez <code>efszkqwiwj.webtreeonline[.]in</code> · <strong>3 emaile w jeden dzień</strong></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">25 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--yellow);font-weight:700;">[P3]</span> <code>oyxan@yandex[.]ru</code> (display: <em>Platnosc_odrzucona</em>) · <em>"Zdjęcie i wideo zostały wykonane 24 marca 2026"</em> × 2 · Yandex jako sender - ta sama infrastruktura affiliate potwierdzona screenem</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;">26 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--purple);font-weight:700;">[P2-iCloud]</span> <code>communications@ictally[.]info</code> (display: <em>iCL0UD</em> - zero typosquat) · lure: scareware "TRWA PRZEJĘCIE KONTA"</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;color:var(--cyan);">31 Mar 2026</div>
+      <div class="tl-content"><span style="color:var(--cyan);font-weight:700;">[VAR-B]</span> <code>noor...@29396072.fvnmpkfczfychwvltk[.]org[.]uk</code> przez <code>domino4dbc[.]com</code> · lure: generic "Cloud®" · landing: <code>singlelane[.]lat</code> → <code>safe-smart-defense-reliable[.]autos</code> · cena: <strong style="color:var(--red);">7,00 zł</strong> (geotargeting PL) · "Go" zamiast "GB"</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date" style="font-size:9px;color:var(--yellow);">3 Apr 2026</div>
+      <div class="tl-content"><span style="color:var(--yellow);font-weight:700;">[P3]</span> <code>09jcxwl7qxm@ustieomqw6c.lasterwinsd.saigonlotto[.]com</code> (display: <em>Cloud_Update™</em>) · landing: <code>singlelane[.]lat</code> · <span style="color:var(--red);">IP ofiary w URL: <code>&amp;ip=94.254.229.1</code></span> · <code>&amp;domain=www.burmap[.]com</code> jako nowa domena finalna</div>
+    </div>
+  </div>
+
+  <p class="pr" style="margin-top:14px;font-size:11px;">
+    <strong style="color:var(--orange);">P1 ●</strong> sender: losowy hash <code>@*.us</code>, relay: losowy prefix + abused domena ·
+    <strong style="color:var(--purple);">P2 ●</strong> sender: numer + losowy string <code>@*.org.uk</code>, relay: różne abused domeny ·
+    <strong style="color:var(--yellow);">P3 ●</strong> outliers: Yandex native, saigonlotto.com subdomain ·
+    <strong style="color:var(--cyan);">VAR-B ●</strong> Google Cloud lure, geotargeting PLN.
+    Wspólna infrastruktura potwierdzana przez pokrywające się relay domains i identyczny UI landing page (<code>singlelane.lat</code> obsługuje emaile z P3 i VAR-B).
+  </p>
+</div>
+
+<!-- KILL CHAIN -->
+<div class="sec">
+  <div class="sl">Attack Chain - Wariant A (iCloud / Cloud)</div>
+  <div class="kc">
+    <div class="kcs p"><div class="kcnum">01</div><div class="kcn">Spam Email</div><div class="kct">13+ senderów · 24 dni</div></div>
+    <div class="kcs p"><div class="kcnum">02</div><div class="kcn">Fake iCloud/Cloud</div><div class="kct">impawnunsung.motorcycles<br>singlelane.lat</div></div>
+    <div class="kcs p"><div class="kcnum">03</div><div class="kcn">Scareware</div><div class="kct">freesmartdevice.autos</div></div>
+    <div class="kcs r"><div class="kcnum">04</div><div class="kcn">Card Harvest</div><div class="kct">secure.totaldrive.com<br>burmap.com</div></div>
+    <div class="kcs o"><div class="kcnum">💰</div><div class="kcn">Double hit</div><div class="kct">19€ fee + card data</div></div>
+  </div>
+  <div class="sl c" style="margin-top:20px;">Attack Chain - Wariant B (Google Cloud / System Scan)</div>
+  <div class="kc">
+    <div class="kcs" style="background:rgba(0,217,245,.04);border-bottom:2px solid var(--cyan);"><div class="kcnum" style="color:var(--muted);">01</div><div class="kcn" style="color:var(--cyan);">Spam Email</div><div class="kct">P2/P3 senderzy</div></div>
+    <div class="kcs" style="background:rgba(0,217,245,.04);border-bottom:2px solid var(--cyan);"><div class="kcnum" style="color:var(--muted);">02</div><div class="kcn" style="color:var(--cyan);">Fake Google Cloud</div><div class="kct">safe-smart-defense-reliable.autos</div></div>
+    <div class="kcs" style="background:rgba(0,217,245,.04);border-bottom:2px solid var(--cyan);"><div class="kcnum" style="color:var(--muted);">02b</div><div class="kcn" style="color:var(--cyan);">Alt: System Scan</div><div class="kct">programsmartspeedfast.autos</div></div>
+    <div class="kcs r"><div class="kcnum">03</div><div class="kcn">Card Harvest</div><div class="kct">secure.totalav.com</div></div>
+    <div class="kcs o"><div class="kcnum">💰</div><div class="kcn">Double hit</div><div class="kct">7 zł / 19€ + card data</div></div>
+  </div>
+</div>
+
+<!-- AFFILIATE ARCHITECTURE -->
+<div class="sec">
+  <div class="sl p">Architektura sieci affiliate - kluczowe ustalenie</div>
+  <div class="aff-grid">
+    <div class="aff-node affiliate">
+      <div class="an-label">Affiliate operatorzy</div>
+      <div class="an-val">5 domen wysyłkowych</div>
+    </div>
+    <div class="aff-arrow">→</div>
+    <div class="aff-node network">
+      <div class="an-label">Affiliate network</div>
+      <div class="an-val">twointj.com<br>trk-brevinate.com</div>
+    </div>
+    <div class="aff-arrow">→</div>
+    <div class="aff-node merchant">
+      <div class="an-label">Merchant / Final</div>
+      <div class="an-val">totaldrive.com<br>totaladblock.com</div>
+    </div>
+  </div>
+  <p class="pr">Każdy email wysłany przez innego "affiliate" zawiera unikalny zestaw parametrów trackingowych który identyfikuje źródło ruchu i pozwala na rozliczenie prowizji. Ruch przechodzi przez <code>twointj.com</code> (redirect broker) i <code>trk-brevinate.com</code> (konwersja tracker) zanim dotrze do finalnej strony zakupu.</p>
+
+  <div class="code-wrap">
+    <pre class="code-block"><span class="cm">// Kod źródłowy impawnunsung.motorcycles - affiliate tracking JavaScript</span>
+<span class="cm">// Ujawniony przez inspekcję view-source w przeglądarce</span>
+
+<span class="cm">// Redirect broker z zakodowanymi parametrami affiliate</span>
+<span class="kw">var</span> redirect = <span class="hl">"https://www.twointj.com/cmp/2SFN28H/42P5QX7/"</span>;
+
+<span class="cm">// Parametry sub1-sub5 = identyfikatory affiliate, kampanii, źródła</span>
+<span class="cm">// encoded_value = zakodowany identyfikator ofiary/sesji</span>
+document.<span class="fn">getElementById</span>(<span class="str">'button1'</span>).<span class="fn">addEventListener</span>(<span class="str">"click"</span>, <span class="kw">function</span>(){
+    <span class="kw">var</span> urlParams     = <span class="kw">new</span> <span class="fn">URLSearchParams</span>(window.location.search);
+    <span class="kw">var</span> encodedValue  = urlParams.<span class="fn">get</span>(<span class="str">'encoded_value'</span>);  <span class="cm">// victim session ID</span>
+    <span class="kw">var</span> source_id     = urlParams.<span class="fn">get</span>(<span class="str">'source_id'</span>);      <span class="cm">// traffic source</span>
+    <span class="kw">var</span> domain        = urlParams.<span class="fn">get</span>(<span class="str">'domain'</span>);
+    <span class="kw">var</span> sub1          = urlParams.<span class="fn">get</span>(<span class="str">'sub1'</span>);           <span class="cm">// affiliate ID</span>
+    <span class="kw">var</span> sub2          = urlParams.<span class="fn">get</span>(<span class="str">'sub2'</span>);           <span class="cm">// campaign ID</span>
+    <span class="kw">var</span> sub3          = urlParams.<span class="fn">get</span>(<span class="str">'sub3'</span>);
+    <span class="kw">var</span> sub4          = urlParams.<span class="fn">get</span>(<span class="str">'sub4'</span>);
+    <span class="kw">var</span> sub5          = urlParams.<span class="fn">get</span>(<span class="str">'sub5'</span>);
+
+    <span class="cm">// Redirect do merchantu z pełnym trackingiem konwersji</span>
+    window.location.href = <span class="str">"https://"</span> + domain +
+        <span class="str">"/cmp/"</span> + encodedValue +
+        <span class="str">"/73H5RHN/?source_id="</span> + source_id +
+        <span class="str">"&sub1="</span> + sub1 + <span class="str">"&sub2="</span> + sub2 +
+        <span class="str">"&sub3="</span> + sub3 + <span class="str">"&sub4="</span> + sub4 +
+        <span class="str">"&sub5="</span> + sub5;
+});
+
+<span class="cm">// Konwersja tracker - rejestruje każde kliknięcie</span>
+script.src = <span class="hlp">"https://trk-brevinate.com/scripts/push/script/o7g9x7qg36?"</span> +
+    <span class="str">"url="</span> + <span class="fn">encodeURI</span>(self.location.hostname) +
+    <span class="str">"&alturl="</span> + <span class="fn">encodeURI</span>(self.location.pathname);
+script.onload = <span class="kw">function</span>() { push_init(); push_subscribe(); };</pre>
+  </div>
+
+  <div class="box purple">
+    <strong>Co ten kod ujawnia o infrastrukturze atakujących:</strong><br>
+    Parametr <code>domain</code> w URL pozwala operatorowi kampanii dynamicznie zmieniać domenę końcową bez modyfikacji pośredniej strony - stąd ofiara trafia raz na <code>totaldrive.com</code>, raz na <code>totaladblock.com</code>. To jest standardowa technika w sieciach affiliate pozwalająca na rotację ofert. <code>push_subscribe()</code> sugeruje dodatkowo że strona próbuje zapisać się na push notifications - kolejny wektor do dalszego spamowania ofiary.
+  </div>
+</div>
+
+<!-- TECHNICAL ANALYSIS -->
+<div class="sec">
+  <div class="sl">Analiza techniczna - etap po etapie</div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">STAGE 1</span><span class="stage-title">Email - dwa lure'y, pięć nadawców</span></div>
+    <div class="stage-body">
+      <strong style="color:var(--white);">Lure A - iCloud storage:</strong> Mail z logo iCloud informujący o przekroczeniu limitu 15 GB (14,9/15 GB), odrzuconej płatności za iCloud+ 2TB i grożący trwałym usunięciem plików za 24h. Przycisk "Odnów dostęp". Wysłany z czterech różnych domen nadawcy w ciągu tygodnia.<br><br>
+      <strong style="color:var(--white);">Lure B - Scareware:</strong> Mail z nazwą nadawcy <span class="hl">iCL0UD</span> (zero zamiast litery O - typosquatting w nazwie wyświetlanej) z komunikatem "TRWA PRZEJĘCIE KONTA · BLOKADA SYSTEMU · Automatyczny protokół czyszczenia został aktywowany". ID zdarzenia: STG-PURGE-9912X, poziom zagrożenia: KRYTYCZNA UTRATA, czas odzyskiwania: &lt;12 godzin. Przycisk "ZATRZYMAJ USUWANIE DANYCH".<br><br>
+      Oba lure'y celują w ten sam mechanizm psychologiczny - <span class="hlr">natychmiastowa panika i strach przed utratą danych</span>. Różne opakowanie, identyczna infrastruktura docelowa.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">STAGE 2</span><span class="stage-title">impawnunsung[.]motorcycles - fake Cloud storage landing page</span></div>
+    <div class="stage-body">
+      Strona imituje panel zarządzania miejscem w chmurze - kolorowy pasek pojemności, kategorie (Zdjęcia i filmy, Pliki, Kontakty, Poczta, Kopie zapasowe), "Pozostało tylko 0,3 GB". Przycisk "Ulepsz pamięć".<br><br>
+      DevTools ujawniają zasoby z: <code>MetaMask</code>, <code>Yoroi</code> (crypto wallet), <code>trk-brevinate.com</code> (affiliate tracker), <code>use.fontawesome.com</code>. Obecność MetaMask i Yoroi w zasobach jest nieoczekiwana i może wskazywać że strona obsługuje również wariant ataku targetujący portfele kryptowalutowe.<br><br>
+      <code>meta name="robots" content="noindex, nofollow"</code> - strona celowo ukrywa się przed indeksowaniem przez wyszukiwarki, co utrudnia wykrycie przez automatyczne skanery bezpieczeństwa.<br><br>
+
+      <strong style="color:var(--white);">UI - precyzyjna imitacja Apple iCloud Storage:</strong> Pasek pojemności jest podzielony na 5 nazwanych segmentów: <code>seg-media</code> (Zdjęcia i filmy), <code>seg-docs</code> (Pliki), <code>seg-contacts</code> (Kontakty), <code>seg-mail</code> (Poczta), <code>seg-device</code> (Kopie zapasowe urządzenia) - identyczna struktura jak w oryginalnym panelu iCloud. Każda kategoria ma animowany spinner "ładowania" (<code>fa-spinner fa-spin</code>) zastępowany statusem "Done" przez JavaScript, co symuluje faktyczne skanowanie konta ofiary i zwiększa wiarygodność.<br><br>
+
+      <strong style="color:var(--white);">Wielojęzyczność - zasięg globalny:</strong> Cały widoczny tekst strony jest ładowany dynamicznie przez system <code>data-i18n</code> z zewnętrznego <code>./js/app.js</code>. Oznacza to że <span class="hl">jedna infrastruktura obsługuje wiele wersji językowych</span> - kampania nie jest targetowana tylko w jeden kraj/język, lecz jest skalowalna globalnie z jednym backendem.<br><br>
+
+      <strong style="color:var(--white);">Push notification persistence - dodatkowy wektor:</strong> Kod źródłowy ujawnia że <code>trk-brevinate.com</code> to nie tylko tracker konwersji - strona aktywnie próbuje zapisać ofiarę do <span class="hlr">push notifications przez przeglądarkę</span>:
+    </div>
+  </div>
+
+  <div class="code-wrap" style="margin:0 0 12px 0;">
+    <pre class="code-block"><span class="cm">// trk-brevinate.com - push subscription loader (linie 178-187 kodu źródłowego)</span>
+<span class="kw">var</span> script = document.<span class="fn">createElement</span>(<span class="str">"script"</span>);
+script.type = <span class="str">"text/javascript"</span>;
+script.src = <span class="hlp">"https://trk-brevinate.com/scripts/push/script/o7g9x7qg36"</span> +
+    <span class="str">"?url="</span> + <span class="fn">encodeURI</span>(self.location.hostname) +
+    <span class="str">"&alturl="</span> + <span class="fn">encodeURI</span>(self.location.pathname);
+script.onload = <span class="kw">function</span>() {
+    <span class="fn">push_init</span>();      <span class="cm">// inicjalizuje push notification API</span>
+    <span class="fn">push_subscribe</span>(); <span class="cm">// wyświetla prompt przeglądarki "Zezwól na powiadomienia"</span>
+};
+document.<span class="fn">getElementsByTagName</span>(<span class="str">"head"</span>)[0].<span class="fn">appendChild</span>(script);</pre>
+  </div>
+
+  <div class="box orange" style="margin-bottom:12px;">
+    <strong>⚠ Implikacja - persistence po opuszczeniu strony:</strong><br>
+    Jeśli ofiara kliknie "Zezwól" na prompt przeglądarki, atakujący uzyskują kanał do dalszego spamowania push notyfikacjami - niezależnie od tego czy ofiara kiedykolwiek wróci na stronę. Przeglądarkowe push notifications wyglądają jak systemowe alerty systemowe i mogą być używane do kolejnych lure'ów (np. "Twoje konto zostało zablokowane - kliknij tutaj"). To jest technika <strong>persistence bez plików, bez instalacji</strong> - czysto przez Web Push API.
+  </div>
+
+  <div class="stage" style="margin-bottom:0;">
+    <div class="stage-header"><span class="stage-num" style="background:var(--cyan);color:#000;">STAGE 2b</span><span class="stage-title">Anti-back-button - zatrzymanie ofiary w lejku</span></div>
+    <div class="stage-body">
+      Kod <code>&lt;head&gt;</code> strony zawiera <span class="hlr">mechanizm blokady przycisku Wstecz</span> oparty na manipulacji historią przeglądarki:
+      <div class="code-wrap">
+        <pre class="code-block"><span class="cm">// Linie 18-32 kodu źródłowego - anti-back-button via History API</span>
+<span class="kw">var</span> redirect = <span class="hl">"https://www.twointj.com/cmp/2SFN28H/42P5QX7/"</span>;
+<span class="kw">var</span> currentUrl = location.origin + location.pathname + location.search;
+
+<span class="cm">// Przy wejściu na stronę: dodaj #!/hst do historii (pułapka)</span>
+<span class="kw">if</span> (location.hash !== <span class="str">"#!/hst"</span>) {
+    history.<span class="fn">replaceState</span>(<span class="kw">null</span>, document.title, currentUrl + <span class="str">"#!/hst"</span>);
+    history.<span class="fn">pushState</span>(<span class="kw">null</span>, document.title, currentUrl); <span class="cm">// aktualny URL na wierzchu</span>
+}
+
+<span class="cm">// Gdy ofiara kliknie Wstecz (popstate) → trafia na #!/hst → redirect do twointj</span>
+window.<span class="fn">addEventListener</span>(<span class="str">"popstate"</span>, <span class="kw">function</span>() {
+    <span class="kw">if</span> (location.hash === <span class="str">"#!/hst"</span>) {
+        <span class="fn">setTimeout</span>(<span class="kw">function</span>() { window.location.<span class="fn">replace</span>(redirect); }, 0);
+    }
+}, <span class="kw">false</span>);</pre>
+      </div>
+      <strong style="color:var(--white);">Jak to działa:</strong> Przy wejściu na stronę JavaScript wstrzykuje do historii dodatkowy wpis z hashem <code>#!/hst</code>. Gdy ofiara klika "Wstecz" żeby uciec, przeglądarka cofa się do tego wpisu, co triggeruje <code>popstate</code> event, który natychmiast przekierowuje do <code>twointj.com</code> - czyli <span class="hlr">ofiara zamiast uciec, trafia głębiej do lejka affiliate</span>. Jedyna ucieczka to zamknięcie zakładki lub wpisanie URL ręcznie.<br><br>
+      <strong style="color:var(--white);">Nota o campaign ID:</strong> Hardcoded redirect (<code>42P5QX7</code>) różni się od identyfikatora w URL tracking (<code>73H5RHN</code>) - wskazuje na <span class="hl">dwa różne "sloty" affiliate lub warianty oferty</span> w tej samej sieci. Strona może serwować różne finalne produkty w zależności od tego którą ścieżką trafi ofiara.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num o">STAGE 3</span><span class="stage-title">freesmartdevice[.]autos - scareware overlay</span></div>
+    <div class="stage-body">
+      Po kliknięciu "Ulepsz pamięć" na tle ciemnego ekranu pojawia się pop-up: <span class="hlr">"Your Device Has Been Compromised!"</span> z komunikatem że malware pobrało aplikacje, ukryło je i włączyło auto-billing bez zgody użytkownika. Następnie kolejny pop-up: <span class="hl">"Enabled Auto-Renewable Subscription Is Detected - Is That You?"</span> z fałszywymi danymi:<br><br>
+      · Transaction ID: 298606940829486298<br>
+      · Subscription: File Downloader (Weekly Plan)<br>
+      · Amount: <span class="hlr">$299.00, then $29.99 weekly</span><br>
+      · Subscription Started From: 2026-04-02 20:17<br><br>
+      To jest klasyczny scareware pattern: najpierw wzbudzenie paniki ("twoje urządzenie jest zainfekowane"), następnie konkretna kwota ("już Ci pobierają pieniądze") żeby skłonić ofiarę do kliknięcia "Fix Now" i zakupu fałszywego antywirusa.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num r">STAGE 4</span><span class="stage-title">secure.totaldrive[.]com / secure.totaladblock[.]com - card harvesting</span></div>
+    <div class="stage-body">
+      Finalna strona to formularz zakupu "Total Drive" lub "Total Adblock Plus" - w zależności od wariantu kampanii. Struktura identyczna w obu przypadkach:<br><br>
+      · "Super okazja! Oszczędź 80% Off" - fake discount pressure<br>
+      · Stawka podstawowa: 99€, dziś tylko: <span class="hlr">19€</span><br>
+      · Drobny druk: "automatycznie odnawia się co roku za 99€"<br>
+      · Formularz: imię i nazwisko, numer karty, data ważności MM/YY, kod zabezpieczający, adres, kod pocztowy, email<br>
+      · Trustpilot ★★★★★ (fałszywe lub manipulowane oceny)<br><br>
+      DevTools ujawniają integracje z: <code>cdn.paymentauth.com</code>, <code>cdn.prod.pci-bridge.com</code>, <code>pay.google.com</code>, <code>www.paypal.com</code> - prawdziwe bramki płatnicze co sugeruje że transakcja faktycznie jest realizowana (ofiara płaci 19€ i dostaje bezużyteczny produkt), a dane karty są dodatkowo harvested przez <code>pci-bridge.com</code>.
+    </div>
+  </div>
+</div>
+
+<!-- VARIANT B -->
+<div class="sec">
+  <div class="sl c">Wariant B - Google Cloud® lure · programsmartspeedfast[.]autos</div>
+
+  <div class="notice purple" style="margin-bottom:16px;">
+    <div class="notice-icon">🔬</div>
+    <div class="notice-body"><strong>Wariant B potwierdzony na nowej skrzynce pocztowej (Gmail).</strong> Nowy nadawca, nowe domeny pośrednie, nowy tracker konwersji - ale identyczny model affiliate i ta sama rodzina produktów końcowych. Inspekcja view-source była blokowana przez JavaScript na głównej stronie pośredniej. Kod udało się pozyskać z alternatywnej gałęzi odkrytej przez wielokrotne klikanie Wstecz.</div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num" style="background:var(--cyan);color:#000;">VAR-B · STAGE 1</span><span class="stage-title">Email - "Cloud®" storage lure z błędem lokalizacji</span></div>
+    <div class="stage-body">
+      Nadawca: <code>Maciejgorzny <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="711f1e1e035f5f5f3143484248474146435f17071f1c011a17120b1708121906071d051a">[email&#160;protected]</a>[.]org[.]uk</code> przez relay <code>domino4dbc[.]com</code>. Subdomena z losowo generowaną nazwą użytkownika (wzorzec identyczny jak w Wariancie A). Gmail oflagował jako spam i dodał banner "Zgłoś próbę wyłudzenia informacji".<br><br>
+      Lure: generyczny <span class="hl">"Cloud®"</span> (nie Apple, nie Google - brand fikcyjny z symbolem ®) z niebieską ikonką chmurki. Pasek: <span class="hlr">48,9 Go / 50 Go</span> - pojemność wyrażona w <strong>Go (gigaoctet)</strong> zamiast GB - błąd lokalizacji wskazujący na francophone UI przetłumaczone maszynowo na polski.<br><br>
+      Kluczowa różnica: cena <span class="hlr">7,00 zł</span> zamiast 19€ - dowód <strong>geotargetingu</strong> opartego na lokalizacji adresu IP lub języku przeglądarki. Niska cena wejściowa (7 zł) obniża próg psychologiczny, ale drobny druk zawiera auto-odnowienie.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num" style="background:var(--cyan);color:#000;">VAR-B · STAGE 2</span><span class="stage-title">safe-smart-defense-reliable[.]autos - fake Google Cloud landing</span></div>
+    <div class="stage-body">
+      Domena: <code>safe-smart-defense-reliable[.]autos</code> - ten sam TLD <code>.autos</code> co <code>freesmartdevice.autos</code> z Wariantu A. Strona imituje <strong>Google Cloud</strong> z kolorowym logo Google i niebieskim headerem. Pasek pojemności 100% w kolorach Google: niebieski (Zdjęcia), żółty (Dysk w chmurze), czerwony (Poczta) - "Aktualizacja zatrzymana" przy każdej kategorii.<br><br>
+      Mechanizm progresji UI: strona wyświetla najpierw przycisk "Kontynuuj" z odliczaniem (<span class="hlr">"Oferta specjalna wygasa za 4 minuty i 51 sekund"</span>), następnie animowany pasek "Zakończono 100%" symulujący skanowanie, po czym zmienia przycisk na zielony "Odbierz teraz". Przed przekierowaniem pojawia się modal: <span class="hl">"Przejdź do ostatniego kroku - zapłać 7,00 zł kartą Visa, Mastercard lub przez PayPal"</span>.<br><br>
+      <strong style="color:var(--red);">Blokada view-source:</strong> Ctrl+U i view-source: URL były zablokowane przez JavaScript - prawdopodobnie przez <code>keydown</code> event listener lub override kontekstowego menu. To jest technika anty-analizy nieobecna w Wariancie A.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num" style="background:var(--cyan);color:#000;">VAR-B · STAGE 2b</span><span class="stage-title">programsmartspeedfast[.]autos - alternatywna gałąź (odkryta przez back-button)</span></div>
+    <div class="stage-body">
+      Po wielokrotnym kliknięciu Wstecz z <code>safe-smart-defense-reliable.autos</code> przeglądarka trafiła na <code>programsmartspeedfast[.]autos</code> - alternatywną stronę scareware tego samego operatora. Tytuł zakładki: <span class="hlr">"Pamięć systemowa"</span> - tym razem imituje <strong>systemowy skaner urządzenia</strong>, nie cloud storage.<br><br>
+      Popup entry: <em>"Twoja pamięć jest pełna! Złośliwe pliki powodują wycieki danych. Wymagane jest natychmiastowe działanie."</em><br><br>
+      Po kliknięciu "Napraw teraz" - pełnoekranowy fake security dashboard:
+      <div style="margin:10px 0;padding:12px 16px;background:rgba(255,69,96,.06);border:1px solid rgba(255,69,96,.2);border-radius:4px;font-size:11px;line-height:1.9;">
+        · <span class="hlr">OSTRZEŻENIE KRYTYCZNE</span> - "Wykryto zagrożenia bezpieczeństwa!"<br>
+        · Pasek pamięci 100% czerwony z kategoriami: Złośliwe oprogramowanie i śmieci / Pamięć podręczna / Zdjęcia i filmy / Aplikacje i system / Wiadomości i poczta<br>
+        · Animowany licznik: <span class="hlr">10 391 znalezionych złośliwych plików</span> (rosnący w czasie rzeczywistym)<br>
+        · Odliczanie: 04:49:86 - "OFERTA OGRANICZONA CZASOWO · 80% ZNIŻKI na odnowienie subskrypcji"<br>
+        · Przycisk "Kontynuuj" → <code>secure.totalav[.]com</code>
+      </div>
+      Na tej stronie udało się uzyskać kod źródłowy (view-source nie był blokowany).
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <pre class="code-block"><span class="cm">// programsmartspeedfast.autos - kod źródłowy &lt;head&gt;</span>
+<span class="cm">// Tracker konwersji - inny operator affiliate niż Wariant A</span>
+<span class="kw">function</span> <span class="fn">__cta</span>(t) {
+    <span class="kw">var</span> n = <span class="hlp">"http://trk.further-choose-fat-addition.run/snwdartf"</span>;
+    <span class="kw">return</span> window.<span class="fn">__gvc</span>&amp;&amp;(n += <span class="str">"?vc="</span> + window.<span class="fn">__gvc</span>()),
+        !0 === t ? n : (window.location.href = n, !1)
+}
+<span class="kw">function</span> <span class="fn">__get_ltd</span>() { <span class="kw">return</span> <span class="str">"http://trk.further-choose-fat-addition.run"</span> }
+
+<span class="cm">// Anti-back-button - wariant "ii counter" (inny mechanizm niż #!/hst z Wariantu A)</span>
+<span class="cm">// Grace period 200ms zapobiega triggerowaniu na forward navigation</span>
+<span class="kw">var</span> ii = 0; <span class="cm">// needed for safari</span>
+<span class="kw">if</span> (<span class="kw">typeof</span> history.pushState === <span class="str">'function'</span>) {
+    history.<span class="fn">pushState</span>(<span class="str">'back'</span>, <span class="kw">null</span>, <span class="kw">null</span>);
+    window.onpopstate = <span class="kw">function</span>() {
+        history.<span class="fn">pushState</span>(<span class="str">'back'</span>, <span class="kw">null</span>, <span class="kw">null</span>);
+        <span class="kw">if</span> (ii == 1) {
+            <span class="kw">var</span> domain = <span class="fn">__get_ltd</span>();
+            window.location.href = domain +
+                <span class="str">'/campaign?id=d6562b1c-08cb-4c39-8f47-8824f919f76a&amp;extcid={extcid}'</span>;
+        }
+    };
+}
+<span class="fn">setTimeout</span>(<span class="kw">function</span>() { ii = 1; }, 200); <span class="cm">// aktywuje redirect po 200ms</span></pre>
+  </div>
+
+  <div class="box orange">
+    <strong>🔁 Porównanie anti-back-button: Wariant A vs Wariant B</strong><br>
+    <strong>Wariant A</strong> (<code>impawnunsung.motorcycles</code>): hash-based - wstrzykuje <code>#!/hst</code> do historii, <code>popstate</code> triggeruje natychmiastowy redirect do <code>twointj.com</code>.<br>
+    <strong>Wariant B</strong> (<code>programsmartspeedfast.autos</code>): counter-based - <code>ii=0</code> przez pierwsze 200ms (safari compatibility), po czym <code>popstate</code> redirectuje do <code>trk.further-choose-fat-addition.run/campaign?id=...</code>.<br><br>
+    Dwa różne implementacje tego samego celu wskazują na różnych programistów lub różne "kity" affiliate - ale identyczna intencja: <span style="color:var(--red);">ofiara nie może uciec z lejka przyciskiem Wstecz</span>.
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num r">VAR-B · STAGE 3</span><span class="stage-title">secure.totalav[.]com - card harvesting · antywirus wariant</span></div>
+    <div class="stage-body">
+      Finalna strona to <code>secure.totalav[.]com</code> - tym razem produkt <strong>TotalAV</strong> (antywirus) zamiast TotalDrive (cloud storage). Struktura identyczna jak Wariant A:<br><br>
+      · "Super okazja! Oszczędź 80€ Off" - identyczny nagłówek<br>
+      · Produkt: <span class="hl">Total AV Plus</span> - "Nagradzana ochrona antywirusowa" · 19€ / 99€ auto-odnowienie<br>
+      · Bundle: + Optymalizacja komputera + Dodatkowe licencje ×2 - "WLICZONE W CENĘ"<br>
+      · Trustpilot ★★★★★ - identyczny widget co Wariant A<br>
+      · Formularz: imię, numer karty, MM/YY, CVV, adres, kod pocztowy, email<br>
+      · PayPal + Visa + Mastercard + Amex<br>
+      · Badge'e antywirusowe: AV-TEST Top Product, VB100, AV Comparatives (prawdziwe certyfikaty, inne produkty)<br><br>
+      <code>secure.totalav[.]com</code> to nowa domena finalna nieobecna w Wariancie A - potwierdza rotację ofert w tej samej sieci affiliate.
+    </div>
+  </div>
+</div>
+
+<!-- IOC -->
+<div class="sec">
+  <div class="sl r">Indicators of Compromise</div>
+  <table class="it">
+    <thead><tr><th>Type</th><th>Indicator</th><th>Context</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>Domain</td><td><span class="ioc-d">impawnunsung[.]motorcycles</span></td><td>Fake Cloud/iCloud landing page - affiliate intermediate</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">freesmartdevice[.]autos</span></td><td>Scareware overlay - "Device Compromised" popup</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">secure.totaldrive[.]com</span></td><td>Card harvesting - "Total Drive" purchase form</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">secure.totaladblock[.]com</span></td><td>Card harvesting - "Total Adblock Plus" purchase form</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">twointj[.]com</span></td><td>Affiliate redirect broker - CMP routing with sub1-sub5 params</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">trk-brevinate[.]com</span></td><td>Affiliate conversion tracker - push subscription</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">cdn.pci-bridge[.]com</span></td><td>Suspicious payment bridge - possible card skimmer</td><td><span class="bdg o">Suspicious</span></td></tr>
+      <tr><td>Email</td><td><span class="ioc-d">communications@ictally[.]info</span></td><td>Sender - scareware lure, "iCL0UD" display name (zero typosquat)</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Email</td><td><span class="ioc-d">info@diathils[.]info</span></td><td>Sender - iCloud storage lure</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Email</td><td><span class="ioc-d"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="284b4745455d46414b495c4147465b684b495a5a474444065b41584f5a4d4d46">[email&#160;protected]</a>[.]uk</span></td><td>Sender - compromised subdomain of sipgreen.uk</td><td><span class="bdg o">Abused domain</span></td></tr>
+      <tr><td>Email</td><td><span class="ioc-d"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d9aaaca9a9b6abad99b5b8bbb8bdb0bcf7afbcb7bdbcf4adacf4b4b6afb0b5">[email&#160;protected]</a>[.]com</span></td><td>Sender - compromised subdomain of Spanish marketplace</td><td><span class="bdg o">Abused domain</span></td></tr>
+      <tr><td>Email</td><td><span class="ioc-d"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0b686466667e6562686a7f626465784b6864797c6265256a7862656526787f626d7f7e656c">[email&#160;protected]</a>[.]de</span></td><td>Sender - compromised subdomain of German foundation</td><td><span class="bdg o">Abused domain</span></td></tr>
+      <tr><td>URL pattern</td><td><span class="ioc-p">twointj.com/cmp/{id}/73H5RHN/?source_id=&sub1=&sub2=&sub3=&sub4=&sub5=</span></td><td>Affiliate tracking URL pattern - consistent across campaign</td><td><span class="bdg p">Pattern IoC</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-d">trk-brevinate[.]com/scripts/push/script/o7g9x7qg36</span></td><td>Push notification subscription endpoint - browser persistence</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Campaign ID</td><td><span class="ioc-p">42P5QX7</span></td><td>Hardcoded affiliate slot ID w &lt;head&gt; strony - wariant kampanii / offer rotation</td><td><span class="bdg p">Pattern IoC</span></td></tr>
+      <tr><td colspan="4" style="background:rgba(0,217,245,.03);color:var(--cyan);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 12px;">Wariant B - Google Cloud / TotalAV</td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">safe-smart-defense-reliable[.]autos</span></td><td>Fake Google Cloud landing page - VAR-B affiliate intermediate · view-source blocked</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">programsmartspeedfast[.]autos</span></td><td>Fake system scanner scareware - VAR-B alt branch (odkryta przez back-button)</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">secure.totalav[.]com</span></td><td>Card harvesting - "Total AV Plus" purchase form · VAR-B final</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">trk.further-choose-fat-addition[.]run</span></td><td>VAR-B affiliate tracker + anti-back-button redirect domain</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">domino4dbc[.]com</span></td><td>VAR-B email relay/sender proxy</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Email</td><td><span class="ioc-d"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ba949494fa888389838c8a8d8894dcccd4d7cad1dcd9c0dcc3d9d2cdccd6ced1">[email&#160;protected]</a>[.]org[.]uk</span></td><td>VAR-B sender - losowo generowana subdomena .org.uk</td><td><span class="bdg o">Abused domain</span></td></tr>
+      <tr><td>URL pattern</td><td><span class="ioc-p">trk.further-choose-fat-addition.run/campaign?id=d6562b1c-08cb-4c39-8f47-8824f919f76a&extcid={extcid}</span></td><td>VAR-B anti-back-button redirect URL - campaign UUID stały</td><td><span class="bdg p">Pattern IoC</span></td></tr>
+      <tr><td colspan="4" style="background:rgba(255,209,102,.03);color:var(--yellow);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 12px;">Nowe domeny - singlelane.lat / burmap.com</td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">singlelane[.]lat</span></td><td>Nowa domena pośrednia (.lat TLD) - landing dla P3 i VAR-B · ten sam UI co impawnunsung.motorcycles</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">www.burmap[.]com</span></td><td>Nowa domena finalna - merchant affiliate, przekazywana dynamicznie przez &amp;domain= w URL</td><td><span class="bdg o">Suspicious</span></td></tr>
+      <tr><td>URL param</td><td><span class="ioc-p">&amp;ip=94.254.229.1</span></td><td>IP ofiary jawnie w URL landing page - geolokalizacja przekazywana do trackera konwersji</td><td><span class="bdg p">Pattern IoC</span></td></tr>
+      <tr><td colspan="4" style="background:rgba(255,123,44,.03);color:var(--orange);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 12px;">Relay domains - abused infrastructure</td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">allergywinter[.]org[.]uk</span></td><td>Relay - współdzielony przez P1 (11 Mar + 14 Mar) · dwie różne kampanie, ten sam relay</td><td><span class="bdg o">Abused domain</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">ran1.wjbet-4[.]com · ran1.77sorte9[.]com</span></td><td>Relay - wzorzec ran1.* subdomena · współdzielony przez P2 (10 Mar + 11 Mar)</td><td><span class="bdg o">Abused domain</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">microsoft365brasil[.]com[.]br</span></td><td>Relay - abused Microsoft-branded domain · użyty jako legit-looking relay 23 Mar</td><td><span class="bdg o">Abused domain</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">saigonlotto[.]com</span></td><td>Abused sender domain - subdomena użyta jako sender w P3 (3 Apr)</td><td><span class="bdg o">Abused domain</span></td></tr>
+      <tr><td>Email</td><td><span class="ioc-d">oyxan@yandex[.]ru</span></td><td>P3 sender - Yandex native account · lure: "Zdjęcie i wideo zostały wykonane" · ta sama infrastruktura affiliate potwierdzona</td><td><span class="bdg r">Malicious</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- INFRASTRUCTURE PATTERNS -->
+<div class="sec">
+  <div class="sl o">Wzorce infrastruktury sender - analiza automatyzacji</div>
+  <table class="it">
+    <thead><tr><th>Wzorzec</th><th>Format sender domain</th><th>Format relay</th><th>Daty</th><th>Liczba</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span style="color:var(--orange);font-weight:700;">P1</span></td>
+        <td><code>[hash]@[6-12 znaków].us</code><br><span style="font-size:10px;color:var(--muted);">np. uvwp35...@bduoc17hps6.us</span></td>
+        <td>Losowy prefix + abused legalna domena<br><span style="font-size:10px;color:var(--muted);">oasiscodespace.co, allergywinter.org.uk, keystonestream.info, joinaxisgroup.co</span></td>
+        <td>10-20 Mar</td>
+        <td>5</td>
+      </tr>
+      <tr>
+        <td><span style="color:var(--purple);font-weight:700;">P2</span></td>
+        <td><code>noor...@[numer].[losowy].org.uk</code><br><span style="font-size:10px;color:var(--muted);">np. noor...@639260998.ettepwltigwmzixus.org.uk</span></td>
+        <td>Losowy prefix + abused legalna domena<br><span style="font-size:10px;color:var(--muted);">ran1.*, etufegypt.com, microsoft365brasil.com.br, webtreeonline.in, domino4dbc.com</span></td>
+        <td>10-31 Mar</td>
+        <td>7</td>
+      </tr>
+      <tr>
+        <td><span style="color:var(--yellow);font-weight:700;">P3</span></td>
+        <td>Outliers - Yandex native / saigonlotto subdomain</td>
+        <td>Brak relay lub nieidentyfikowalny</td>
+        <td>25 Mar, 3 Apr</td>
+        <td>3</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="box purple" style="margin-top:14px;">
+    <strong>🔗 Powiązanie infrastruktury - kluczowy wniosek:</strong><br>
+    Domena <code>singlelane[.]lat</code> pojawia się jako landing page zarówno dla P3 (3 Apr, saigonlotto sender) jak i VAR-B (31 Mar, domino4dbc relay) - dowód że wszystkie wzorce nadawców używają tej samej puli landing pages, tylko rotując domeny i lure'y. Parametr <code>&amp;domain=www.burmap.com</code> w URL <code>singlelane.lat</code> ujawnia że merchant (domena finalna) jest również dynamicznie rotowany przez ten sam system. <strong>Cała kampania to jeden zautomatyzowany system z wymiennymi komponentami na każdym etapie.</strong>
+  </div>
+</div>
+
+<!-- MITRE -->
+<div class="sec">
+  <div class="sl p">MITRE ATT&amp;CK</div>
+  <div class="mg">
+    <div class="mc2"><div class="mid">T1566.002</div><div class="mname">Phishing - Spearphishing Link</div><div class="mtactic">Initial Access</div></div>
+    <div class="mc2"><div class="mid">T1036.005</div><div class="mname">Masquerade - Match Legitimate Name (iCloud / Google Cloud)</div><div class="mtactic">Defense Evasion</div></div>
+    <div class="mc2"><div class="mid">T1056.003</div><div class="mname">Web Portal Capture - Card Harvesting</div><div class="mtactic">Collection</div></div>
+    <div class="mc2"><div class="mid">T1583.001</div><div class="mname">Acquire Infrastructure - multiple sender domains + .autos TLD</div><div class="mtactic">Resource Development</div></div>
+    <div class="mc2"><div class="mid">T1657</div><div class="mname">Financial Theft - subscription fraud + card data</div><div class="mtactic">Impact</div></div>
+    <div class="mc2"><div class="mid">T1598</div><div class="mname">Phishing for Information - PII + payment data</div><div class="mtactic">Reconnaissance</div></div>
+    <div class="mc2"><div class="mid">T1071.001</div><div class="mname">Web Push Notification - browser persistence channel (VAR-A)</div><div class="mtactic">Command &amp; Control</div></div>
+    <div class="mc2"><div class="mid">T1185</div><div class="mname">Browser Session Hijacking - History API anti-back-button (obie)</div><div class="mtactic">Collection</div></div>
+    <div class="mc2"><div class="mid">T1027</div><div class="mname">Obfuscated Files - view-source blocked via JS (VAR-B)</div><div class="mtactic">Defense Evasion</div></div>
+  </div>
+</div>
+
+<!-- COMPARISON TABLE -->
+<div class="sec">
+  <div class="sl o">Porównanie Wariant A vs Wariant B</div>
+  <table class="it">
+    <thead><tr><th>Element</th><th style="color:var(--purple);">Wariant A - iCloud</th><th style="color:var(--cyan);">Wariant B - Google Cloud</th></tr></thead>
+    <tbody>
+      <tr><td>Lure brand</td><td><span style="color:var(--purple);">Apple iCloud / scareware "TRWA PRZEJĘCIE"</span></td><td><span style="color:var(--cyan);">Google Cloud® / generic "Cloud®" / system scan</span></td></tr>
+      <tr><td>Domena pośrednia</td><td><span class="ioc-d">impawnunsung[.]motorcycles</span></td><td><span class="ioc-d">safe-smart-defense-reliable[.]autos</span></td></tr>
+      <tr><td>Scareware/alt domena</td><td><span class="ioc-d">freesmartdevice[.]autos</span></td><td><span class="ioc-d">programsmartspeedfast[.]autos</span></td></tr>
+      <tr><td>Finalna domena</td><td><span class="ioc-d">secure.totaldrive[.]com · secure.totaladblock[.]com</span></td><td><span class="ioc-d">secure.totalav[.]com</span></td></tr>
+      <tr><td>Tracker konwersji</td><td><span class="ioc-d">trk-brevinate[.]com</span></td><td><span class="ioc-d">trk.further-choose-fat-addition[.]run</span></td></tr>
+      <tr><td>Cena wejściowa</td><td>19€ (EUR)</td><td>7,00 zł <strong style="color:var(--cyan);">(geotargeting PL)</strong> → 19€</td></tr>
+      <tr><td>Anti-back-button</td><td><code>#!/hst</code> hash trap + popstate</td><td><code>ii</code> counter + pushState (200ms grace)</td></tr>
+      <tr><td>View-source</td><td>Dostępny (Ctrl+U działa)</td><td><span style="color:var(--red);">Zablokowany JS</span> na głównej stronie</td></tr>
+      <tr><td>Push notifications</td><td>push_subscribe() via trk-brevinate</td><td>Nie zaobserwowano</td></tr>
+      <tr><td>Błąd lokalizacji</td><td>-</td><td>"Go" zamiast "GB" - francophone UI</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- REMEDIATION -->
+<div class="sec">
+  <div class="sl g">Działania i rekomendacje</div>
+  <div class="box yellow">
+    <strong>⚠ Red flags tej kampanii:</strong><br>
+    · Apple ani Google nigdy nie wysyłają powiadomień o storage z losowych subdomen - sprawdź domenę nadawcy, nie display name<br>
+    · "iCL0UD" z zerem zamiast O - typosquatting w display name niewidoczny bez sprawdzenia adresu email<br>
+    · Pasek "48,9 Go / 50 Go" - jednostka "Go" zamiast "GB" to błąd lokalizacji wskazujący na fake<br>
+    · Odliczanie "Oferta wygasa za X minut" + fake scan progress bar = klasyczny urgency engineering<br>
+    · "10 391 znalezionych złośliwych plików" animowane w czasie rzeczywistym = fake, przeglądarka nie skanuje plików<br>
+    · Trustpilot ★★★★★ + "Gwarancja zwrotu pieniędzy" + 80% rabat = silny sygnał scamu<br>
+    · Formularz karty kredytowej na domenie innej niż apple.com / google.com = bezwzględny red flag
+  </div>
+  <div class="box purple">
+    <strong>💡 Threat Intelligence - infrastruktura affiliate CPA:</strong><br>
+    Kampania operuje w modelu <strong>Cost Per Acquisition (CPA)</strong> z co najmniej dwoma niezależnymi operatorami affiliate używającymi tej samej sieci merchantów (TotalDrive / TotalAV / TotalAdblock). Każdy operator ma własny tracker konwersji, własne domeny pośrednie i może modyfikować lure (iCloud, Google Cloud, system scan) niezależnie od pozostałych.<br><br>
+    Geotargeting (7 zł vs 19€) i blokada view-source w Wariancie B wskazują na bardziej zaawansowanego operatora. Jedynym ws
+    Geotargeting (7 zł vs 19€), blokada view-source i IP tracking w URL wskazują na ewolucję kampanii - kolejne iteracje są coraz bardziej zaawansowane technicznie. Jedynym stałym elementem jest rodzina produktów końcowych (Total*) i model CPA - reszta infrastruktury jest w pełni wymienialna.
+  </div>
+  <div class="box green">
+    <strong>✅ Działania podjęte:</strong><br>
+    · Emaile oznaczone jako phishing / spam w obu skrzynkach pocztowych<br>
+    · Domeny zgłoszone do CERT Polska (incydent.cert.pl)<br>
+    · IOC dodane do lokalnej listy blokowania<br>
+    · Analiza kodu źródłowego przeprowadzona w izolowanym środowisku<br>
+    · Dokumentacja kampanii jako writeup portfolio
+  </div>
+</div>
+
+<footer>
+  <span>THREAT-009 · Security Research · Maciej Gorzny</span>
+  <span>Ostatnia aktualizacja: 3 Apr 2026 - 13 emaili, singlelane.lat, wzorce P1/P2/P3, IP tracking</span>
+</footer>
+
+</div>
+</body>
+</html>
