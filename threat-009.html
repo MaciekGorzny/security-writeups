@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THREAT-009 — iCloud Scareware Campaign · Affiliate Tracking · Card Harvesting</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{--bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--border2:#1e2e45;--cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;--purple:#c084fc;--blue:#4da6ff;--text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 20%,rgba(192,132,252,.03) 0%,transparent 55%),radial-gradient(ellipse 50% 35% at 85% 75%,rgba(255,123,44,.02) 0%,transparent 55%),linear-gradient(rgba(0,217,245,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,217,245,.015) 1px,transparent 1px);background-size:100% 100%,100% 100%,44px 44px,44px 44px;pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--purple);}
+.nav span{color:var(--border);}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--purple);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--purple);box-shadow:0 0 6px var(--purple);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:20px;}
+h1 span{color:var(--purple);}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:32px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.o{color:var(--orange);}.mv.g{color:var(--green);}.mv.c{color:var(--cyan);}.mv.y{color:var(--yellow);}.mv.p{color:var(--purple);}
+.notice{border-radius:6px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px;font-size:12px;line-height:1.8;}
+.notice.purple{background:rgba(192,132,252,.04);border:1px solid rgba(192,132,252,.2);}
+.notice.orange{background:rgba(255,123,44,.04);border:1px solid rgba(255,123,44,.2);}
+.notice.yellow{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.2);}
+.notice-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.notice-body strong{color:var(--white);}
+.notice.purple .notice-body strong{color:var(--purple);}
+.notice.orange .notice-body strong{color:var(--orange);}
+.notice.yellow .notice-body strong{color:var(--yellow);}
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--purple);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.r{color:var(--red);}.sl.g{color:var(--green);}.sl.c{color:var(--cyan);}.sl.o{color:var(--orange);}.sl.y{color:var(--yellow);}
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.2);color:var(--purple);padding:1px 6px;border-radius:2px;font-size:11px;}
+/* kill chain */
+.kc{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:20px;}
+.kcs{flex:1;min-width:80px;background:var(--card);padding:12px 14px;border-right:1px solid var(--border);}
+.kcs:last-child{border-right:none;}
+.kcs.p{background:rgba(192,132,252,.04);border-bottom:2px solid var(--purple);}
+.kcs.p .kcn{color:var(--purple);}
+.kcs.r{background:rgba(255,69,96,.04);border-bottom:2px solid var(--red);}
+.kcs.r .kcn{color:var(--red);}
+.kcs.o{background:rgba(255,123,44,.04);border-bottom:2px solid var(--orange);}
+.kcs.o .kcn{color:var(--orange);}
+.kcnum{font-size:9px;color:var(--muted);margin-bottom:4px;}
+.kcn{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px;}
+.kct{font-size:10px;color:var(--muted);}
+/* campaign timeline */
+.timeline{display:flex;flex-direction:column;gap:0;margin-bottom:16px;}
+.tl-item{display:grid;grid-template-columns:110px 1fr;gap:0;border-bottom:1px solid var(--border);}
+.tl-item:last-child{border-bottom:none;}
+.tl-date{background:var(--card);padding:12px 14px;font-size:11px;font-weight:700;color:var(--yellow);border-right:1px solid var(--border);}
+.tl-content{padding:12px 16px;font-size:11px;color:var(--text);line-height:1.7;}
+.tl-content code{background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.15);color:var(--purple);padding:1px 5px;border-radius:2px;font-size:10px;}
+.tl-content .sender{color:var(--orange);}
+/* stages */
+.stage{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
+.stage-header{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.stage-num{font-size:9px;font-weight:700;color:var(--white);background:var(--purple);padding:2px 8px;border-radius:2px;letter-spacing:1px;}
+.stage-num.r{background:var(--red);}
+.stage-num.o{background:var(--orange);}
+.stage-title{font-size:12px;font-weight:700;color:var(--white);}
+.stage-body{padding:14px 18px;font-size:12px;color:var(--text);line-height:1.8;}
+.stage-body code{background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.15);color:var(--purple);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage-body .hl{color:var(--orange);font-weight:700;}
+.stage-body .hlr{color:var(--red);font-weight:700;}
+/* affiliate diagram */
+.aff-grid{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:0;margin:16px 0;}
+.aff-node{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;text-align:center;}
+.aff-node .an-label{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.aff-node .an-val{font-size:11px;font-weight:700;}
+.aff-node.affiliate .an-val{color:var(--yellow);}
+.aff-node.network .an-val{color:var(--purple);}
+.aff-node.merchant .an-val{color:var(--red);}
+.aff-arrow{font-size:18px;color:var(--muted);padding:0 8px;text-align:center;}
+/* code block */
+.code-wrap{position:relative;margin:12px 0;}
+.code-block{background:#020508;border:1px solid var(--border);border-radius:4px;padding:16px 18px;font-size:11px;line-height:1.8;overflow-x:auto;color:#a8c0d6;white-space:pre;}
+.code-block .kw{color:var(--cyan);}
+.code-block .fn{color:var(--yellow);}
+.code-block .str{color:var(--green);}
+.code-block .cm{color:var(--muted);font-style:italic;}
+.code-block .hl{color:var(--orange);font-weight:700;}
+.code-block .hlp{color:var(--purple);font-weight:700;}
+/* IOC */
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(192,132,252,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--purple);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.ioc-d{color:var(--orange);word-break:break-all;}
+.ioc-p{color:var(--purple);word-break:break-all;font-size:10px;}
+.bdg{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.bdg.r{background:rgba(255,69,96,.12);color:var(--red);border:1px solid rgba(255,69,96,.25);}
+.bdg.o{background:rgba(255,123,44,.12);color:var(--orange);border:1px solid rgba(255,123,44,.25);}
+.bdg.y{background:rgba(255,209,102,.12);color:var(--yellow);border:1px solid rgba(255,209,102,.25);}
+.bdg.p{background:rgba(192,132,252,.1);color:var(--purple);border:1px solid rgba(192,132,252,.2);}
+.bdg.g{background:rgba(61,255,143,.1);color:var(--green);border:1px solid rgba(61,255,143,.2);}
+/* MITRE */
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--purple);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+/* boxes */
+.box{border-radius:6px;padding:14px 18px;font-size:12px;line-height:1.8;margin-bottom:14px;}
+.box.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.15);border-left:3px solid var(--red);}
+.box.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.15);border-left:3px solid var(--green);}
+.box.yellow{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);border-left:3px solid var(--yellow);}
+.box.orange{background:rgba(255,123,44,.04);border:1px solid rgba(255,123,44,.15);border-left:3px solid var(--orange);}
+.box.purple{background:rgba(192,132,252,.04);border:1px solid rgba(192,132,252,.15);border-left:3px solid var(--purple);}
+.box strong{color:var(--white);}
+.box code{background:rgba(255,255,255,.06);padding:1px 6px;border-radius:2px;font-size:11px;color:var(--yellow);}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+@media(max-width:640px){.kc{flex-direction:column;}.kcs{border-right:none;border-bottom:1px solid var(--border);}.aff-grid{grid-template-columns:1fr;}.aff-arrow{transform:rotate(90deg);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="nav"><a href="index.html">← Portfolio</a><span>/</span><span style="color:var(--text)">THREAT-009</span></nav>
+
+<header>
+  <div class="eyebrow">Incident Writeup · Scareware · Affiliate Campaign</div>
+  <h1>THREAT-009 — <span>iCloud Scareware Campaign</span><br>Affiliate Tracking · Multi-Lure · Card Harvesting · impawnunsung[.]motorcycles</h1>
+  <div class="meta">
+    <div class="mc"><div class="ml">ID</div><div class="mv p">THREAT-009</div></div>
+    <div class="mc"><div class="ml">Dates</div><div class="mv">16–26 Mar 2026</div></div>
+    <div class="mc"><div class="ml">Severity</div><div class="mv o">MEDIUM</div></div>
+    <div class="mc"><div class="ml">Verdict</div><div class="mv r">True Positive</div></div>
+    <div class="mc"><div class="ml">Vector</div><div class="mv r">Spam Email × 5</div></div>
+    <div class="mc"><div class="ml">Lure</div><div class="mv y">iCloud storage / Scareware</div></div>
+    <div class="mc"><div class="ml">Type</div><div class="mv p">Scareware + Card Harvest</div></div>
+    <div class="mc"><div class="ml">Infrastructure</div><div class="mv o">Affiliate network</div></div>
+    <div class="mc"><div class="ml">Tracker</div><div class="mv p">trk-brevinate.com</div></div>
+    <div class="mc"><div class="ml">Final payload</div><div class="mv r">Total Drive / Adblock</div></div>
+  </div>
+</header>
+
+<div class="notice purple">
+  <div class="notice-icon">🔍</div>
+  <div class="notice-body"><strong>Kluczowe ustalenie: zorganizowana kampania affiliate.</strong> Pięć emaili z różnych domen nadawcy w ciągu 10 dni, prowadzących do tych samych domen końcowych. Kod źródłowy pośredniej strony ujawnił pełną infrastrukturę affiliate trackingu — parametry sub1-sub5, encoded_value i dedykowany tracker konwersji trk-brevinate.com. To nie jest jednorazowy phishing — to jest skalowalna kampania gdzie różni "affiliates" rozsiewają maile i zarabiają prowizję od każdej ofiary kupującej "Total Drive".</div>
+</div>
+
+<div class="notice orange">
+  <div class="notice-icon">⚠️</div>
+  <div class="notice-body"><strong>Technika: Scareware + social engineering finansowy.</strong> Kampania używa dwóch różnych lure'ów prowadzących do tej samej infrastruktury: (1) iCloud storage limit — "pliki usunięte za 24h", (2) scareware "TRWA PRZEJĘCIE KONTA · BLOKADA SYSTEMU". Cel identyczny w obu przypadkach — skłonić ofiarę do zakupu fałszywego "antywirusa" lub "cloud storage" za 19€ podając dane karty kredytowej.</div>
+</div>
+
+<div class="notice yellow">
+  <div class="notice-icon">💡</div>
+  <div class="notice-body"><strong>Klasyfikacja: Scareware / Tech Support Scam / Crapware.</strong> Produkty "Total Drive" i "Total Adblock" są prawdopodobnie realnie istniejącymi, ale bezużytecznymi lub złośliwymi aplikacjami sprzedawanymi przez agresywną sieć affiliate. Celem jest zarówno kradzież danych karty jak i wyłudzenie opłaty subskrypcyjnej (19€ → 99€/rok auto-odnowienie).</div>
+</div>
+
+<!-- EXEC SUMMARY -->
+<div class="sec">
+  <div class="sl c">Executive Summary</div>
+  <p class="pr">W okresie 16–26 marca 2026 na prywatną skrzynkę pocztową trafiło <strong>5 emaili phishingowych</strong> z różnych domen nadawcy, wszystkie prowadzące do tej samej infrastruktury kampanii. Maile używały dwóch lure'ów: fałszywe powiadomienie iCloud o przepełnieniu miejsca oraz scareware "TRWA PRZEJĘCIE KONTA · BLOKADA SYSTEMU".</p>
+  <p class="pr">Analiza łańcucha ataku ujawniła <strong>3-etapową infrastrukturę</strong>: pośrednia strona na <code>impawnunsung[.]motorcycles</code> (fake iCloud/Cloud storage) → affiliate redirect przez <code>twointj.com</code> z pełnym parametryzowanym trackingiem → finalna strona harvestingu karty na <code>secure.totaldrive[.]com</code> lub <code>secure.totaladblock[.]com</code>. Inspekcja kodu źródłowego pośredniej strony ujawniła pełną architekturę systemu affiliate — parametry sub1-sub5, encoded_value i dedykowany tracker konwersji <code>trk-brevinate[.]com</code>.</p>
+  <p class="pr">Kampania jest prowadzona przez sieć affiliate gdzie różni operatorzy (różne domeny nadawcy emaili) kierują ruch do wspólnej infrastruktury sprzedażowej i zarabiają prowizję od każdej "sprzedaży". Ofiara jest dwukrotnie poszkodowana: płaci 19€ za bezużyteczny produkt i oddaje dane karty do dalszego nadużycia.</p>
+</div>
+
+<!-- CAMPAIGN TIMELINE -->
+<div class="sec">
+  <div class="sl y">Timeline kampanii — 10 dni aktywności</div>
+  <div class="timeline" style="background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
+    <div class="tl-item">
+      <div class="tl-date">16 Mar 2026</div>
+      <div class="tl-content">Lure: iCloud storage · Nadawca: <span class="sender"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c8aba7a5a5bda6a1aba9bca1a7a6bb88aba7babfa1a6e6a9bba1a6a6e5bbbca1aebcbda6af">[email&#160;protected]</a>[.]de</span> · Domena: corwin.asinn-stiftung.de — prawdopodobnie skompromitowana subdomena legitnej domeny niemieckiej</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">17 Mar 2026</div>
+      <div class="tl-content">Lure: iCloud storage · Nadawca: <span class="sender"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a2c1cdcfcfd7cccbc1c3d6cbcdccd1e2c1c3d0d0cdcece8cd1cbd2c5d0c7c7cc">[email&#160;protected]</a>[.]uk</span> · Domena: sipgreen.uk — VoIP/SIP provider, możliwe przejęcie subdomeny</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">17 Mar 2026</div>
+      <div class="tl-content">Lure: iCloud storage · Nadawca: <span class="sender"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3b484e4b4b54494f7b575a595a5f525e154d5e555f5e164f4e1656544d5257">[email&#160;protected]</a>[.]com</span> · Domena: vende-tu-movil.com — hiszpańska strona marketplace, przejęta subdomena</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">22 Mar 2026</div>
+      <div class="tl-content">Lure: iCloud storage · Nadawca: <span class="sender">info@diathils[.]info</span> · Domena: diathils.info — dedykowana domena kampanii, zarejestrowana na potrzeby spamu</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">26 Mar 2026</div>
+      <div class="tl-content">Lure: Scareware "TRWA PRZEJĘCIE KONTA" · Nadawca: <span class="sender">communications@ictally[.]info</span> (nazwa "iCL0UD" — zero zamiast O) · Domena: ictally.info — dedykowana domena kampanii</div>
+    </div>
+  </div>
+  <p class="pr" style="margin-top:10px;font-size:11px;">Wzorzec nazw funkcji email (<code>communications@</code>, <code>support@</code>, <code>info@</code>) i użycie subdomen z losowymi nazwiskami (<code>corwin.</code>, <code>carroll.</code>, <code>labadie.</code>) sugeruje automatyczne generowanie adresów przez ten sam system.</p>
+</div>
+
+<!-- KILL CHAIN -->
+<div class="sec">
+  <div class="sl">Attack Chain</div>
+  <div class="kc">
+    <div class="kcs p"><div class="kcnum">01</div><div class="kcn">Spam Email</div><div class="kct">5 senderów · 10 dni</div></div>
+    <div class="kcs p"><div class="kcnum">02</div><div class="kcn">Fake iCloud</div><div class="kct">impawnunsung.motorcycles</div></div>
+    <div class="kcs p"><div class="kcnum">03</div><div class="kcn">Scareware</div><div class="kct">freesmartdevice.autos</div></div>
+    <div class="kcs r"><div class="kcnum">04</div><div class="kcn">Card Harvest</div><div class="kct">secure.totaldrive.com</div></div>
+    <div class="kcs o"><div class="kcnum">💰</div><div class="kcn">Double hit</div><div class="kct">19€ fee + card data</div></div>
+  </div>
+</div>
+
+<!-- AFFILIATE ARCHITECTURE -->
+<div class="sec">
+  <div class="sl p">Architektura sieci affiliate — kluczowe ustalenie</div>
+  <div class="aff-grid">
+    <div class="aff-node affiliate">
+      <div class="an-label">Affiliate operatorzy</div>
+      <div class="an-val">5 domen wysyłkowych</div>
+    </div>
+    <div class="aff-arrow">→</div>
+    <div class="aff-node network">
+      <div class="an-label">Affiliate network</div>
+      <div class="an-val">twointj.com<br>trk-brevinate.com</div>
+    </div>
+    <div class="aff-arrow">→</div>
+    <div class="aff-node merchant">
+      <div class="an-label">Merchant / Final</div>
+      <div class="an-val">totaldrive.com<br>totaladblock.com</div>
+    </div>
+  </div>
+  <p class="pr">Każdy email wysłany przez innego "affiliate" zawiera unikalny zestaw parametrów trackingowych który identyfikuje źródło ruchu i pozwala na rozliczenie prowizji. Ruch przechodzi przez <code>twointj.com</code> (redirect broker) i <code>trk-brevinate.com</code> (konwersja tracker) zanim dotrze do finalnej strony zakupu.</p>
+
+  <div class="code-wrap">
+    <pre class="code-block"><span class="cm">// Kod źródłowy impawnunsung.motorcycles — affiliate tracking JavaScript</span>
+<span class="cm">// Ujawniony przez inspekcję view-source w przeglądarce</span>
+
+<span class="cm">// Redirect broker z zakodowanymi parametrami affiliate</span>
+<span class="kw">var</span> redirect = <span class="hl">"https://www.twointj.com/cmp/2SFN28H/42P5QX7/"</span>;
+
+<span class="cm">// Parametry sub1-sub5 = identyfikatory affiliate, kampanii, źródła</span>
+<span class="cm">// encoded_value = zakodowany identyfikator ofiary/sesji</span>
+document.<span class="fn">getElementById</span>(<span class="str">'button1'</span>).<span class="fn">addEventListener</span>(<span class="str">"click"</span>, <span class="kw">function</span>(){
+    <span class="kw">var</span> urlParams     = <span class="kw">new</span> <span class="fn">URLSearchParams</span>(window.location.search);
+    <span class="kw">var</span> encodedValue  = urlParams.<span class="fn">get</span>(<span class="str">'encoded_value'</span>);  <span class="cm">// victim session ID</span>
+    <span class="kw">var</span> source_id     = urlParams.<span class="fn">get</span>(<span class="str">'source_id'</span>);      <span class="cm">// traffic source</span>
+    <span class="kw">var</span> domain        = urlParams.<span class="fn">get</span>(<span class="str">'domain'</span>);
+    <span class="kw">var</span> sub1          = urlParams.<span class="fn">get</span>(<span class="str">'sub1'</span>);           <span class="cm">// affiliate ID</span>
+    <span class="kw">var</span> sub2          = urlParams.<span class="fn">get</span>(<span class="str">'sub2'</span>);           <span class="cm">// campaign ID</span>
+    <span class="kw">var</span> sub3          = urlParams.<span class="fn">get</span>(<span class="str">'sub3'</span>);
+    <span class="kw">var</span> sub4          = urlParams.<span class="fn">get</span>(<span class="str">'sub4'</span>);
+    <span class="kw">var</span> sub5          = urlParams.<span class="fn">get</span>(<span class="str">'sub5'</span>);
+
+    <span class="cm">// Redirect do merchantu z pełnym trackingiem konwersji</span>
+    window.location.href = <span class="str">"https://"</span> + domain +
+        <span class="str">"/cmp/"</span> + encodedValue +
+        <span class="str">"/73H5RHN/?source_id="</span> + source_id +
+        <span class="str">"&sub1="</span> + sub1 + <span class="str">"&sub2="</span> + sub2 +
+        <span class="str">"&sub3="</span> + sub3 + <span class="str">"&sub4="</span> + sub4 +
+        <span class="str">"&sub5="</span> + sub5;
+});
+
+<span class="cm">// Konwersja tracker — rejestruje każde kliknięcie</span>
+script.src = <span class="hlp">"https://trk-brevinate.com/scripts/push/script/o7g9x7qg36?"</span> +
+    <span class="str">"url="</span> + <span class="fn">encodeURI</span>(self.location.hostname) +
+    <span class="str">"&alturl="</span> + <span class="fn">encodeURI</span>(self.location.pathname);
+script.onload = <span class="kw">function</span>() { push_init(); push_subscribe(); };</pre>
+  </div>
+
+  <div class="box purple">
+    <strong>Co ten kod ujawnia o infrastrukturze atakujących:</strong><br>
+    Parametr <code>domain</code> w URL pozwala operatorowi kampanii dynamicznie zmieniać domenę końcową bez modyfikacji pośredniej strony — stąd ofiara trafia raz na <code>totaldrive.com</code>, raz na <code>totaladblock.com</code>. To jest standardowa technika w sieciach affiliate pozwalająca na rotację ofert. <code>push_subscribe()</code> sugeruje dodatkowo że strona próbuje zapisać się na push notifications — kolejny wektor do dalszego spamowania ofiary.
+  </div>
+</div>
+
+<!-- TECHNICAL ANALYSIS -->
+<div class="sec">
+  <div class="sl">Analiza techniczna — etap po etapie</div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">STAGE 1</span><span class="stage-title">Email — dwa lure'y, pięć nadawców</span></div>
+    <div class="stage-body">
+      <strong style="color:var(--white);">Lure A — iCloud storage:</strong> Mail z logo iCloud informujący o przekroczeniu limitu 15 GB (14,9/15 GB), odrzuconej płatności za iCloud+ 2TB i grożący trwałym usunięciem plików za 24h. Przycisk "Odnów dostęp". Wysłany z czterech różnych domen nadawcy w ciągu tygodnia.<br><br>
+      <strong style="color:var(--white);">Lure B — Scareware:</strong> Mail z nazwą nadawcy <span class="hl">iCL0UD</span> (zero zamiast litery O — typosquatting w nazwie wyświetlanej) z komunikatem "TRWA PRZEJĘCIE KONTA · BLOKADA SYSTEMU · Automatyczny protokół czyszczenia został aktywowany". ID zdarzenia: STG-PURGE-9912X, poziom zagrożenia: KRYTYCZNA UTRATA, czas odzyskiwania: &lt;12 godzin. Przycisk "ZATRZYMAJ USUWANIE DANYCH".<br><br>
+      Oba lure'y celują w ten sam mechanizm psychologiczny — <span class="hlr">natychmiastowa panika i strach przed utratą danych</span>. Różne opakowanie, identyczna infrastruktura docelowa.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">STAGE 2</span><span class="stage-title">impawnunsung[.]motorcycles — fake Cloud storage landing page</span></div>
+    <div class="stage-body">
+      Strona imituje panel zarządzania miejscem w chmurze — kolorowy pasek pojemności, kategorie (Zdjęcia i filmy, Pliki, Kontakty, Poczta, Kopie zapasowe), "Pozostało tylko 0,3 GB". Przycisk "Ulepsz pamięć".<br><br>
+      DevTools ujawniają zasoby z: <code>MetaMask</code>, <code>Yoroi</code> (crypto wallet), <code>trk-brevinate.com</code> (affiliate tracker), <code>use.fontawesome.com</code>. Obecność MetaMask i Yoroi w zasobach jest nieoczekiwana i może wskazywać że strona obsługuje również wariant ataku targetujący portfele kryptowalutowe.<br><br>
+      <code>meta name="robots" content="noindex, nofollow"</code> — strona celowo ukrywa się przed indeksowaniem przez wyszukiwarki, co utrudnia wykrycie przez automatyczne skanery bezpieczeństwa.<br><br>
+
+      <strong style="color:var(--white);">UI — precyzyjna imitacja Apple iCloud Storage:</strong> Pasek pojemności jest podzielony na 5 nazwanych segmentów: <code>seg-media</code> (Zdjęcia i filmy), <code>seg-docs</code> (Pliki), <code>seg-contacts</code> (Kontakty), <code>seg-mail</code> (Poczta), <code>seg-device</code> (Kopie zapasowe urządzenia) — identyczna struktura jak w oryginalnym panelu iCloud. Każda kategoria ma animowany spinner "ładowania" (<code>fa-spinner fa-spin</code>) zastępowany statusem "Done" przez JavaScript, co symuluje faktyczne skanowanie konta ofiary i zwiększa wiarygodność.<br><br>
+
+      <strong style="color:var(--white);">Wielojęzyczność — zasięg globalny:</strong> Cały widoczny tekst strony jest ładowany dynamicznie przez system <code>data-i18n</code> z zewnętrznego <code>./js/app.js</code>. Oznacza to że <span class="hl">jedna infrastruktura obsługuje wiele wersji językowych</span> — kampania nie jest targetowana tylko w jeden kraj/język, lecz jest skalowalna globalnie z jednym backendem.<br><br>
+
+      <strong style="color:var(--white);">Push notification persistence — dodatkowy wektor:</strong> Kod źródłowy ujawnia że <code>trk-brevinate.com</code> to nie tylko tracker konwersji — strona aktywnie próbuje zapisać ofiarę do <span class="hlr">push notifications przez przeglądarkę</span>:
+    </div>
+  </div>
+
+  <div class="code-wrap" style="margin:0 0 12px 0;">
+    <pre class="code-block"><span class="cm">// trk-brevinate.com — push subscription loader (linie 178–187 kodu źródłowego)</span>
+<span class="kw">var</span> script = document.<span class="fn">createElement</span>(<span class="str">"script"</span>);
+script.type = <span class="str">"text/javascript"</span>;
+script.src = <span class="hlp">"https://trk-brevinate.com/scripts/push/script/o7g9x7qg36"</span> +
+    <span class="str">"?url="</span> + <span class="fn">encodeURI</span>(self.location.hostname) +
+    <span class="str">"&alturl="</span> + <span class="fn">encodeURI</span>(self.location.pathname);
+script.onload = <span class="kw">function</span>() {
+    <span class="fn">push_init</span>();      <span class="cm">// inicjalizuje push notification API</span>
+    <span class="fn">push_subscribe</span>(); <span class="cm">// wyświetla prompt przeglądarki "Zezwól na powiadomienia"</span>
+};
+document.<span class="fn">getElementsByTagName</span>(<span class="str">"head"</span>)[0].<span class="fn">appendChild</span>(script);</pre>
+  </div>
+
+  <div class="box orange" style="margin-bottom:12px;">
+    <strong>⚠ Implikacja — persistence po opuszczeniu strony:</strong><br>
+    Jeśli ofiara kliknie "Zezwól" na prompt przeglądarki, atakujący uzyskują kanał do dalszego spamowania push notyfikacjami — niezależnie od tego czy ofiara kiedykolwiek wróci na stronę. Przeglądarkowe push notifications wyglądają jak systemowe alerty systemowe i mogą być używane do kolejnych lure'ów (np. "Twoje konto zostało zablokowane — kliknij tutaj"). To jest technika <strong>persistence bez plików, bez instalacji</strong> — czysto przez Web Push API.
+  </div>
+
+  <div class="stage" style="margin-bottom:0;">
+    <div class="stage-header"><span class="stage-num" style="background:var(--cyan);color:#000;">STAGE 2b</span><span class="stage-title">Anti-back-button — zatrzymanie ofiary w lejku</span></div>
+    <div class="stage-body">
+      Kod <code>&lt;head&gt;</code> strony zawiera <span class="hlr">mechanizm blokady przycisku Wstecz</span> oparty na manipulacji historią przeglądarki:
+      <div class="code-wrap">
+        <pre class="code-block"><span class="cm">// Linie 18–32 kodu źródłowego — anti-back-button via History API</span>
+<span class="kw">var</span> redirect = <span class="hl">"https://www.twointj.com/cmp/2SFN28H/42P5QX7/"</span>;
+<span class="kw">var</span> currentUrl = location.origin + location.pathname + location.search;
+
+<span class="cm">// Przy wejściu na stronę: dodaj #!/hst do historii (pułapka)</span>
+<span class="kw">if</span> (location.hash !== <span class="str">"#!/hst"</span>) {
+    history.<span class="fn">replaceState</span>(<span class="kw">null</span>, document.title, currentUrl + <span class="str">"#!/hst"</span>);
+    history.<span class="fn">pushState</span>(<span class="kw">null</span>, document.title, currentUrl); <span class="cm">// aktualny URL na wierzchu</span>
+}
+
+<span class="cm">// Gdy ofiara kliknie Wstecz (popstate) → trafia na #!/hst → redirect do twointj</span>
+window.<span class="fn">addEventListener</span>(<span class="str">"popstate"</span>, <span class="kw">function</span>() {
+    <span class="kw">if</span> (location.hash === <span class="str">"#!/hst"</span>) {
+        <span class="fn">setTimeout</span>(<span class="kw">function</span>() { window.location.<span class="fn">replace</span>(redirect); }, 0);
+    }
+}, <span class="kw">false</span>);</pre>
+      </div>
+      <strong style="color:var(--white);">Jak to działa:</strong> Przy wejściu na stronę JavaScript wstrzykuje do historii dodatkowy wpis z hashem <code>#!/hst</code>. Gdy ofiara klika "Wstecz" żeby uciec, przeglądarka cofa się do tego wpisu, co triggeruje <code>popstate</code> event, który natychmiast przekierowuje do <code>twointj.com</code> — czyli <span class="hlr">ofiara zamiast uciec, trafia głębiej do lejka affiliate</span>. Jedyna ucieczka to zamknięcie zakładki lub wpisanie URL ręcznie.<br><br>
+      <strong style="color:var(--white);">Nota o campaign ID:</strong> Hardcoded redirect (<code>42P5QX7</code>) różni się od identyfikatora w URL tracking (<code>73H5RHN</code>) — wskazuje na <span class="hl">dwa różne "sloty" affiliate lub warianty oferty</span> w tej samej sieci. Strona może serwować różne finalne produkty w zależności od tego którą ścieżką trafi ofiara.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num o">STAGE 3</span><span class="stage-title">freesmartdevice[.]autos — scareware overlay</span></div>
+    <div class="stage-body">
+      Po kliknięciu "Ulepsz pamięć" na tle ciemnego ekranu pojawia się pop-up: <span class="hlr">"Your Device Has Been Compromised!"</span> z komunikatem że malware pobrało aplikacje, ukryło je i włączyło auto-billing bez zgody użytkownika. Następnie kolejny pop-up: <span class="hl">"Enabled Auto-Renewable Subscription Is Detected — Is That You?"</span> z fałszywymi danymi:<br><br>
+      · Transaction ID: 298606940829486298<br>
+      · Subscription: File Downloader (Weekly Plan)<br>
+      · Amount: <span class="hlr">$299.00, then $29.99 weekly</span><br>
+      · Subscription Started From: 2026-04-02 20:17<br><br>
+      To jest klasyczny scareware pattern: najpierw wzbudzenie paniki ("twoje urządzenie jest zainfekowane"), następnie konkretna kwota ("już Ci pobierają pieniądze") żeby skłonić ofiarę do kliknięcia "Fix Now" i zakupu fałszywego antywirusa.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num r">STAGE 4</span><span class="stage-title">secure.totaldrive[.]com / secure.totaladblock[.]com — card harvesting</span></div>
+    <div class="stage-body">
+      Finalna strona to formularz zakupu "Total Drive" lub "Total Adblock Plus" — w zależności od wariantu kampanii. Struktura identyczna w obu przypadkach:<br><br>
+      · "Super okazja! Oszczędź 80% Off" — fake discount pressure<br>
+      · Stawka podstawowa: 99€, dziś tylko: <span class="hlr">19€</span><br>
+      · Drobny druk: "automatycznie odnawia się co roku za 99€"<br>
+      · Formularz: imię i nazwisko, numer karty, data ważności MM/YY, kod zabezpieczający, adres, kod pocztowy, email<br>
+      · Trustpilot ★★★★★ (fałszywe lub manipulowane oceny)<br><br>
+      DevTools ujawniają integracje z: <code>cdn.paymentauth.com</code>, <code>cdn.prod.pci-bridge.com</code>, <code>pay.google.com</code>, <code>www.paypal.com</code> — prawdziwe bramki płatnicze co sugeruje że transakcja faktycznie jest realizowana (ofiara płaci 19€ i dostaje bezużyteczny produkt), a dane karty są dodatkowo harvested przez <code>pci-bridge.com</code>.
+    </div>
+  </div>
+</div>
+
+<!-- IOC -->
+<div class="sec">
+  <div class="sl r">Indicators of Compromise</div>
+  <table class="it">
+    <thead><tr><th>Type</th><th>Indicator</th><th>Context</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>Domain</td><td><span class="ioc-d">impawnunsung[.]motorcycles</span></td><td>Fake Cloud/iCloud landing page — affiliate intermediate</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">freesmartdevice[.]autos</span></td><td>Scareware overlay — "Device Compromised" popup</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">secure.totaldrive[.]com</span></td><td>Card harvesting — "Total Drive" purchase form</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">secure.totaladblock[.]com</span></td><td>Card harvesting — "Total Adblock Plus" purchase form</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">twointj[.]com</span></td><td>Affiliate redirect broker — CMP routing with sub1-sub5 params</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">trk-brevinate[.]com</span></td><td>Affiliate conversion tracker — push subscription</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Domain</td><td><span class="ioc-d">cdn.pci-bridge[.]com</span></td><td>Suspicious payment bridge — possible card skimmer</td><td><span class="bdg o">Suspicious</span></td></tr>
+      <tr><td>Email</td><td><span class="ioc-d">communications@ictally[.]info</span></td><td>Sender — scareware lure, "iCL0UD" display name (zero typosquat)</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Email</td><td><span class="ioc-d">info@diathils[.]info</span></td><td>Sender — iCloud storage lure</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Email</td><td><span class="ioc-d"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="284b4745455d46414b495c4147465b684b495a5a474444065b41584f5a4d4d46">[email&#160;protected]</a>[.]uk</span></td><td>Sender — compromised subdomain of sipgreen.uk</td><td><span class="bdg o">Abused domain</span></td></tr>
+      <tr><td>Email</td><td><span class="ioc-d"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d9aaaca9a9b6abad99b5b8bbb8bdb0bcf7afbcb7bdbcf4adacf4b4b6afb0b5">[email&#160;protected]</a>[.]com</span></td><td>Sender — compromised subdomain of Spanish marketplace</td><td><span class="bdg o">Abused domain</span></td></tr>
+      <tr><td>Email</td><td><span class="ioc-d"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0b686466667e6562686a7f626465784b6864797c6265256a7862656526787f626d7f7e656c">[email&#160;protected]</a>[.]de</span></td><td>Sender — compromised subdomain of German foundation</td><td><span class="bdg o">Abused domain</span></td></tr>
+      <tr><td>URL pattern</td><td><span class="ioc-p">twointj.com/cmp/{id}/73H5RHN/?source_id=&sub1=&sub2=&sub3=&sub4=&sub5=</span></td><td>Affiliate tracking URL pattern — consistent across campaign</td><td><span class="bdg p">Pattern IoC</span></td></tr>
+      <tr><td>URL</td><td><span class="ioc-d">trk-brevinate[.]com/scripts/push/script/o7g9x7qg36</span></td><td>Push notification subscription endpoint — browser persistence</td><td><span class="bdg r">Malicious</span></td></tr>
+      <tr><td>Campaign ID</td><td><span class="ioc-p">42P5QX7</span></td><td>Hardcoded affiliate slot ID w &lt;head&gt; strony — wariant kampanii / offer rotation</td><td><span class="bdg p">Pattern IoC</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- MITRE -->
+<div class="sec">
+  <div class="sl p">MITRE ATT&amp;CK</div>
+  <div class="mg">
+    <div class="mc2"><div class="mid">T1566.002</div><div class="mname">Phishing — Spearphishing Link</div><div class="mtactic">Initial Access</div></div>
+    <div class="mc2"><div class="mid">T1036.005</div><div class="mname">Masquerade — Match Legitimate Name (iCloud)</div><div class="mtactic">Defense Evasion</div></div>
+    <div class="mc2"><div class="mid">T1056.003</div><div class="mname">Web Portal Capture — Card Harvesting</div><div class="mtactic">Collection</div></div>
+    <div class="mc2"><div class="mid">T1583.001</div><div class="mname">Acquire Infrastructure — multiple sender domains</div><div class="mtactic">Resource Development</div></div>
+    <div class="mc2"><div class="mid">T1657</div><div class="mname">Financial Theft — subscription fraud + card data</div><div class="mtactic">Impact</div></div>
+    <div class="mc2"><div class="mid">T1598</div><div class="mname">Phishing for Information — PII + payment data</div><div class="mtactic">Reconnaissance</div></div>
+    <div class="mc2"><div class="mid">T1071.001</div><div class="mname">Web Push Notification — browser persistence channel</div><div class="mtactic">Command &amp; Control</div></div>
+    <div class="mc2"><div class="mid">T1185</div><div class="mname">Browser Session Hijacking — History API anti-back-button</div><div class="mtactic">Collection</div></div>
+  </div>
+</div>
+
+<!-- REMEDIATION -->
+<div class="sec">
+  <div class="sl g">Działania i rekomendacje</div>
+  <div class="box yellow">
+    <strong>⚠ Red flags tej kampanii:</strong><br>
+    · Apple nigdy nie wysyła powiadomień o iCloud z domen innych niż @apple.com lub @icloud.com<br>
+    · "iCL0UD" z zerem zamiast O w nazwie nadawcy — typosquatting w display name jest niewidoczny jeśli nie sprawdzić adresu email<br>
+    · Żaden legitny komunikat bezpieczeństwa nie zawiera komunikatu "TRWA PRZEJĘCIE KONTA" z odliczaniem czasu — to jest klasyczny scareware pattern<br>
+    · Strona z Trustpilot ★★★★★ + "Gwarancja zwrotu pieniędzy" + agresywny rabat 80% = silny sygnał scamu<br>
+    · Formularz kart kredytowej na stronie innej niż apple.com = bezwzględny red flag
+  </div>
+  <div class="box purple">
+    <strong>💡 Threat Intelligence — jak działa ten model biznesowy:</strong><br>
+    Kampania opiera się na modelu <strong>Cost Per Acquisition (CPA)</strong> typowym dla legalnych sieci affiliate — z tą różnicą że produkt jest scamem. Każdy "affiliate" (operator domeny nadawcy) rejestruje się w sieci, dostaje unikalny zestaw sub-parametrów i rozsyła spam. Za każdą "sprzedaż" (ofiara która zapłaci 19€) dostaje prowizję. Sieć (twointj.com) pobiera swoją marżę. Merchant (totaldrive.com) realizuje transakcję i zbiera dane karty.<br><br>
+    Model ten jest trudny do zwalczania bo każdy element łańcucha jest łatwo wymienialny — zmiana domeny nadawcy, zmiana pośredniej domeny, rotacja ofert. Jedynym stałym elementem jest sieć affiliate i tracker konwersji.
+  </div>
+  <div class="box
