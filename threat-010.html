@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THREAT-010 | AiTM Phishing – Session Cookie Hijack</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #070a0f;
+  --surface: #0c1119;
+  --surface2: #111827;
+  --border: #1e2d40;
+  --accent: #38bdf8;
+  --accent-dim: #0ea5e9;
+  --accent-glow: rgba(56,189,248,0.15);
+  --accent-glow2: rgba(56,189,248,0.06);
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-muted: #475569;
+  --red: #f87171;
+  --orange: #fb923c;
+  --yellow: #fbbf24;
+  --green: #4ade80;
+  --purple: #c084fc;
+  --font: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* Subtle grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(56,189,248,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56,189,248,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 60px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* -- Header -- */
+.header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 32px;
+  margin-bottom: 40px;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 3px 10px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.tag-id {
+  background: var(--accent-glow);
+  color: var(--accent);
+  border: 1px solid rgba(56,189,248,0.3);
+}
+
+.tag-type {
+  background: rgba(248,113,113,0.1);
+  color: var(--red);
+  border: 1px solid rgba(248,113,113,0.25);
+}
+
+.tag-status {
+  background: rgba(74,222,128,0.1);
+  color: var(--green);
+  border: 1px solid rgba(74,222,128,0.25);
+}
+
+h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+
+h1 span {
+  color: var(--accent);
+}
+
+.subtitle {
+  color: var(--text-dim);
+  font-size: 12px;
+  font-weight: 300;
+}
+
+/* -- Meta grid -- */
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.meta-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+
+.meta-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.meta-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.meta-value.accent { color: var(--accent); }
+.meta-value.red { color: var(--red); }
+.meta-value.green { color: var(--green); }
+
+/* -- Section headings -- */
+.section { margin-bottom: 40px; }
+
+.section-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent);
+}
+
+h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+/* -- Notice boxes -- */
+.notice {
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  border-left: 3px solid;
+  line-height: 1.65;
+}
+
+.notice-blue {
+  background: var(--accent-glow2);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.notice-red {
+  background: rgba(248,113,113,0.06);
+  border-color: var(--red);
+  color: var(--text);
+}
+
+.notice-yellow {
+  background: rgba(251,191,36,0.06);
+  border-color: var(--yellow);
+  color: var(--text);
+}
+
+.notice-green {
+  background: rgba(74,222,128,0.06);
+  border-color: var(--green);
+  color: var(--text);
+}
+
+.notice-orange {
+  background: rgba(251,146,60,0.06);
+  border-color: var(--orange);
+  color: var(--text);
+}
+
+.notice strong {
+  color: inherit;
+  font-weight: 600;
+}
+
+.notice-blue strong { color: var(--accent); }
+.notice-red strong { color: var(--red); }
+.notice-yellow strong { color: var(--yellow); }
+.notice-green strong { color: var(--green); }
+.notice-orange strong { color: var(--orange); }
+
+/* -- Timeline -- */
+.timeline { position: relative; padding-left: 28px; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--accent), var(--border));
+}
+
+.tl-day {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin: 20px 0 12px 0;
+}
+
+.tl-day:first-child { margin-top: 0; }
+
+.tl-entry {
+  position: relative;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.tl-entry::before {
+  content: '';
+  position: absolute;
+  left: -25px;
+  top: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  transition: border-color 0.2s;
+}
+
+.tl-entry.critical::before { border-color: var(--red); background: rgba(248,113,113,0.2); }
+.tl-entry.action::before { border-color: var(--green); background: rgba(74,222,128,0.2); }
+.tl-entry.warn::before { border-color: var(--yellow); background: rgba(251,191,36,0.2); }
+.tl-entry.info::before { border-color: var(--accent); background: rgba(56,189,248,0.2); }
+
+.tl-time {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  min-width: 48px;
+  padding-top: 1px;
+}
+
+.tl-text {
+  font-size: 12px;
+  color: var(--text);
+  flex: 1;
+}
+
+.tl-text em {
+  color: var(--text-dim);
+  font-style: normal;
+  font-size: 11px;
+}
+
+/* -- Attack chain -- */
+.chain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 16px 0;
+}
+
+.chain-step {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.chain-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 10px 14px;
+  font-size: 11px;
+  text-align: center;
+  min-width: 100px;
+}
+
+.chain-block .step-num {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.chain-block .step-label {
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--text);
+}
+
+.chain-block .step-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.chain-block.s1 .step-num { color: var(--orange); }
+.chain-block.s2 .step-num { color: var(--yellow); }
+.chain-block.s3 .step-num { color: var(--red); }
+.chain-block.s4 .step-num { color: var(--red); }
+.chain-block.s5 .step-num { color: var(--purple); }
+
+.chain-arrow {
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 0 6px;
+  margin-bottom: 0;
+}
+
+/* -- IOC Table -- */
+.ioc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+
+.ioc-table th {
+  text-align: left;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.ioc-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(30,45,64,0.5);
+  vertical-align: top;
+}
+
+.ioc-table tr:last-child td { border-bottom: none; }
+
+.ioc-table tr:hover td { background: rgba(56,189,248,0.03); }
+
+.ioc-d {
+  font-family: var(--font);
+  color: var(--accent);
+  font-size: 11px;
+  word-break: break-all;
+}
+
+.ioc-p {
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+.ioc-type {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 7px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.type-email { background: rgba(251,146,60,0.12); color: var(--orange); border: 1px solid rgba(251,146,60,0.2); }
+.type-url { background: rgba(248,113,113,0.12); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+.type-domain { background: rgba(56,189,248,0.12); color: var(--accent); border: 1px solid rgba(56,189,248,0.2); }
+.type-ip { background: rgba(192,132,252,0.12); color: var(--purple); border: 1px solid rgba(192,132,252,0.2); }
+
+/* -- MITRE grid -- */
+.mitre-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.mitre-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  transition: border-color 0.2s;
+}
+
+.mitre-card:hover { border-color: rgba(56,189,248,0.3); }
+
+.mitre-id {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.mitre-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.mitre-tactic {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* -- Response table -- */
+.resp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.resp-table th {
+  text-align: left;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.resp-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(30,45,64,0.5);
+  vertical-align: top;
+}
+
+.resp-table tr:last-child td { border-bottom: none; }
+
+.done {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: rgba(74,222,128,0.1);
+  color: var(--green);
+  border: 1px solid rgba(74,222,128,0.2);
+  letter-spacing: 0.06em;
+}
+
+.partial {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: rgba(251,191,36,0.1);
+  color: var(--yellow);
+  border: 1px solid rgba(251,191,36,0.2);
+  letter-spacing: 0.06em;
+}
+
+/* -- Summary card -- */
+.summary-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  border-top: 2px solid var(--accent);
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 12px;
+  background: var(--surface2);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-value.red { color: var(--red); }
+.stat-value.green { color: var(--green); }
+.stat-value.yellow { color: var(--yellow); }
+
+.stat-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* -- Footer -- */
+.footer {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.prose {
+  color: var(--text-dim);
+  font-size: 12.5px;
+  line-height: 1.75;
+}
+
+.prose + .prose { margin-top: 10px; }
+
+code {
+  font-family: var(--font);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  color: var(--accent);
+}
+
+.surface-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <span class="tag tag-id">THREAT-010</span>
+      <span class="tag tag-type">AiTM Phishing</span>
+      <span class="tag tag-status">Contained</span>
+    </div>
+    <h1>Adversary-in-the-Middle Phishing –<br><span>Session Cookie Hijack via Fake M365 Portal</span></h1>
+    <div class="subtitle">Incident Date: 2026-04-14 · Authored: 2026-04-15 · Platform: Microsoft 365 / Azure AD</div>
+  </div>
+
+  <!-- Meta -->
+  <div class="meta-grid">
+    <div class="meta-card">
+      <div class="meta-label">Incident Date</div>
+      <div class="meta-value">2026-04-14</div>
+    </div>
+    <div class="meta-card">
+      <div class="meta-label">Detection Time</div>
+      <div class="meta-value accent">10:59 UTC+2</div>
+    </div>
+    <div class="meta-card">
+      <div class="meta-label">Containment Time</div>
+      <div class="meta-value">14:30 UTC+2</div>
+    </div>
+    <div class="meta-card">
+      <div class="meta-label">MTTC</div>
+      <div class="meta-value accent">~3h 31min</div>
+    </div>
+    <div class="meta-card">
+      <div class="meta-label">Data Exfiltration</div>
+      <div class="meta-value green">None Confirmed</div>
+    </div>
+    <div class="meta-card">
+      <div class="meta-label">Severity</div>
+      <div class="meta-value red">HIGH</div>
+    </div>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="section">
+    <div class="section-title">Executive Summary</div>
+    <div class="surface-box">
+      <p class="prose">W dniu 14.04.2026 użytkownik kliknął link zawarty w wiadomości e-mail wysłanej z adresu zewnętrznego klienta (<code>ken[@]redacted[.]com</code>), z którym prowadził wcześniej legalną korespondencję. Link inicjował łańcuch przekierowań prowadzący do strony phishingowej imitującej portal logowania Microsoft 365. Strona działała jako AiTM proxy, przechwytując dane uwierzytelniające oraz ciasteczko sesyjne użytkownika.</p>
+      <p class="prose" style="margin-top:10px;">Atakujący zainicjował jedno udane logowanie do usługi Office Home z zagranicznego adresu IP. Alert systemu bezpieczeństwa o logowaniu spoza Polski został pierwotnie zamknięty na podstawie deklaracji użytkownika o korzystaniu z VPN. Po ponownym kontakcie bota zidentyfikowano phishing, wdrożono containment (revoke sessions, reset hasła). Analiza logów Office Activity i Purview nie wykazała dostępu do skrzynek pocztowych ani plików z podejrzanych lokalizacji.</p>
+      <p class="prose" style="margin-top:10px;">Incydent został skutecznie opanowany. Brak oznak eksfiltracji danych lub dalszej aktywności atakującego po wykonaniu działań zaradczych.</p>
+    </div>
+  </div>
+
+  <!-- Attack Chain -->
+  <div class="section">
+    <div class="section-title">Attack Chain</div>
+    <div class="chain" style="margin-bottom:16px;">
+      <div class="chain-step">
+        <div class="chain-block s1">
+          <div class="step-num">01 · INITIAL ACCESS</div>
+          <div class="step-label">Phishing Email</div>
+          <div class="step-sub">Trusted sender,<br>malicious link</div>
+        </div>
+        <div class="chain-arrow">→</div>
+      </div>
+      <div class="chain-step">
+        <div class="chain-block s2">
+          <div class="step-num">02 · REDIRECT</div>
+          <div class="step-label">Multi-hop Redirect</div>
+          <div class="step-sub">AiTM proxy<br>infrastructure</div>
+        </div>
+        <div class="chain-arrow">→</div>
+      </div>
+      <div class="chain-step">
+        <div class="chain-block s3">
+          <div class="step-num">03 · CREDENTIAL THEFT</div>
+          <div class="step-label">Fake M365 Login</div>
+          <div class="step-sub">Login, hasło,<br>session cookie</div>
+        </div>
+        <div class="chain-arrow">→</div>
+      </div>
+      <div class="chain-step">
+        <div class="chain-block s4">
+          <div class="step-num">04 · INITIAL USE</div>
+          <div class="step-label">Session Hijack</div>
+          <div class="step-sub">Office Home<br>login (udany)</div>
+        </div>
+        <div class="chain-arrow">→</div>
+      </div>
+      <div class="chain-step">
+        <div class="chain-block s5">
+          <div class="step-num">05 · BLOCKED</div>
+          <div class="step-label">Post-Containment</div>
+          <div class="step-sub">3 nieudane próby<br>(hasło + cookie)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Analysis -->
+  <div class="section">
+    <div class="section-title">Technical Analysis</div>
+
+    <h2>1. Wektor ataku – zaufany nadawca</h2>
+    <p class="prose">Wiadomość phishingowa nadeszła z adresu <code>ken[@]redacted[.]com</code>, będącego realnym kontrahentem, z którym ofiara prowadziła korespondencję kilka tygodni wcześniej. Świadczy to o jednym z dwóch scenariuszy: albo konto klienta zostało wcześniej skompromitowane i użyte do dystrybucji phishingu (Business Email Compromise), albo atakujący sfałszował nagłówek nadawcy.</p>
+
+    <div class="notice notice-orange" style="margin-top:12px;">
+      <strong>Kontekst BEC:</strong> Wiadomość z adresu zaufanego kontrahenta eliminuje podstawową heurystykę „nieznany nadawca" u większości użytkowników. Technika ta radykalnie zwiększa współczynnik kliknięć i wyjaśnia, dlaczego ofiara nie identyfikowała zagrożenia przed weryfikacją w VirusTotal.
+    </div>
+
+    <h2 style="margin-top:20px;">2. Evasion – VirusTotal bypass</h2>
+    <p class="prose">Przed kliknięciem użytkownik zweryfikował link w serwisie VirusTotal – wynik był czysty. Jest to znana technika evasion stosowana w kampaniach AiTM: pierwszy etap łańcucha przekierowań wskazuje na legitymowany hosting (<code>cshbck.myportfolio.com</code> – platforma Adobe Portfolio), który nie jest klasyfikowany jako złośliwy. Właściwa infrastruktura phishingowa jest ukryta za drugim przekierowaniem i aktywowana dopiero po kliknięciu.</p>
+
+    <div class="notice notice-yellow" style="margin-top:12px;">
+      <strong>VirusTotal limitation:</strong> Narzędzie skanuje docelowy URL w czasie analizy. Strony phishingowe często implementują: geofencing (inny content dla skanerów), time-gating (aktywacja po X godzinach), user-agent filtering (blokowanie botów). Czysty wynik VT nie gwarantuje bezpieczeństwa linku.
+    </div>
+
+    <h2 style="margin-top:20px;">3. AiTM Infrastructure – łańcuch przekierowań</h2>
+    <p class="prose">Link inicjował trzyetapowy łańcuch przekierowań: landing page na Adobe Portfolio → AiTM proxy (<code>ssppgkokmsioonline[.]online</code>) → fałszywa strona logowania M365 na tej samej domenie. Domena proxy (<code>ssppgkokmsioonline[.]online</code>) jest typosquatem imitującym <code>ssppg.microsoft.com</code> – oficjalną subdomenę Microsoft. Fragment hash <code>#fbhrKSTG</code> w pierwszym przekierowaniu prawdopodobnie służy jako token śledzący sesję użytkownika po stronie infrastruktury atakującego.</p>
+
+    <div class="notice notice-red" style="margin-top:12px;">
+      <strong>Session Cookie Hijack:</strong> AiTM proxy działa jako reverse proxy – użytkownik loguje się przez atakującego do prawdziwego M365, a proxy przechwytuje nie tylko login i hasło, ale również ciasteczko sesyjne zwracane przez Microsoft po uwierzytelnieniu MFA. Pozwala to na reuse sesji bez znajomości drugiego czynnika.
+    </div>
+
+    <h2 style="margin-top:20px;">4. Post-Compromise Activity</h2>
+    <p class="prose">Atakujący wykonał jedno udane logowanie z IP <code>198.22.162.15</code> do usługi Office Home. Analiza logów Office Activity oraz Microsoft Purview nie wykazała żadnego dostępu do skrzynek pocztowych ani plików w ramach tej sesji. Możliwe wyjaśnienia: sesja była zbyt krótka (containment nastąpił szybko), atakujący prowadził rozpoznanie lub incydent był częścią kampanii z automatycznym pierwszym logowaniem i ręcznym follow-up.</p>
+    <p class="prose" style="margin-top:8px;">Po revoke sessions odnotowano trzy nieudane próby logowania (2x credentials, 1x session cookie reuse), co potwierdza, że skradzione sesyjne cookie zostało unieważnione skutecznie przed ponownym użyciem.</p>
+  </div>
+
+  <!-- Timeline -->
+  <div class="section">
+    <div class="section-title">Incident Timeline</div>
+    <div class="timeline">
+      <div class="tl-day">14.04.2026</div>
+
+      <div class="tl-entry warn">
+        <div class="tl-time">10:59</div>
+        <div class="tl-text">Alert o logowaniu spoza Polski wygenerowany przez system bezpieczeństwa <em>→ alert zamknięty automatycznie po deklaracji użytkownika o VPN</em></div>
+      </div>
+
+      <div class="tl-entry info">
+        <div class="tl-time">~11:00</div>
+        <div class="tl-text">Udane logowanie atakującego (IP <code>198.22.162.15</code>) do usługi Office Home <em>→ brak dalszej aktywności w mailach/plikach</em></div>
+      </div>
+
+      <div class="tl-entry warn">
+        <div class="tl-time">13:17</div>
+        <div class="tl-text">Ponowny kontakt bota bezpieczeństwa z użytkownikiem <em>→ inicjacja rozmowy wyjaśniającej</em></div>
+      </div>
+
+      <div class="tl-entry critical">
+        <div class="tl-time">14:17</div>
+        <div class="tl-text">Identyfikacja incydentu phishingowego podczas rozmowy z użytkownikiem – ustalono kliknięcie linku, przekierowania i zalogowanie do fałszywego portalu M365</div>
+      </div>
+
+      <div class="tl-entry action">
+        <div class="tl-time">14:25</div>
+        <div class="tl-text">Revoke all sessions + wylogowanie użytkownika ze wszystkich usług Microsoft 365</div>
+      </div>
+
+      <div class="tl-entry action">
+        <div class="tl-time">14:30</div>
+        <div class="tl-text">Reset hasła przez użytkownika</div>
+      </div>
+
+      <div class="tl-entry info">
+        <div class="tl-time">14:30–16:00</div>
+        <div class="tl-text">Monitoring logowań w Azure AD – brak kolejnych udanych logowań spoza Polski <em>→ 3 nieudane próby zablokowane</em></div>
+      </div>
+
+      <div class="tl-day">15.04.2026</div>
+
+      <div class="tl-entry action">
+        <div class="tl-time">rano</div>
+        <div class="tl-text">Ponowna analiza logów: potwierdzone 3 nieudane próby z dnia 14.04 wieczorem (2x hasło, 1x session cookie reuse) z IP <code>69.172.233.32</code> oraz IPv6 <code>2604:2dc0:200:16ec::</code> – brak dalszej aktywności</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IOC Table -->
+  <div class="section">
+    <div class="section-title">Indicators of Compromise</div>
+    <div class="surface-box" style="padding:0; overflow:hidden;">
+      <table class="ioc-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Indicator</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="ioc-type type-email">Email</span></td>
+            <td><span class="ioc-d">ken[@]redacted[.]com</span></td>
+            <td><span class="ioc-p">Adres nadawcy phishingu (potencjalnie skompromitowane konto BEC)</span></td>
+          </tr>
+          <tr>
+            <td><span class="ioc-type type-url">URL</span></td>
+            <td><span class="ioc-d">hxxps://cshbck[.]myportfolio[.]com/</span></td>
+            <td><span class="ioc-p">Landing page (Adobe Portfolio) – etap 1 łańcucha, czysty w VT</span></td>
+          </tr>
+          <tr>
+            <td><span class="ioc-type type-url">URL</span></td>
+            <td><span class="ioc-d">hxxps://ghgmbonhhs[.]ssppgkokmsioonline[.]online/fbhrKSTG#</span></td>
+            <td><span class="ioc-p">AiTM proxy – pierwsze przekierowanie z tokenem sesji w hash</span></td>
+          </tr>
+          <tr>
+            <td><span class="ioc-type type-domain">Domain</span></td>
+            <td><span class="ioc-d">login[.]ssppgkokmsioonline[.]online</span></td>
+            <td><span class="ioc-p">Fałszywy portal logowania M365 – typosquat Microsoft subdomain</span></td>
+          </tr>
+          <tr>
+            <td><span class="ioc-type type-ip">IP</span></td>
+            <td><span class="ioc-d">198[.]22[.]162[.]15</span></td>
+            <td><span class="ioc-p">IP udanego logowania do Office Home (atakujący)</span></td>
+          </tr>
+          <tr>
+            <td><span class="ioc-type type-ip">IP</span></td>
+            <td><span class="ioc-d">69[.]172[.]233[.]32</span></td>
+            <td><span class="ioc-p">IP nieudanych prób logowania po revoke sessions</span></td>
+          </tr>
+          <tr>
+            <td><span class="ioc-type type-ip">IPv6</span></td>
+            <td><span class="ioc-d">2604[:]2dc0[:]200[:]16ec[:]:</span></td>
+            <td><span class="ioc-p">IPv6 nieudanej próby reuse session cookie</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MITRE -->
+  <div class="section">
+    <div class="section-title">MITRE ATT&CK Mapping</div>
+    <div class="mitre-grid">
+      <div class="mitre-card">
+        <div class="mitre-id">T1566.002</div>
+        <div class="mitre-name">Phishing: Spearphishing Link</div>
+        <div class="mitre-tactic">Initial Access</div>
+      </div>
+      <div class="mitre-card">
+        <div class="mitre-id">T1557</div>
+        <div class="mitre-name">Adversary-in-the-Middle</div>
+        <div class="mitre-tactic">Credential Access</div>
+      </div>
+      <div class="mitre-card">
+        <div class="mitre-id">T1539</div>
+        <div class="mitre-name">Steal Web Session Cookie</div>
+        <div class="mitre-tactic">Credential Access</div>
+      </div>
+      <div class="mitre-card">
+        <div class="mitre-id">T1078</div>
+        <div class="mitre-name">Valid Accounts</div>
+        <div class="mitre-tactic">Defense Evasion / Persistence</div>
+      </div>
+      <div class="mitre-card">
+        <div class="mitre-id">T1606.001</div>
+        <div class="mitre-name">Forge Web Credentials: Web Cookies</div>
+        <div class="mitre-tactic">Credential Access</div>
+      </div>
+      <div class="mitre-card">
+        <div class="mitre-id">T1036.005</div>
+        <div class="mitre-name">Masquerading: Match Legitimate Name</div>
+        <div class="mitre-tactic">Defense Evasion</div>
+      </div>
+      <div class="mitre-card">
+        <div class="mitre-id">T1598.003</div>
+        <div class="mitre-name">Phishing for Information: Link</div>
+        <div class="mitre-tactic">Reconnaissance</div>
+      </div>
+      <div class="mitre-card">
+        <div class="mitre-id">T1550.004</div>
+        <div class="mitre-name">Use Alternate Authentication: Web Session Cookie</div>
+        <div class="mitre-tactic">Lateral Movement</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Response Actions -->
+  <div class="section">
+    <div class="section-title">Response Actions</div>
+    <div class="surface-box" style="padding:0; overflow:hidden;">
+      <table class="resp-table">
+        <thead>
+          <tr>
+            <th>Czas</th>
+            <th>Działanie</th>
+            <th>Efekt</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--text-dim); white-space:nowrap;">14:25</td>
+            <td>Revoke all active sessions (Azure AD)</td>
+            <td style="color:var(--text-dim);">Unieważnienie skradzionego session cookie</td>
+            <td><span class="done">DONE</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim); white-space:nowrap;">14:25</td>
+            <td>Sign out from all services</td>
+            <td style="color:var(--text-dim);">Zakończenie aktywnych sesji użytkownika</td>
+            <td><span class="done">DONE</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim); white-space:nowrap;">14:30</td>
+            <td>Zmiana hasła przez użytkownika</td>
+            <td style="color:var(--text-dim);">Unieważnienie wykradzonych credentials</td>
+            <td><span class="done">DONE</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim); white-space:nowrap;">14:30–16:00</td>
+            <td>Monitoring Azure AD Sign-in Logs</td>
+            <td style="color:var(--text-dim);">Brak kolejnych udanych logowań</td>
+            <td><span class="done">DONE</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim); white-space:nowrap;">15.04 rano</td>
+            <td>Analiza Office Activity Logs + Purview</td>
+            <td style="color:var(--text-dim);">Brak dostępu do maili/plików z podejrzanych IP</td>
+            <td><span class="done">DONE</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim); white-space:nowrap;">15.04</td>
+            <td>Weryfikacja reguł przekierowania poczty</td>
+            <td style="color:var(--text-dim);">Brak dodanych przekierowań</td>
+            <td><span class="done">DONE</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim); white-space:nowrap;">15.04</td>
+            <td>Weryfikacja dodanych metod MFA/urządzeń</td>
+            <td style="color:var(--text-dim);">Brak nowych metod uwierzytelniania</td>
+            <td><span class="done">DONE</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Findings -->
+  <div class="section">
+    <div class="section-title">Key Findings</div>
+
+    <div class="notice notice-blue">
+      <strong>Initial alert dismissed:</strong> Alert o logowaniu spoza Polski (10:59) został automatycznie zamknięty na podstawie deklaracji użytkownika o VPN. Mechanizm ten – choć ergonomiczny – stanowi potencjalny wektor obejścia alertów w przypadku socjotechniki lub kompromitacji konta.
+    </div>
+
+    <div class="notice notice-yellow">
+      <strong>VirusTotal evasion:</strong> Użycie Adobe Portfolio jako pierwszego etapu przekierowania pozwoliło ominąć detekcję VT. Atakujący świadomie rozdzielił infrastrukturę na legalny landing i właściwy AiTM proxy, by pierwsze skany nie trafiały na złośliwą domenę.
+    </div>
+
+    <div class="notice notice-red">
+      <strong>MFA bypass via cookie theft:</strong> Incydent potwierdza, że tradycyjne MFA (TOTP, SMS) nie chroni przed AiTM – atakujący przechwytuje sesję po uwierzytelnieniu, pomijając konieczność znajomości drugiego czynnika.
+    </div>
+
+    <div class="notice notice-green">
+      <strong>Effective containment:</strong> Revoke sessions wykonano zanim atakujący podjął aktywne działania w skrzynce/plikach. Analiza Purview i Office Activity potwierdziła brak eksfiltracji. Trzy próby ponownego wejścia po revoke – wszystkie nieudane – potwierdzają skuteczność containmentu.
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="section">
+    <div class="section-title">Outcome Summary</div>
+    <div class="summary-card">
+      <p class="prose">Incydent AiTM phishing zakończył się skutecznym containmentem bez stwierdzonej eksfiltracji danych. Atakujący uzyskał krótkotrwały dostęp do konta (jedno logowanie do Office Home), jednak nie zdążył podjąć działań w skrzynce pocztowej ani zasobach plików przed unieważnieniem sesji. Trzy nieudane próby ponownego wejścia po containmencie potwierdzają, że działania zaradcze były skuteczne i wdrożone we właściwym czasie.</p>
+      <div class="summary-stats">
+        <div class="stat-item">
+          <div class="stat-value red">1</div>
+          <div class="stat-label">Udane logowanie</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value yellow">3</div>
+          <div class="stat-label">Zablokowane próby</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value green">0</div>
+          <div class="stat-label">Eksfiltracja danych</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value accent">~3h31m</div>
+          <div class="stat-label">MTTC</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value green">0</div>
+          <div class="stat-label">Nowe reguły/MFA</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>THREAT-010 · maciekgorzny.github.io/security-writeups/</span>
+    <span>2026-04-15 · Detection Engineering Portfolio</span>
+  </div>
+
+</div>
+</body>
+</html>
