@@ -107,9 +107,9 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
 
   <div class="sh">Stats</div>
   <div class="stats">
-    <div class="stat"><div class="stat-val">9</div><div class="stat-label">Writeups</div></div>
+    <div class="stat"><div class="stat-val">10</div><div class="stat-label">Writeups</div></div>
     <div class="stat"><div class="stat-val g">16</div><div class="stat-label">KQL Rules</div></div>
-    <div class="stat"><div class="stat-val o">6</div><div class="stat-label">Phishing cases</div></div>
+    <div class="stat"><div class="stat-val o">7</div><div class="stat-label">Phishing cases</div></div>
     <div class="stat"><div class="stat-val p">TA569</div><div class="stat-label">Threat Actor</div></div>
     <div class="stat"><div class="stat-val r">0</div><div class="stat-label">Payload executions</div></div>
     <div class="stat"><div class="stat-val y">9/9</div><div class="stat-label">User reported</div></div>
@@ -147,6 +147,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
   <!-- WRITEUPS - newest first -->
   <div class="sh">Incident Writeups</div>
   <div class="cards">
+
     <a href="threat-010.html" class="wcard blue">
       <div class="wcard-inner"><div class="wcard-bar"></div>
       <div class="wcard-content">
@@ -160,10 +161,10 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
     <a href="threat-009.html" class="wcard purple">
   <div class="wcard-inner"><div class="wcard-bar"></div>
   <div class="wcard-content">
-    <div class="wcard-top"><span class="wcard-id">THREAT-009</span><span class="wcard-date">10 Mar – 4 Apr 2026</span></div>
-    <div class="wcard-title">iCloud Scareware Campaign - Affiliate Tracking · Multi-Lure · Card Harvesting · impawnunsung[.]motorcycles</div>
-    <div class="wcard-desc">24-day campaign (10 Mar – 3 Apr 2026) delivering scareware and fake cloud storage lures via 13+ auto-generated sender addresses across three distinct infrastructure patterns (*.us, *.org.uk, Yandex/outliers). Two variants identified: Variant A impersonates iCloud/generic "Cloud" with "TRWA PRZEJĘCIE KONTA" scareware overlay; Variant B impersonates Google Cloud with fake system scanner and PLN geotargeting (7 zł vs 19€). Source code analysis revealed full CPA affiliate architecture — sub1-sub5 tracking params, twointj.com redirect broker, trk-brevinate.com and trk.further-choose-fat-addition.run conversion trackers, two distinct anti-back-button implementations (hash-trap #!/hst and ii-counter), browser push notification persistence, IP passed openly in URL (&ip=), and view-source blocking via JS. Intermediate domains rotate across .motorcycles/.autos/.lat TLDs; shared relay infrastructure confirmed (allergywinter.org.uk ×2, ran1.* ×2). Final payload: card harvesting forms on secure.totaldrive.com / secure.totaladblock.com / secure.totalav.com / burmap.com (19€ → 99€/yr auto-renewal); merchant domain dynamically injected via &domain= parameter.</div>
-    <div class="wcard-tags"><span class="tag p">Scareware · CPA Affiliate</span><span class="tag r">Card Harvesting</span><span class="tag o">Multi-lure</span><span class="tag y">5 Sender Domains</span><span class="tag p">Source Analysis</span><span class="tag c">trk-brevinate.com</span></div>
+    <div class="wcard-top"><span class="wcard-id">THREAT-009</span><span class="wcard-date">10 Mar – 5 Apr 2026</span></div>
+    <div class="wcard-title">iCloud / Google Cloud Scareware Campaign - CPA Affiliate · 5 Sender Patterns · Base64 Tracker Evasion · Card Harvesting</div>
+    <div class="wcard-desc">26-day campaign (10 Mar – 5 Apr 2026) · 28+ emails across two mailboxes. Five sender patterns (P1–P5): auto-generated *.us addresses, abused *.org.uk domains, Yandex native accounts, elemnt.* relay, med067.* relay (6 emails in a single day — largest wave). Three variants: Var-A iCloud scareware "TRWA PRZEJĘCIE KONTA", Var-B Google Cloud fake system scanner (PLN geotargeting), Var-C personalized lure with victim email in body. Source code analysis: full CPA affiliate architecture — twointj.com / clickredirectors.org brokers, sub1-sub5 tracking, IP openly passed in URL (&amp;ip=), two anti-back-button implementations, push notification persistence. Key technical evolution in P4/P5: tracker domains hidden via base64 encoding in URL params (btd/ltd/td). Final payload: card harvesting on secure.totalav.com / burmap.com; merchant domain dynamically injected via &amp;domain= parameter.</div>
+    <div class="wcard-tags"><span class="tag p">Scareware · CPA Affiliate</span><span class="tag r">Card Harvesting</span><span class="tag o">5 Sender Patterns</span><span class="tag y">Base64 Tracker Evasion</span><span class="tag p">Source Analysis</span><span class="tag c">clickredirectors.org</span></div>
   </div></div>
 </a>
 
