@@ -101,7 +101,7 @@ footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--border);displ
   <div class="stat"><div class="stat-val o">IoC</div><div class="stat-label">Hunt template</div></div>
 </div>
 
-<!-- ══ CREDENTIAL ACCESS ══ -->
+<!-- == CREDENTIAL ACCESS == -->
 <div class="sh r">Credential Access</div>
 
 <div class="qcard">
@@ -211,7 +211,7 @@ footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--border);displ
   </div>
 </div>
 
-<!-- ══ LATERAL MOVEMENT ══ -->
+<!-- == LATERAL MOVEMENT == -->
 <div class="sh o">Lateral Movement</div>
 
 <div class="qcard">
@@ -282,7 +282,7 @@ ssh_process_events
   </div>
 </div>
 
-<!-- ══ EXECUTION ══ -->
+<!-- == EXECUTION == -->
 <div class="sh p">Execution · Defense Evasion</div>
 
 <div class="qcard">
@@ -345,7 +345,7 @@ ssh_process_events
   </div>
 </div>
 
-<!-- ══ PERSISTENCE ══ -->
+<!-- == PERSISTENCE == -->
 <div class="sh y">Persistence</div>
 
 <div class="qcard">
@@ -405,7 +405,7 @@ ssh_process_events
   </div>
 </div>
 
-<!-- ══ RECON / DISCOVERY ══ -->
+<!-- == RECON / DISCOVERY == -->
 <div class="sh g">Reconnaissance · Discovery</div>
 
 <div class="qcard">
@@ -492,7 +492,7 @@ base
   </div>
 </div>
 
-<!-- ══ MALWARE / IOC ══ -->
+<!-- == MALWARE / IOC == -->
 <div class="sh r">Malware · IoC Hunting</div>
 
 <div class="qcard">
@@ -553,7 +553,7 @@ Timestamp <span class="fn">between</span> (<span class="fn">ago</span>(30d) .. <
   </div>
 </div>
 
-<!-- ══ INFO / HYGIENE ══ -->
+<!-- == INFO / HYGIENE == -->
 <div class="sh">Security Hygiene · Informational</div>
 
 <div class="qcard">
@@ -625,6 +625,33 @@ Timestamp <span class="fn">between</span> (<span class="fn">ago</span>(30d) .. <
 <span class="op">|</span> <span class="fn">project</span> Timestamp, ReportId, SenderFromAddress, EmailCount</pre>
     </div>
     <div class="qcard-tags"><span class="tag r">BEC</span><span class="tag r">Account Takeover</span><span class="tag c">EmailEvents</span><span class="tag g">T1534</span></div>
+  </div>
+</div>
+
+
+<div class="qcard">
+  <div class="qcard-header">
+    <span class="qcard-tactic tactic-expl">Exploitation</span>
+    <span class="qcard-title">RedSun - MsMpEng.exe Write to System32 (0-day LPE)</span>
+    <span class="qcard-mitre">T1068 · T1562.001 - Privilege Escalation / Defense Evasion</span>
+  </div>
+  <div class="qcard-body">
+    <div class="qcard-desc">Wykrywa zapis plików przez MsMpEng.exe do System32/SysWOW64 - kluczowy wskaźnik exploitacji podatności RedSun (CVE candidate kwiecień 2026). W normalnych warunkach MsMpEng nigdy nie zapisuje bezpośrednio do System32 - FP rate praktycznie zero. Reguła wykrywa klasę zachowań, nie konkretny exploit - odporna na warianty PoC omijające sygnatury. Wdrożona w trybie Informational 17 Apr 2026. Aktualizuj status CVE i severity po wydaniu oficjalnego patcha przez Microsoft.</div>
+    <div class="code-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre class="code-block"><span class="cm">// [HIGH] RedSun - Windows Defender LPE 0-day (April 2026)</span>
+<span class="cm">// MsMpEng.exe writing to System32 = exploitation of cloud file rollback bug</span>
+<span class="cm">// MITRE: T1068 Exploitation for Privilege Escalation · T1562.001 Impair Defenses</span>
+<span class="cm">// Status: No patch as of 2026-04-17 · Sig mitigated: 1.449.154.0</span>
+<span class="kw">DeviceFileEvents</span>
+<span class="op">|</span> <span class="fn">where</span> InitiatingProcessFileName <span class="op">=~</span> <span class="str">"MsMpEng.exe"</span>
+<span class="op">|</span> <span class="fn">where</span> FolderPath <span class="fn">startswith</span> <span class="str">@"C:\Windows\System32"</span>
+    <span class="fn">or</span> FolderPath <span class="fn">startswith</span> <span class="str">@"C:\Windows\SysWOW64"</span>
+<span class="op">|</span> <span class="fn">where</span> ActionType <span class="fn">in</span> (<span class="str">"FileCreated"</span>, <span class="str">"FileModified"</span>)
+<span class="op">|</span> <span class="fn">project</span> Timestamp, DeviceName, FolderPath, FileName,
+          InitiatingProcessAccountName, InitiatingProcessIntegrityLevel</pre>
+    </div>
+    <div class="qcard-tags"><span class="tag r">0-day · LPE</span><span class="tag r">T1068</span><span class="tag o">MsMpEng.exe</span><span class="tag o">System32 Write</span><span class="tag c">DeviceFileEvents</span><span class="tag y">No Patch · Apr 2026</span></div>
   </div>
 </div>
 
