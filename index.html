@@ -108,8 +108,8 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
   <div class="sh">Stats</div>
   <div class="stats">
     <div class="stat"><div class="stat-val">11</div><div class="stat-label">Writeups</div></div>
-    <div class="stat"><div class="stat-val g">17</div><div class="stat-label">KQL Rules</div></div>
-    <div class="stat"><div class="stat-val o">6</div><div class="stat-label">Phishing cases</div></div>
+    <div class="stat"><div class="stat-val g">20</div><div class="stat-label">KQL Rules</div></div>
+    <div class="stat"><div class="stat-val o">7</div><div class="stat-label">Phishing cases</div></div>
     <div class="stat"><div class="stat-val p">TA569</div><div class="stat-label">Threat Actor</div></div>
     <div class="stat"><div class="stat-val r">0</div><div class="stat-label">Payload executions</div></div>
     <div class="stat"><div class="stat-val y">9/9</div><div class="stat-label">User reported</div></div>
@@ -148,12 +148,24 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
   <div class="sh">Incident Writeups</div>
   <div class="cards">
 
+    <a href="threat-012.html" class="wcard" style="--accent-local:#0078D4;border-color:var(--border);" onmouseover="this.style.borderColor='#0078D4'" onmouseout="this.style.borderColor='var(--border)'">
+  <div class="wcard-inner">
+    <div class="wcard-bar" style="background:#0078D4;"></div>
+    <div class="wcard-content">
+      <div class="wcard-top"><span class="wcard-id" style="color:#0078D4;">THREAT-012</span><span class="wcard-date">21 Apr 2026</span></div>
+      <div class="wcard-title">OAuth Device Code Phishing - Microsoft 365 Token Theft · Cloudflare Workers · SendGrid Abuse</div>
+      <div class="wcard-desc">Phishing attack abusing OAuth Device Code Flow (RFC 8628) to steal Microsoft 365 tokens while bypassing MFA. Chain: compromised SendGrid account (arterexmedical[.]com, DKIM/DMARC PASS) → fake Teams notification → redirect via compromised domain leoch[.]sg → fake Teams interface on Cloudflare Workers → device code → legitimate Microsoft OAuth portal. Victim authorizes the attacker's application on the real Microsoft portal. Access token (1h) + refresh token (90 days) - survives a password reset.</div>
+      <div class="wcard-tags"><span class="tag r">OAuth Phishing</span><span class="tag r">MFA Bypass</span><span class="tag b">Device Code Flow</span><span class="tag b">M365 · Azure AD</span><span class="tag o">Cloudflare Workers</span><span class="tag g">User Reported ✓</span></div>
+    </div>
+  </div>
+</a>
+
     <a href="threat-011.html" class="wcard orange">
   <div class="wcard-inner"><div class="wcard-bar"></div>
   <div class="wcard-content">
     <div class="wcard-top"><span class="wcard-id">THREAT-011</span><span class="wcard-date">17 Apr 2026</span></div>
-    <div class="wcard-title">RedSun — Windows Defender LPE 0-day · Cloud File Rollback Exploitation · CVE candidate April 2026</div>
-    <div class="wcard-desc">0-day Local Privilege Escalation w Windows Defender ujawniony 16 kwietnia 2026 przez Chaotic Eclipse. Exploit nadużywa błędu logicznego w mechanizmie cloud file rollback — Defender przepisuje wykryty plik z cloud tagiem do oryginalnej lokalizacji bez walidacji ścieżki, umożliwiając nadpisanie plików systemowych i eskalację do SYSTEM. Analiza przeprowadzona w lab (Windows 11 + Wazuh/Sysmon + Process Monitor). Potwierdzono częściowe działanie exploita — EICAR wykryty w TieringEngineService.exe, mechanizm RS-{GUID} zablokowany przez sygnatury behawioralne 1.449.154.0. Wdrożono regułę detekcji w Sentinelu i Wazuhu.</div>
+    <div class="wcard-title">RedSun - Windows Defender LPE 0-day · Cloud File Rollback Exploitation · CVE candidate April 2026</div>
+    <div class="wcard-desc">0-day Local Privilege Escalation in Windows Defender disclosed on April 16, 2026 by Chaotic Eclipse. Exploit abuses a logic flaw in the cloud file rollback mechanism - Defender rewrites a detected file tagged for cloud rollback to its original location without path validation, enabling system file overwrite and escalation to SYSTEM. Analysis conducted in lab environment (Windows 11 + Wazuh/Sysmon + Process Monitor). Partial exploit execution confirmed - EICAR detected in TieringEngineService.exe, RS-{GUID} mechanism blocked by behavioral signatures 1.449.154.0. Detection rule deployed in Sentinel and Wazuh.</div>
     <div class="wcard-tags"><span class="tag r">0-day · LPE</span><span class="tag o">No Patch</span><span class="tag o">Cloud Files API</span><span class="tag y">MsMpEng.exe</span><span class="tag c">Wazuh · Sysmon</span><span class="tag g">Detection Rule ✓</span></div>
   </div></div>
 </a>
@@ -163,7 +175,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
   <div class="wcard-content">
     <div class="wcard-top"><span class="wcard-id">THREAT-009</span><span class="wcard-date">10 Mar - 4 Apr 2026</span></div>
     <div class="wcard-title">iCloud Scareware Campaign - Affiliate Tracking · Multi-Lure · Card Harvesting · impawnunsung[.]motorcycles</div>
-    <div class="wcard-desc">24-day campaign (10 Mar - 3 Apr 2026) delivering scareware and fake cloud storage lures via 13+ auto-generated sender addresses across three distinct infrastructure patterns (*.us, *.org.uk, Yandex/outliers). Two variants identified: Variant A impersonates iCloud/generic "Cloud" with "TRWA PRZEJĘCIE KONTA" scareware overlay; Variant B impersonates Google Cloud with fake system scanner and PLN geotargeting (7 zł vs 19€). Source code analysis revealed full CPA affiliate architecture — sub1-sub5 tracking params, twointj.com redirect broker, trk-brevinate.com and trk.further-choose-fat-addition.run conversion trackers, two distinct anti-back-button implementations (hash-trap #!/hst and ii-counter), browser push notification persistence, IP passed openly in URL (&ip=), and view-source blocking via JS. Intermediate domains rotate across .motorcycles/.autos/.lat TLDs; shared relay infrastructure confirmed (allergywinter.org.uk ×2, ran1.* ×2). Final payload: card harvesting forms on secure.totaldrive.com / secure.totaladblock.com / secure.totalav.com / burmap.com (19€ → 99€/yr auto-renewal); merchant domain dynamically injected via &domain= parameter.</div>
+    <div class="wcard-desc">24-day campaign (10 Mar - 3 Apr 2026) delivering scareware and fake cloud storage lures via 13+ auto-generated sender addresses across three distinct infrastructure patterns (*.us, *.org.uk, Yandex/outliers). Two variants identified: Variant A impersonates iCloud/generic "Cloud" with "TRWA PRZEJĘCIE KONTA" scareware overlay; Variant B impersonates Google Cloud with fake system scanner and PLN geotargeting (7 zł vs 19€). Source code analysis revealed full CPA affiliate architecture - sub1-sub5 tracking params, twointj.com redirect broker, trk-brevinate.com and trk.further-choose-fat-addition.run conversion trackers, two distinct anti-back-button implementations (hash-trap #!/hst and ii-counter), browser push notification persistence, IP passed openly in URL (&ip=), and view-source blocking via JS. Intermediate domains rotate across .motorcycles/.autos/.lat TLDs; shared relay infrastructure confirmed (allergywinter.org.uk ×2, ran1.* ×2). Final payload: card harvesting forms on secure.totaldrive.com / secure.totaladblock.com / secure.totalav.com / burmap.com (19€ → 99€/yr auto-renewal); merchant domain dynamically injected via &domain= parameter.</div>
     <div class="wcard-tags"><span class="tag p">Scareware · CPA Affiliate</span><span class="tag r">Card Harvesting</span><span class="tag o">Multi-lure</span><span class="tag y">5 Sender Domains</span><span class="tag p">Source Analysis</span><span class="tag c">trk-brevinate.com</span></div>
   </div></div>
 </a>
