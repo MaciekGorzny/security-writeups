@@ -164,7 +164,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;displ
   <div class="stage-body">
     Kliknięcie przycisku uruchamia łańcuch przekierowań:<br><br>
     <code>SendGrid tracking URL</code> → <code>hxxps://leoch[.]sg/about-us/#[email-ofiary]</code> → <code>hxxps://secure-link-ek3t[.]c-kzevzz5a[.]workers[.]dev/l/7vmjNVmDDOs#[email-ofiary]</code><br><br>
-    Domena <strong>leoch[.]sg</strong> należy do singapurskiego producenta baterii - prawdopodobnie skompromitowany WordPress lub skradzione dane dostępowe. Na stronie osadzony jest minimalistyczny JavaScript inicjujący fetch do właściwej infrastruktury phishingowej po 2-sekundowym opóźnieniu, symulującym ładowanie Teams.<br><br>
+    Domena <strong>leoch[.]sg</strong> należy do singapurskiego producenta baterii - strona skompromitowana przez atakującego (wektor nieznany). Na stronie osadzony jest minimalistyczny JavaScript inicjujący fetch do właściwej infrastruktury phishingowej po 2-sekundowym opóźnieniu, symulującym ładowanie Teams.<br><br>
     Email ofiary przekazywany jest w <span class="hl">hash URL</span> (<code>#email@domain.com</code>) - fragment nie jest wysyłany do serwera, co utrudnia detekcję przez URL scanery.
   </div>
 </div>
@@ -219,7 +219,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;displ
 <div class="stage">
   <div class="stage-header"><div class="stage-num c">INF-1</div><div class="stage-title">leoch[.]sg - skompromitowana strona korporacyjna</div></div>
   <div class="stage-body">
-    Leoch International Technology Limited to rzeczywisty singapurski producent baterii. Strona najprawdopodobniej oparta na WordPressie z niezaktualizowanymi pluginami lub skradzionymi danymi dostępowymi. Atakujący wstrzyknął minimalny JavaScript do strony <code>/about-us/</code>, który po 2 sekundach wykonuje fetch do głównej infrastruktury phishingowej i nadpisuje zawartość strony odpowiedzią - technika pozwalająca uniknąć przekierowania widocznego w pasku adresu.
+    Leoch International Technology Limited to rzeczywisty singapurski producent baterii - strona skompromitowana przez atakującego. Wektor kompromitacji nieznany (brak dostępu do serwera). Atakujący wstrzyknął minimalny JavaScript do strony <code>/about-us/</code>, który po 2 sekundach wykonuje fetch do głównej infrastruktury phishingowej i nadpisuje zawartość strony odpowiedzią - technika pozwalająca uniknąć przekierowania widocznego w pasku adresu.
   </div>
 </div>
 
@@ -264,7 +264,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;displ
   <div class="stage-header"><div class="stage-num r">03</div><div class="stage-title">Autoryzacja na prawdziwej stronie Microsoft</div></div>
   <div class="stage-body">
     Kliknięcie <em>"Open File"</em> otwiera <span class="hl-g">legalną stronę Microsoft</span> (<code>login[.]microsoftonline[.]com/common/oauth2/deviceauth</code>). Ofiara loguje się swoimi danymi - włącznie z MFA - i wpisuje kod. Widoczny komunikat: <em>"Logujesz się do aplikacji <strong>Microsoft Office</strong> na innym urządzeniu znajdującym się w lokalizacji <span class="hl-r">Stany Zjednoczone</span>."</em><br><br>
-    Geolokacja USA wskazuje lokalizację serwera atakującego. Nazwa "Microsoft Office" to prawdopodobnie fałszywa lub przejęta rejestracja aplikacji w Azure AD.
+    Geolokacja USA widoczna w panelu autoryzacji Microsoft. Nazwa aplikacji wyświetlana ofierze: "Microsoft Office".
   </div>
 </div>
 
@@ -274,7 +274,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;displ
     W momencie zatwierdzenia przez ofiarę serwer atakującego odbiera:<br><br>
     <strong>Access Token</strong> - ważny 1h, natychmiastowy dostęp do Microsoft Graph API (email, pliki, Teams, kontakty)<br>
     <strong>Refresh Token</strong> - ważny <span class="hl-r">90 dni</span> domyślnie, pozwala na ciągłe odnawianie dostępu. <strong>Przeżywa zmianę hasła.</strong><br><br>
-    Zakres uprawnień zależy od rejestracji aplikacji: prawdopodobnie <code>Mail.ReadWrite</code>, <code>Files.ReadWrite.All</code>, <code>Contacts.Read</code>, <code>User.Read</code>.
+    Zakres uprawnień przyznanych aplikacji nie był możliwy do ustalenia bez dostępu do jej rejestracji w Azure AD.
   </div>
 </div>
 
@@ -350,7 +350,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;displ
   <tbody>
     <tr><td>Device Code (przykład)</td><td><span class="ioc-d">GWX74K3UC</span></td><td>8-znakowy kod alfanumeryczny wyświetlony ofierze</td></tr>
     <tr><td>OAuth Endpoint</td><td><span class="ioc-d">hxxps://login[.]microsoftonline[.]com/common/oauth2/deviceauth</span></td><td>Legalny endpoint Microsoft - używany przez atakującego</td></tr>
-    <tr><td>Nazwa aplikacji</td><td><span class="ioc-d">Microsoft Office</span></td><td>Prawdopodobnie fałszywa lub przejęta rejestracja Azure AD</td></tr>
+    <tr><td>Nazwa aplikacji</td><td><span class="ioc-d">Microsoft Office</span></td><td>Nazwa wyświetlana ofierze w panelu autoryzacji Microsoft</td></tr>
     <tr><td>Geolokacja auth</td><td><span class="ioc-d">United States</span></td><td>Lokalizacja serwera atakującego (polling tokenów)</td></tr>
   </tbody>
 </table>
