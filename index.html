@@ -169,7 +169,15 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
     <div class="wcard-tags"><span class="tag r">0-day · LPE</span><span class="tag o">No Patch</span><span class="tag o">Cloud Files API</span><span class="tag y">MsMpEng.exe</span><span class="tag c">Wazuh · Sysmon</span><span class="tag g">Detection Rule ✓</span></div>
   </div></div>
 </a>
-
+    <a href="threat-010.html" class="wcard blue">
+        <div class="wcard-inner"><div class="wcard-bar"></div>
+        <div class="wcard-content">
+          <div class="wcard-top"><span class="wcard-id">THREAT-010</span><span class="wcard-date">14 Apr 2026</span></div>
+          <div class="wcard-title">AiTM Phishing - Session Cookie Hijack via Fake Microsoft 365 Portal · BEC Sender · VirusTotal Evasion</div>
+          <div class="wcard-desc">Production incident: user received phishing email from a trusted external client (potential BEC). Multi-hop redirect chain (Adobe Portfolio → AiTM proxy ssppgkokmsioonline[.]online) bypassed VirusTotal detection. Fake M365 login portal harvested credentials and session cookie, bypassing MFA. One successful login to Office Home confirmed in Azure AD. Effective containment via session revoke + password reset before any mailbox/file access. Post-containment: 3 failed re-entry attempts (2× credentials, 1× cookie reuse) — all blocked.</div>
+          <div class="wcard-tags"><span class="tag b">AiTM · Cookie Hijack</span><span class="tag r">MFA Bypass</span><span class="tag o">BEC Sender</span><span class="tag y">VT Evasion</span><span class="tag c">Azure AD · Purview</span><span class="tag g">Contained ✓</span></div>
+        </div></div>
+      </a>
     <a href="threat-009.html" class="wcard purple">
   <div class="wcard-inner"><div class="wcard-bar"></div>
   <div class="wcard-content">
