@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THREAT-014 - Intuit QuickBooks Phishing · Multi-Stage Identity Theft · Kwiecień 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{
+  --bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--border2:#1e2e45;
+  --cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;
+  --purple:#c084fc;--blue:#4da6ff;
+  --accent:#2ecc71;--accent2:#27ae60;--accent3:#1a9e50;
+  --text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 60% 40% at 10% 20%,rgba(46,204,113,.04) 0%,transparent 55%),
+  radial-gradient(ellipse 50% 35% at 85% 75%,rgba(39,174,96,.02) 0%,transparent 55%),
+  linear-gradient(rgba(46,204,113,.012) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(46,204,113,.012) 1px,transparent 1px);
+  background-size:100% 100%,100% 100%,44px 44px,44px 44px;pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+
+/* NAV */
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--accent);}
+.nav span{color:var(--border);}
+
+/* HEADER */
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--accent);box-shadow:0 0 6px var(--accent);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:20px;}
+h1 span{color:var(--accent);}
+
+/* META GRID */
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:32px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.o{color:var(--orange);}.mv.g{color:var(--green);}.mv.c{color:var(--cyan);}.mv.y{color:var(--yellow);}.mv.a{color:var(--accent);}
+
+/* NOTICE BOXES */
+.notice{border-radius:6px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px;font-size:12px;line-height:1.8;}
+.notice.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.2);}
+.notice.orange{background:rgba(255,123,44,.04);border:1px solid rgba(255,123,44,.25);}
+.notice.green{background:rgba(46,204,113,.04);border:1px solid rgba(46,204,113,.2);}
+.notice.cyan{background:rgba(0,217,245,.04);border:1px solid rgba(0,217,245,.2);}
+.notice.yellow{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.2);}
+.notice-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.notice-body strong{color:var(--white);}
+.notice.red .notice-body strong{color:var(--red);}
+.notice.orange .notice-body strong{color:var(--orange);}
+.notice.green .notice-body strong{color:var(--green);}
+.notice.cyan .notice-body strong{color:var(--cyan);}
+.notice.yellow .notice-body strong{color:var(--yellow);}
+
+/* SECTIONS */
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.g{color:var(--green);}.sl.c{color:var(--cyan);}.sl.o{color:var(--orange);}.sl.y{color:var(--yellow);}.sl.r{color:var(--red);}
+
+/* PROSE */
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2);color:var(--accent);padding:1px 6px;border-radius:2px;font-size:11px;}
+
+/* STAGE BLOCKS */
+.stage{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
+.stage-header{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.stage-num{font-size:9px;font-weight:700;color:#000;background:var(--accent);padding:2px 8px;border-radius:2px;letter-spacing:1px;}
+.stage-num.r{background:var(--red);color:var(--white);}
+.stage-num.o{background:var(--orange);color:#000;}
+.stage-num.y{background:var(--yellow);color:#000;}
+.stage-num.c{background:var(--cyan);color:#000;}
+.stage-title{font-size:12px;font-weight:700;color:var(--white);}
+.stage-body{padding:14px 18px;font-size:12px;color:var(--text);line-height:1.8;}
+.stage-body code{background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.15);color:var(--accent);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage-body .hl{color:var(--accent);font-weight:700;}
+.stage-body .hl-r{color:var(--red);font-weight:700;}
+.stage-body .hl-y{color:var(--yellow);font-weight:700;}
+
+/* CODE */
+.code-block{background:#020508;border:1px solid var(--border);border-radius:4px;padding:16px 18px;font-size:11px;line-height:1.8;overflow-x:auto;color:#a8c0d6;white-space:pre;margin:10px 0;}
+.code-block .kw{color:var(--cyan);}
+.code-block .fn{color:var(--yellow);}
+.code-block .str{color:var(--green);}
+.code-block .cm{color:var(--muted);font-style:italic;}
+.code-block .hl{color:var(--accent);font-weight:700;}
+.code-block .hl-r{color:var(--red);font-weight:700;}
+
+/* TABLES */
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(46,204,113,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.ioc-d{color:var(--orange);word-break:break-all;}
+
+/* BADGES */
+.bdg{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.bdg.r{background:rgba(255,69,96,.12);color:var(--red);border:1px solid rgba(255,69,96,.25);}
+.bdg.o{background:rgba(255,123,44,.12);color:var(--orange);border:1px solid rgba(255,123,44,.25);}
+.bdg.y{background:rgba(255,209,102,.12);color:var(--yellow);border:1px solid rgba(255,209,102,.25);}
+.bdg.g{background:rgba(46,204,113,.1);color:var(--green);border:1px solid rgba(46,204,113,.2);}
+.bdg.c{background:rgba(0,217,245,.1);color:var(--cyan);border:1px solid rgba(0,217,245,.2);}
+.bdg.a{background:rgba(46,204,113,.12);color:var(--accent);border:1px solid rgba(46,204,113,.25);}
+
+/* MITRE GRID */
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+
+/* INFO BOX */
+.box{border-radius:6px;padding:14px 18px;font-size:12px;line-height:1.8;margin-bottom:14px;}
+.box.green{background:rgba(46,204,113,.04);border:1px solid rgba(46,204,113,.15);border-left:3px solid var(--accent);}
+.box.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.15);border-left:3px solid var(--red);}
+.box.cyan{background:rgba(0,217,245,.04);border:1px solid rgba(0,217,245,.15);border-left:3px solid var(--cyan);}
+.box.yellow{background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);border-left:3px solid var(--yellow);}
+.box strong{color:var(--white);}
+.box code{background:rgba(255,255,255,.06);padding:1px 6px;border-radius:2px;font-size:11px;color:var(--yellow);}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="nav">
+  <a href="index.html">← Portfolio</a>
+  <span>/</span>
+  <a href="kql-library.html">KQL Library</a>
+  <span>/</span>
+  <span style="color:var(--accent)">THREAT-014</span>
+</nav>
+
+<div class="eyebrow">Threat Research · Phishing Analysis · Identity Theft</div>
+<h1>Intuit QuickBooks Phishing -<br><span>Multi-Stage Identity Theft via Custom PoW Kit · wrenixo[.]cfd</span></h1>
+
+<div class="meta">
+  <div class="mc"><div class="ml">ID</div><div class="mv a">THREAT-014</div></div>
+  <div class="mc"><div class="ml">Data</div><div class="mv">29 Apr 2026</div></div>
+  <div class="mc"><div class="ml">Typ</div><div class="mv r">Phishing · Identity Theft</div></div>
+  <div class="mc"><div class="ml">Wektor</div><div class="mv o">Email</div></div>
+  <div class="mc"><div class="ml">Cel</div><div class="mv">Intuit / QuickBooks</div></div>
+  <div class="mc"><div class="ml">Severity</div><div class="mv r">Critical</div></div>
+  <div class="mc"><div class="ml">MFA Bypass</div><div class="mv">N/A</div></div>
+  <div class="mc"><div class="ml">Status</div><div class="mv g">Zablokowano</div></div>
+</div>
+
+<div class="notice red">
+  <div class="notice-icon">🔴</div>
+  <div class="notice-body"><strong>Full Identity Theft Chain</strong><br>
+  Ten atak wykracza poza standardowy credential harvest. Po przechwyceniu danych logowania ofiara jest prowadzona przez kolejne etapy zbierające <strong>numer konta bankowego, routing number, SSN/EIN, datę urodzenia</strong> oraz <strong>skany dokumentu tożsamości</strong>. Całość trafia do atakującego w jednej sesji. Fake credentials są akceptowane - priorytetem jest zebranie danych PII, nie weryfikacja konta.
+  </div>
+</div>
+
+<div class="notice orange">
+  <div class="notice-icon">⚠️</div>
+  <div class="notice-body"><strong>Custom Proof-of-Work Bot Protection</strong><br>
+  Phishing kit implementuje własny mechanizm PoW oparty na SHA-256 - <strong>nie jest to prawdziwy Cloudflare</strong>, jedynie wizualna imitacja. Serwer wydaje nonce z poziomem trudności, przeglądarka ofiary przeprowadza wielorundowe hashowanie SHA-256 na wszystkich rdzeniach CPU, rozwiązanie jest weryfikowane przez backend. Cel: eliminacja botów, crawlerów i automatycznych skanerów URL.
+  </div>
+</div>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="sec">
+<div class="sl">Executive Summary</div>
+<p class="pr">W dniu 29 kwietnia 2026 roku użytkownik firmowy zgłosił podejrzany email podszywający się pod serwis <strong>Intuit QuickBooks</strong>. Email zawierał groźbę debitu z konta bankowego w ciągu 1–2 dni roboczych i nakłaniał do kliknięcia linku w celu zakwestionowania transakcji. Rzeczywisty URL prowadził przez serwis śledzący Postmark do domeny <code>wrenixo[.]cfd</code> - dedykowanej infrastruktury phishingowej obsługującej cały atak.</p>
+<p class="pr">Analiza wykazała zaawansowany, wieloetapowy phishing kit z własną implementacją Proof-of-Work jako filtrem botów, perfekcyjną kloną interfejsu Intuit oraz łańcuchem ekstrakcji danych progresywnie eskalującym zakres zbieranych informacji: credentials → banking data → SSN → skan dokumentu tożsamości. Każda ofiara otrzymuje unikalne URL generowane per sesja, które wygasają po przetworzeniu - co utrudnia retroaktywną analizę i blokowanie po sygnaturze URL.</p>
+<p class="pr">Po zebraniu wszystkich danych ofiara jest przekierowywana na prawdziwą stronę <code>accounts.intuit.com</code> z komunikatem o błędzie, sugerując pomyłkę podczas logowania. Mechanizm ten maskuje fakt kradzieży i opóźnia reakcję ofiary.</p>
+</div>
+
+<!-- KILL CHAIN -->
+<div class="sec">
+<div class="sl">Łańcuch ataku - 6 etapów</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num">01</div><div class="stage-title">Email Delivery - skompromitowane konto akademickie (spup.edu.ph)</div></div>
+  <div class="stage-body">
+    Email został nadany z adresu należącego do <strong>Saint Paul University Philippines</strong> - filipińskiej uczelni wyższej. Konto nadawcy jest najprawdopodobniej przejęte lub nadużywane przez aktora kampanii. Domena akademicka o ustalonej reputacji obniża prawdopodobieństwo detekcji przez filtry antyspamowe oparte na reputacji domeny.<br><br>
+    <strong>Wyświetlany nadawca:</strong> <code>QuickBooks &lt;[redacted][@]spup.edu.ph&gt;</code><br>
+    <strong>Wyświetlany link:</strong> <code>QuickBooks.com/login/account/payout/case#55142661711/php</code> (anchor text - nie rzeczywisty URL)<br>
+    <strong>Rzeczywisty URL po hover:</strong> <code>hxxps://track.pstmrk[.]it/3s/track.pstmrk[.]it/...</code> → redirect chain przez <code>wrenixo[.]cfd</code><br><br>
+    Treść email operuje na mechanizmach <span class="hl-r">urgency</span> i <span class="hl-r">financial threat</span>: informuje o otwartym sporze dotyczącym niedostarczonej płatności oraz grozi obciążeniem konta bankowego odbiorcy w ciągu 1–2 dni roboczych bez natychmiastowej reakcji. Case number (<code>#55141661711</code>) nadaje emailowi pozory oficjalności.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num">02</div><div class="stage-title">Tracking Redirect - Postmark (pstmrk.it) → wrenixo[.]cfd</div></div>
+  <div class="stage-body">
+    Link w emailu przechodzi przez legalny serwis śledzenia emaili <strong>Postmark</strong> (<code>track.pstmrk[.]it</code>). Postmark jest popularną platformą email marketingową - jej domeny cieszą się wysoką reputacją i rzadko są blokowane przez filtry URL. Atakujący nadużywa jej infrastruktury wyłącznie jako pierwszego hoppa redirect chain, ukrywając docelową domenę phishingową do momentu kliknięcia.<br><br>
+    URL zawiera zakodowane parametry: <span class="hl">session</span>, <span class="hl">cid</span> (campaign/client identifier) oraz token jednorazowy przypisany do konkretnej ofiary. Parametry te umożliwiają backendowi śledzenie każdego kroku sesji oraz serwowanie unikalnych URL per etap.<br><br>
+    Końcowy redirect trafia do <code>wrenixo[.]cfd</code> - domeny zarejestrowanej w TLD <code>.cfd</code> (Call For Dream), popularnym wśród phisherów ze względu na niską cenę rejestracji.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num o">03</div><div class="stage-title">Bot Filter - Custom SHA-256 Proof-of-Work (imitacja Cloudflare Turnstile)</div></div>
+  <div class="stage-body">
+    Pierwsza strona prezentuje interfejs wizualnie identyczny z Cloudflare Turnstile challenge - logo tarczy, przycisk "I am human" / "Verify Now", Ray ID. W rzeczywistości jest to <span class="hl-r">całkowicie własna implementacja</span>, nie mająca związku z Cloudflare.<br><br>
+    Po kliknięciu przycisku przeglądarka wykonuje następujący przepływ:<br><br>
+    <div class="code-block"><span class="cm">// 1. Pobranie challenge z serwera</span>
+<span class="kw">GET</span> /c4a8b2  →  <span class="str">{ nonce, difficulty, rounds, cid }</span>
+
+<span class="cm">// 2. SHA-256 PoW na wszystkich rdzeniach CPU (Web Workers)</span>
+<span class="kw">while</span>(<span class="fn">true</span>) {
+  hash = <span class="fn">SHA256</span>(nonce + i);
+  <span class="kw">for</span>(j=0; j&lt;rounds; j++) hash = <span class="fn">SHA256</span>(hash); <span class="cm">// domyślnie 10 000 rund</span>
+  <span class="kw">if</span>((hash[0..3] as uint32) &lt; 2^32 / 2^difficulty) {
+    <span class="fn">postMessage</span>({ solution: i }); <span class="kw">return</span>;
+  }
+  i += numWorkers;
+}
+
+<span class="cm">// 3. Weryfikacja rozwiązania i pobranie redirect URL</span>
+<span class="kw">POST</span> /v9f3e1  body: <span class="str">cid=...&pow=...</span>  →  <span class="str">{ success: true, redirect: "..." }</span>
+
+<span class="cm">// 4. Sztuczne opóźnienie min. 2000ms dla wiarygodności</span>
+<span class="kw">if</span> (elapsed &lt; 2000) <span class="kw">await</span> <span class="fn">sleep</span>(2000 - elapsed);</div>
+    Cel mechanizmu: odfiltrowanie automatycznych skanerów URL, headless browsers bez JS, crawlerów antywirusowych. Tylko prawdziwy użytkownik z działającą przeglądarką przechodzi przez ten etap i uzyskuje dostęp do kolejnych warstw phishingu.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num y">04</div><div class="stage-title">Credential Harvest - sklonowany interfejs Intuit QuickBooks</div></div>
+  <div class="stage-body">
+    Po przejściu bot filtru ofiara trafia na stronę hostowaną na <code>_wildcard_[.]wrenixo[.]cfd</code> - perfekcyjną kopię interfejsu logowania Intuit/QuickBooks. Strony zawierają prawdziwy version string (<code>data-shell-version="6.227.1-master-bld.419-7d7beb1d-419"</code>), kompletne arkusze CSS z animations Intuit Design System, oraz atrybuty <code>data-testid</code> identyczne z produkcyjnym kodem Intuit - co sugeruje klonowanie przez dedykowane narzędzie (HTTrack lub podobne).<br><br>
+    Formularz logowania składa się z dwóch kroków:<br>
+    <strong>Krok 1:</strong> Email / User ID → <span class="hl">akceptuje dowolną wartość</span><br>
+    <strong>Krok 2:</strong> Hasło → <span class="hl">akceptuje dowolną wartość</span> → redirect na etap 5<br><br>
+    Brak weryfikacji wprowadzonych danych potwierdza, że priorytetem jest zebranie jak największej liczby pól PII, nie uwierzytelnianie wobec prawdziwego serwera Intuit.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num r">05</div><div class="stage-title">Extended Data Harvest - dane bankowe, SSN/EIN, skan dokumentu ID</div></div>
+  <div class="stage-body">
+    Po "zalogowaniu" ofiara jest prowadzona przez dwa dodatkowe formularze, utrzymując pełne branding Intuit:<br><br>
+    <strong>Formularz "Confirm Your Information":</strong><br>
+    &nbsp;→ Account Number (numer konta bankowego)<br>
+    &nbsp;→ Routing Number (numer rozliczeniowy ABA)<br>
+    &nbsp;→ <span class="hl-r">SSN / EIN</span> (numer ubezpieczenia społecznego lub identyfikator pracodawcy)<br>
+    &nbsp;→ Date of Birth<br>
+    &nbsp;→ Business Name<br><br>
+    <strong>Formularz "ID Upload":</strong><br>
+    &nbsp;→ Zdjęcie przodu dokumentu tożsamości (prawo jazdy, state ID)<br>
+    &nbsp;→ Zdjęcie tyłu dokumentu tożsamości<br>
+    &nbsp;→ Akceptuje PDF, JPG, PNG<br><br>
+    Test z fałszywym student ID (placeholder bez prawdziwych danych) wykazał, że <span class="hl-r">system akceptuje dowolne pliki bez weryfikacji</span> - upload jest przekazywany bezpośrednio do backendu atakującego.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num c">06</div><div class="stage-title">Exit Redirect - prawdziwy accounts.intuit.com + komunikat o błędzie</div></div>
+  <div class="stage-body">
+    Po zebraniu wszystkich danych ofiara jest przekierowywana na <strong>prawdziwą stronę</strong> <code>accounts.intuit.com</code>. Strona wyświetla komunikat <em>"Double check your info - We can't find an account with what you entered"</em> - sugerując, że ofiara popełniła błąd podczas logowania na oryginalnej stronie.<br><br>
+    Mechanizm ten pełni dwie funkcje: <span class="hl">maskuje fakt kradzieży</span> (ofiara sądzi, że nigdy nie trafiła na phishingową stronę) oraz <span class="hl">opóźnia reakcję</span> - ofiara może podjąć kolejną próbę logowania zamiast zgłosić incydent. Jest to klasyczna technika <strong>lure completion</strong> stosowana w zaawansowanych kitach phishingowych.
+  </div>
+</div>
+</div>
+
+<!-- TECHNICAL ANALYSIS -->
+<div class="sec">
+<div class="sl c">Analiza techniczna phishing kitu</div>
+
+<p class="pr"><strong>Infrastruktura sesji i URL per ofiara</strong></p>
+<p class="pr">Każda ofiara otrzymuje unikalny zestaw URL generowanych przez backend z parametrami <code>session</code> i <code>cid</code>. Kolejne etapy ataku (login, hasło, dane bankowe, ID upload) serwowane są pod oddzielnymi, losowymi ścieżkami w formacie <code>/qbo/{hash_a}/{hash_b}</code>. URL wygasa po przetworzeniu sesji - próba dostępu do zużytego URL zwraca <code>404 Not Found</code> z serwerem Apache. Mechanizm utrudnia retroaktywną analizę, blokowanie po URL przez systemy bezpieczeństwa oraz automatyczne skanowanie przez honeypoty.</p>
+
+<p class="pr"><strong>Steganografia HTML - ukryte session tokeny w stopce</strong></p>
+<p class="pr">W kodzie źródłowym każdej strony kitu, w tekście stopki z informacją prawną Intuit, osadzone są <span class="hl-r">ukryte tokeny</span> przy użyciu niewidocznych fontów:</p>
+
+<div class="code-block">Intuit, Quic<span class="hl-r">&lt;font style='color:transparent;font-size:0px'&gt;O41711&lt;/font&gt;</span>kBooks, QB, Turb<span class="hl-r">&lt;font style='color:transparent;font-size:0px'&gt;E89526&lt;/font&gt;</span>oTax...
+<span class="cm">→ Wizualnie: "Intuit, QuickBooks, QB, TurboTax..."</span>
+<span class="cm">→ W DOM: ukryte kody per strona: O41711, E89526, Z30122, 664024, T95071</span></div>
+
+<p class="pr">Każda strona kitu zawiera unikalny zestaw takich tokenów (5 fragmentów per strona, różne kody dla etapu login/hasło/dane bankowe). Prawdopodobne zastosowania: weryfikacja przez backend, która wersja strony dotarła do ofiary; antyanalizowe znaczniki utrudniające kopiowanie/modyfikację kitu; lub śledzenie konwersji per etap per kampania.</p>
+
+<p class="pr"><strong>Wildcard subdomain jako mechanizm generowania URL</strong></p>
+<p class="pr">Hosting odbywa się na <code>_wildcard_[.]wrenixo[.]cfd</code> - nazwa subdomeny wskazuje na certyfikat wildcard (<code>*[.]wrenixo[.]cfd</code>), co pozwala atakującemu na serwowanie treści pod dowolną subdomeną bez osobnej rejestracji certyfikatu TLS. Każda ofiara może w teorii otrzymać unikalną subdomenę, co drastycznie utrudnia blokowanie po nazwie hosta.</p>
+
+<div class="box green">
+  <strong>Ocena sophistication kitu:</strong> Kombinacja własnego PoW bot filtru, sesyjnych URL jednorazowych, steganografii HTML i wildcard subdomains wskazuje na custom-developed kit lub mocno zmodyfikowany zaawansowany framework (klasy Evilginx/Modlishka). Nie jest to gotowy kit z darkweb - wymagał dedykowanego nakładu pracy developmentu.
+</div>
+</div>
+
+<!-- IOC TABLE -->
+<div class="sec">
+<div class="sl o">Indicators of Compromise</div>
+
+<table class="it">
+  <thead><tr><th>Typ</th><th>Wartość</th><th>Opis</th><th>Pewność</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Domain</td>
+      <td class="ioc-d">wrenixo[.]cfd</td>
+      <td>Główna domena phishingowa - bot filter PoW</td>
+      <td><span class="bdg r">HIGH</span></td>
+    </tr>
+    <tr>
+      <td>Domain</td>
+      <td class="ioc-d">_wildcard_[.]wrenixo[.]cfd</td>
+      <td>Hosting stron klonowalnych Intuit - credential i data harvest</td>
+      <td><span class="bdg r">HIGH</span></td>
+    </tr>
+    <tr>
+      <td>URL (pattern)</td>
+      <td class="ioc-d">hxxps://_wildcard_[.]wrenixo[.]cfd/qbo/{hex}/{hex}</td>
+      <td>URL sesji phishingowej - format unikalny per ofiara</td>
+      <td><span class="bdg r">HIGH</span></td>
+    </tr>
+    <tr>
+      <td>URL</td>
+      <td class="ioc-d">hxxps://track.pstmrk[.]it/3s/track.pstmrk[.]it/...</td>
+      <td>Postmark redirect chain - pierwszy hop maskujący docelowy URL</td>
+      <td><span class="bdg r">HIGH</span></td>
+    </tr>
+    <tr>
+      <td>Email sender domain</td>
+      <td class="ioc-d">spup.edu.ph</td>
+      <td>Saint Paul University Philippines - skompromitowane konto email</td>
+      <td><span class="bdg o">MEDIUM</span></td>
+    </tr>
+    <tr>
+      <td>Email subject pattern</td>
+      <td class="ioc-d">Case #[10-digit] - QuickBooks dispute / refund</td>
+      <td>Lure - groźba debitu z konta, urgency finansowy</td>
+      <td><span class="bdg o">MEDIUM</span></td>
+    </tr>
+    <tr>
+      <td>HTML pattern</td>
+      <td class="ioc-d">&lt;font style='color:transparent;font-size:0px'&gt;[A-Z0-9]{6}&lt;/font&gt;</td>
+      <td>Ukryte tokeny śledzące w stopce stron - steganografia HTML</td>
+      <td><span class="bdg a">KIT SIGNATURE</span></td>
+    </tr>
+    <tr>
+      <td>API endpoint</td>
+      <td class="ioc-d">/c4a8b2 (GET) · /v9f3e1 (POST)</td>
+      <td>Endpointy backendu PoW - challenge i weryfikacja</td>
+      <td><span class="bdg a">KIT SIGNATURE</span></td>
+    </tr>
+    <tr>
+      <td>TLD pattern</td>
+      <td class="ioc-d">[*][.]cfd</td>
+      <td>TLD charakterystyczny dla infrastruktury phishingowej - niska cena rejestracji</td>
+      <td><span class="bdg y">LOW</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- MITRE ATT&CK -->
+<div class="sec">
+<div class="sl y">MITRE ATT&amp;CK Mapping</div>
+<div class="mg">
+  <div class="mc2">
+    <div class="mid">T1566.002</div>
+    <div class="mname">Phishing: Spearphishing Link</div>
+    <div class="mtactic">Initial Access</div>
+  </div>
+  <div class="mc2">
+    <div class="mid">T1598.003</div>
+    <div class="mname">Phishing for Information: Spearphishing Link</div>
+    <div class="mtactic">Reconnaissance</div>
+  </div>
+  <div class="mc2">
+    <div class="mid">T1056.003</div>
+    <div class="mname">Input Capture: Web Portal Capture</div>
+    <div class="mtactic">Credential Access · Collection</div>
+  </div>
+  <div class="mc2">
+    <div class="mid">T1557</div>
+    <div class="mname">Adversary-in-the-Middle</div>
+    <div class="mtactic">Credential Access · Collection</div>
+  </div>
+  <div class="mc2">
+    <div class="mid">T1589.002</div>
+    <div class="mname">Gather Victim Identity Information: Email Addresses</div>
+    <div class="mtactic">Reconnaissance</div>
+  </div>
+  <div class="mc2">
+    <div class="mid">T1589.001</div>
+    <div class="mname">Gather Victim Identity Information: Credentials</div>
+    <div class="mtactic">Reconnaissance</div>
+  </div>
+  <div class="mc2">
+    <div class="mid">T1036.005</div>
+    <div class="mname">Masquerading: Match Legitimate Name or Location</div>
+    <div class="mtactic">Defense Evasion</div>
+  </div>
+  <div class="mc2">
+    <div class="mid">T1608.005</div>
+    <div class="mname">Stage Capabilities: Link Target</div>
+    <div class="mtactic">Resource Development</div>
+  </div>
+  <div class="mc2">
+    <div class="mid">T1027</div>
+    <div class="mname">Obfuscated Files or Information</div>
+    <div class="mtactic">Defense Evasion - steganografia HTML</div>
+  </div>
+  <div class="mc2">
+    <div class="mid">T1583.001</div>
+    <div class="mname">Acquire Infrastructure: Domains</div>
+    <div class="mtactic">Resource Development - wrenixo[.]cfd</div>
+  </div>
+</div>
+</div>
+
+<!-- DETECTION -->
+<div class="sec">
+<div class="sl g">Możliwości detekcji</div>
+
+<p class="pr">Ze względu na brak złośliwego ładunku po stronie klienta, detekcja opiera się wyłącznie na analizie email, reputacji URL i zachowania użytkownika.</p>
+
+<div class="box cyan">
+  <strong>Email Gateway:</strong><br>
+  Blokowanie wiadomości zawierających Postmark redirect URL (<code>track.pstmrk[.]it</code>) prowadzący do domen <code>[.]cfd</code>. Analiza rozbieżności między wyświetlanym anchor textem linku a rzeczywistym href (anchor: <code>QuickBooks.com/...</code>, href: external tracking domain). Reguła na mismatched sender domain: <code>From: QuickBooks</code> + nadawca spoza <code>intuit.com</code>.
+</div>
+
+<div class="box cyan">
+  <strong>Proxy / URL Filtering:</strong><br>
+  Blokowanie TLD <code>.cfd</code> jako kategorii wysokiego ryzyka. Wykrywanie PoW challenge pattern: żądania <code>GET /[a-z0-9]{6}</code> zwracające JSON z polami <code>nonce, difficulty, rounds, cid</code> - unikalny fingerprint backendu kitu.
+</div>
+
+<div class="box cyan">
+  <strong>Browser / Endpoint:</strong><br>
+  Wykrywanie tworzenia wielu Web Workers uruchamiających intensywne operacje SHA-256 (charakterystyczny profil CPU na stronie phishingowej PoW). SmartScreen / Safe Browsing flagowanie domeny <code>wrenixo[.]cfd</code>.
+</div>
+
+<div class="box yellow">
+  <strong>Ograniczenia detekcji:</strong><br>
+  Postmark jako legalny serwis ma wysoką reputację i rzadko jest blokowany. Wildcard subdomeny utrudniają blokowanie po hostname. URL jednorazowe (wygasające po użyciu) uniemożliwiają skuteczne blokowanie po pełnym URL w trybie retroaktywnym. Strony kitu przechodzą podstawową weryfikację TLS (zielona kłódka). Kod HTML jest niemal identyczny z produkcyjnym Intuit - detekcja po content fingerprint jest trudna.
+</div>
+</div>
+
+<!-- RECOMMENDATIONS -->
+<div class="sec">
+<div class="sl">Mitigation &amp; Rekomendacje</div>
+
+<p class="pr"><strong>Natychmiastowe:</strong> Zablokowanie domeny <code>wrenixo[.]cfd</code> i wszystkich subdomen na poziomie DNS i proxy. Zgłoszenie domeny do Abuse Contact (Cloudflare, rejestrator domeny .cfd) oraz do CERT Polska (<code>incydent.cert.pl</code>). Poinformowanie użytkownika o incydencie i weryfikacja, czy wprowadził realne dane (ze względu na anonimizację sesji potwierdzono użycie fałszywych danych testowych).</p>
+
+<p class="pr"><strong>Polityki email:</strong> Wdrożenie lub zaostrzenie reguły blokującej mismatched display name (QuickBooks/Intuit) vs domena nadawcy. Reguła na linki prowadzące przez Postmark do TLD o wysokim ryzyku (.cfd, .xyz, .top, .pw). Szkolenie użytkowników z weryfikacji rzeczywistego URL linku (hover przed kliknięciem).</p>
+
+<p class="pr"><strong>Świadomość użytkowników:</strong> Legalne serwisy finansowe (Intuit, banki) <strong>nigdy nie proszą o upload dokumentu tożsamości przez email</strong>. Żądanie SSN/EIN, routing number i skanu ID w jednej sesji jest jednoznacznym wskaźnikiem fraudu - niezależnie od wiarygodności wizualnej strony. Adres URL w pasku przeglądarki jest zawsze miarodajnym wskaźnikiem: <code>intuit.com</code> vs <code>wrenixo.cfd</code>.</p>
+
+<p class="pr"><strong>Threat Intelligence:</strong> Domena <code>wrenixo[.]cfd</code> powinna zostać dodana do wewnętrznej listy blokowania IoC i udostępniona do platform threat intelligence. Monitorowanie pojawienia się nowych domen z tym samym wzorcem URL (<code>/qbo/{hex}/{hex}</code>) i podobnym fingerprintem PoW backendu (<code>/c4a8b2</code>, <code>/v9f3e1</code>).</p>
+</div>
+
+<footer>
+  <span>THREAT-014 · Phishing Analysis · 29 Apr 2026</span>
+  <span>maciekgorzny.github.io/security-writeups</span>
+</footer>
+
+</div>
+</body>
+</html>
