@@ -107,12 +107,12 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
 
   <div class="sh">Stats</div>
   <div class="stats">
-    <div class="stat"><div class="stat-val">12</div><div class="stat-label">Writeups</div></div>
+    <div class="stat"><div class="stat-val">14</div><div class="stat-label">Writeups</div></div>
     <div class="stat"><div class="stat-val g">20</div><div class="stat-label">KQL Rules</div></div>
-    <div class="stat"><div class="stat-val o">8</div><div class="stat-label">Phishing cases</div></div>
+    <div class="stat"><div class="stat-val o">10</div><div class="stat-label">Phishing cases</div></div>
     <div class="stat"><div class="stat-val p">TA569</div><div class="stat-label">Threat Actor</div></div>
     <div class="stat"><div class="stat-val r">0</div><div class="stat-label">Payload executions</div></div>
-    <div class="stat"><div class="stat-val y">10/10</div><div class="stat-label">User reported</div></div>
+    <div class="stat"><div class="stat-val y">12/12</div><div class="stat-label">User reported</div></div>
   </div>
 
   <!-- KQL LIBRARY CARD -->
@@ -147,7 +147,28 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
   <!-- WRITEUPS - newest first -->
   <div class="sh">Incident Writeups</div>
   <div class="cards">
-
+  <a href="threat-014.html" class="wcard" style="--accent-local:#2ecc71;border-color:var(--border);" onmouseover="this.style.borderColor='#2ecc71'" onmouseout="this.style.borderColor='var(--border)'">
+  <div class="wcard-inner">
+    <div class="wcard-bar" style="background:#2ecc71;"></div>
+    <div class="wcard-content">
+      <div class="wcard-top"><span class="wcard-id" style="color:#2ecc71;">THREAT-014</span><span class="wcard-date">29 Apr 2026</span></div>
+      <div class="wcard-title">Intuit QuickBooks Phishing — Multi-Stage Identity Theft · Custom PoW Bot Filter · wrenixo[.]cfd</div>
+      <div class="wcard-desc">Multi-stage phishing kit impersonating Intuit QuickBooks featuring a custom SHA-256 Proof-of-Work bot filter visually mimicking Cloudflare Turnstile. Attack chain: compromised academic account (spup.edu.ph) → Postmark redirect chain → custom PoW challenge → cloned Intuit interface → credential harvest (email + password) → extended data harvest (account number, routing number, SSN/EIN, date of birth) → government ID document upload → exit redirect to legitimate accounts.intuit.com with error message to mask the theft. Each victim receives unique per-session URLs that expire after use. Source analysis revealed HTML steganography — hidden tracking tokens embedded in page footers using transparent-font technique.</div>
+      <div class="wcard-tags"><span class="tag r">Identity Theft</span><span class="tag r">SSN · Banking Data · ID Upload</span><span class="tag o">Custom PoW Kit</span><span class="tag o">wrenixo[.]cfd</span><span class="tag c">HTML Steganography</span><span class="tag g">User Reported ✓</span></div>
+    </div>
+  </div>
+  </a>
+  <a href="threat-013.html" class="wcard" style="--accent-local:#0078D4;border-color:var(--border);" onmouseover="this.style.borderColor='#0078D4'" onmouseout="this.style.borderColor='var(--border)'">
+  <div class="wcard-inner">
+    <div class="wcard-bar" style="background:#0078D4;"></div>
+    <div class="wcard-content">
+      <div class="wcard-top"><span class="wcard-id" style="color:#0078D4;">THREAT-013</span><span class="wcard-date">27 Apr 2026</span></div>
+      <div class="wcard-title">Device Code Phishing - JPMorgan + Adobe Acrobat Sign Lure · ACH Payment · Microsoft 365 Token Theft</div>
+      <div class="wcard-desc">OAuth Device Code Phishing campaign impersonating JPMorgan Chase (Virtru encrypted email lure) redirecting via Base64-encoded email tracker (servidoraweb[.]net) to a fake Adobe Acrobat Sign portal. Decoy document: ACH_Payment-ISO 201202.pdf. Custom backend at brentbritton[.]com polls Microsoft's device authorization endpoint every 3 seconds. On token capture, victim is silently redirected to a legitimate JPMorgan Wire Transfer PDF as a cover story. Microsoft Authentication Broker app impersonation. Related to THREAT-012 (same Device Code vector, different lure).</div>
+      <div class="wcard-tags"><span class="tag r">OAuth Phishing</span><span class="tag r">MFA Bypass</span><span class="tag b">Device Code Flow</span><span class="tag o">JPMorgan + Adobe Lure</span><span class="tag y">ACH Payment Lure</span><span class="tag g">User Reported ✓</span></div>
+    </div>
+  </div>
+</a>
     <a href="threat-012.html" class="wcard" style="--accent-local:#0078D4;border-color:var(--border);" onmouseover="this.style.borderColor='#0078D4'" onmouseout="this.style.borderColor='var(--border)'">
   <div class="wcard-inner">
     <div class="wcard-bar" style="background:#0078D4;"></div>
