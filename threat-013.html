@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THREAT-013 | Device Code Phishing – Lure JPMorgan + Adobe Acrobat Sign · Kradzież tokenu Microsoft 365 · Kwiecień 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{
+  --bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--border2:#1e2e45;
+  --cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;
+  --purple:#c084fc;--blue:#4da6ff;
+  --accent:#0078D4;--accent2:#2ea3e3;
+  --text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 20%,rgba(0,120,212,.05) 0%,transparent 55%),radial-gradient(ellipse 50% 35% at 85% 75%,rgba(0,120,212,.02) 0%,transparent 55%),linear-gradient(rgba(0,120,212,.012) 1px,transparent 1px),linear-gradient(90deg,rgba(0,120,212,.012) 1px,transparent 1px);background-size:100% 100%,100% 100%,44px 44px,44px 44px;pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--accent);}
+.nav span{color:var(--border);}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--accent);box-shadow:0 0 6px var(--accent);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:20px;}
+h1 span{color:var(--accent);}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:32px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.o{color:var(--orange);}.mv.g{color:var(--green);}.mv.c{color:var(--cyan);}.mv.y{color:var(--yellow);}.mv.a{color:var(--accent);}
+.notice{border-radius:6px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px;font-size:12px;line-height:1.8;}
+.notice.orange{background:rgba(0,120,212,.04);border:1px solid rgba(0,120,212,.25);}
+.notice.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.2);}
+.notice.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.2);}
+.notice.cyan{background:rgba(0,217,245,.04);border:1px solid rgba(0,217,245,.2);}
+.notice-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.notice-body strong{color:var(--white);}
+.notice.orange .notice-body strong{color:var(--accent);}
+.notice.red .notice-body strong{color:var(--red);}
+.notice.green .notice-body strong{color:var(--green);}
+.notice.cyan .notice-body strong{color:var(--cyan);}
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.g{color:var(--green);}.sl.c{color:var(--cyan);}.sl.o{color:var(--orange);}.sl.y{color:var(--yellow);}.sl.r{color:var(--red);}
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(0,120,212,.08);border:1px solid rgba(0,120,212,.2);color:var(--accent);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
+.stage-header{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.stage-num{font-size:9px;font-weight:700;color:var(--white);background:var(--accent);padding:2px 8px;border-radius:2px;letter-spacing:1px;}
+.stage-num.r{background:var(--red);}
+.stage-num.g{background:var(--green);color:#000;}
+.stage-title{font-size:12px;font-weight:700;color:var(--white);}
+.stage-body{padding:14px 18px;font-size:12px;color:var(--text);line-height:1.8;}
+.stage-body code{background:rgba(0,120,212,.08);border:1px solid rgba(0,120,212,.15);color:var(--accent);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage-body .hl{color:var(--accent2);font-weight:700;}
+.stage-body .hl-r{color:var(--red);font-weight:700;}
+.stage-body .hl-g{color:var(--green);font-weight:700;}
+.stage-body .hl-o{color:var(--orange);font-weight:700;}
+.code-wrap{position:relative;margin:12px 0;}
+.code-block{background:#020508;border:1px solid var(--border);border-radius:4px;padding:16px 18px;font-size:11px;line-height:1.8;overflow-x:auto;color:#a8c0d6;white-space:pre;}
+.code-block .kw{color:var(--cyan);}
+.code-block .fn{color:var(--yellow);}
+.code-block .str{color:var(--green);}
+.code-block .cm{color:var(--muted);font-style:italic;}
+.code-block .hl{color:var(--accent);font-weight:700;}
+.code-block .hl-r{color:var(--red);font-weight:700;}
+.code-block .hl-o{color:var(--orange);font-weight:700;}
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(0,120,212,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.ioc-d{color:var(--orange);word-break:break-all;}
+.bdg{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.bdg.r{background:rgba(255,69,96,.12);color:var(--red);border:1px solid rgba(255,69,96,.25);}
+.bdg.o{background:rgba(249,115,22,.12);color:var(--orange);border:1px solid rgba(249,115,22,.25);}
+.bdg.g{background:rgba(61,255,143,.1);color:var(--green);border:1px solid rgba(61,255,143,.2);}
+.bdg.a{background:rgba(0,120,212,.12);color:var(--accent);border:1px solid rgba(0,120,212,.3);}
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+.box{border-radius:6px;padding:14px 18px;font-size:12px;line-height:1.8;margin-bottom:14px;}
+.box.blue{background:rgba(0,120,212,.04);border:1px solid rgba(0,120,212,.15);border-left:3px solid var(--accent);}
+.box.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.15);border-left:3px solid var(--red);}
+.box.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.15);border-left:3px solid var(--green);}
+.box.orange{background:rgba(255,123,44,.04);border:1px solid rgba(255,123,44,.15);border-left:3px solid var(--orange);}
+.box strong{color:var(--white);}
+.box code{background:rgba(255,255,255,.06);padding:1px 6px;border-radius:2px;font-size:11px;color:var(--yellow);}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:600px){.compare-grid{grid-template-columns:1fr;}}
+.compare-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:14px;}
+.compare-card h4{font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.compare-card h4.a{color:var(--accent);}
+.compare-card h4.o{color:var(--orange);}
+.compare-card ul{list-style:none;font-size:11px;color:var(--text);line-height:2;}
+.compare-card ul li::before{content:'→ ';color:var(--muted);}
+footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="nav">
+  <a href="index.html">← Portfolio</a>
+  <span>/</span>
+  <a href="kql-library.html">KQL Library</a>
+  <span>/</span>
+  <span style="color:var(--accent)">THREAT-013</span>
+</nav>
+
+<div class="eyebrow">Threat Research · Analiza Phishingu · OAuth Abuse</div>
+<h1>Device Code Phishing<br><span>Lure JPMorgan + Adobe Acrobat Sign · Kradzież tokenu Microsoft 365</span></h1>
+
+<div class="meta">
+  <div class="mc"><div class="ml">ID</div><div class="mv a">THREAT-013</div></div>
+  <div class="mc"><div class="ml">Data</div><div class="mv">27 kwi 2026</div></div>
+  <div class="mc"><div class="ml">Typ</div><div class="mv r">Device Code Phishing</div></div>
+  <div class="mc"><div class="ml">Wektor</div><div class="mv o">Email / OAuth Abuse</div></div>
+  <div class="mc"><div class="ml">Cel</div><div class="mv">Microsoft 365</div></div>
+  <div class="mc"><div class="ml">Severity</div><div class="mv r">Wysoka</div></div>
+  <div class="mc"><div class="ml">Bypass MFA</div><div class="mv r">Tak</div></div>
+  <div class="mc"><div class="ml">Status</div><div class="mv y">Aktywna kampania</div></div>
+</div>
+
+<div class="notice red">
+  <div class="notice-icon">🔴</div>
+  <div class="notice-body"><strong>Bypass MFA przez legalną infrastrukturę Microsoft</strong><br>
+  Atak <strong>omija wszystkie formy MFA</strong> - TOTP, push notification i klucze FIDO2. Ofiara autoryzuje kod urządzenia na prawdziwym portalu Microsoft - backend atakującego otrzymuje ważny access token (1h) i refresh token (90 dni) bez zobaczenia hasła ani odpowiedzi MFA. Token pozostaje ważny po zmianie hasła.
+  </div>
+</div>
+
+<div class="notice orange">
+  <div class="notice-icon">⚠️</div>
+  <div class="notice-body"><strong>Podwójna impersonacja marki + finansowy lure</strong><br>
+  Kampania łączy dwie impersonacje wysokiego zaufania: <strong>JPMorgan Chase</strong> (powiadomienie o zaszyfrowanym emailu Virtru) oraz <strong>Adobe Acrobat Sign</strong> (portal weryfikacji dokumentów). Nazwa dokumentu <code>ACH_Payment-ISO 201202.pdf</code> tworzy poczucie pilności - ACH (Automated Clearing House) to sieć przelewów bankowych w USA, celowo wymierzona w pracowników działów finansowych.
+  </div>
+</div>
+
+<!-- STRESZCZENIE -->
+<div class="sec">
+<div class="sl">Streszczenie</div>
+<p class="pr">W dniu 27 kwietnia 2026 roku użytkownik zgłosił podejrzany email podszywający się pod <strong>JPMorgan Chase &amp; Co.</strong>, dostarczający powiadomienie w stylu Virtru o zaszyfrowanej wiadomości. Link w emailu zawierał adres docelowy zakodowany w Base64, przekierowujący przez tracker mailingowy do fałszywego portalu <strong>Adobe Acrobat Sign</strong>. Aby "uzyskać dostęp do chronionego dokumentu", ofiara była nakłaniana do weryfikacji tożsamości z Microsoftem - klasyczne nadużycie <strong>OAuth 2.0 Device Authorization Grant</strong> (RFC 8628).</p>
+<p class="pr">W odróżnieniu od ataków credential harvesting, na stronie phishingowej nie jest wprowadzane żadne hasło. Ofiara wchodzi w interakcję wyłącznie z legalną infrastrukturą Microsoft (<code>login.microsoftonline[.]com/common/oauth2/deviceauth</code>), co czyni atak praktycznie niewidocznym zarówno dla ofiary, jak i dla narzędzi bezpieczeństwa. Backend phishingowy odpytuje endpoint tokenów Microsoft co 3 sekundy do momentu autoryzacji, po czym po cichu przekierowuje ofiarę na prawdziwy dokument PDF JPMorgan jako kamuflaż - ofiara nie ma żadnego sygnału, że coś złośliwego się wydarzyło.</p>
+<p class="pr">To drugi atak Device Code Phishing zaobserwowany w ciągu 6 dni - patrz <a href="threat-012.html" style="color:var(--accent);text-decoration:none;">THREAT-012</a> dla kampanii z lure'em Microsoft Teams. Wspólny mechanizm nadużycia OAuth przy różnej infrastrukturze lure sugeruje albo ten sam kit phishingowy z konfigurowalnymi szablonami, albo aktora aktywnie iterującego warianty impersonacji marki.</p>
+</div>
+
+<!-- ŁAŃCUCH ATAKU -->
+<div class="sec">
+<div class="sl">Łańcuch ataku - 5 etapów</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num">01</div><div class="stage-title">Dostarczenie emaila - impersonacja JPMorgan Chase + Virtru</div></div>
+  <div class="stage-body">
+    Email phishingowy imituje <strong>powiadomienie o zaszyfrowanej wiadomości Virtru</strong> wysłanej przez JPMorgan Chase. Virtru to legitymna usługa szyfrowania emaili stosowana przez instytucje finansowe - lure jest celowo dobrany dla odbiorców współpracujących z JPMC lub oczekujących bezpiecznej korespondencji finansowej.<br><br>
+    Nadawca: <code>noreplies.sua[@]jpmchase[.]com</code><br>
+    Subdomena <span class="hl-r">.sua</span> jest anomalna - legitymne adresy noreply JPMorgan nie używają tego prefiksu subdomeny. Jest to adres sfałszowany lub zarejestrowane konto lookalike.<br><br>
+    Treść emaila imituje wrapper Virtru: <em>"is using Virtru to send and receive encrypted email"</em> z przyciskiem CTA <span class="hl">Unlock Message</span> oraz ostrzeżeniem o wygaśnięciu dostępu po 90 dniach budującym poczucie pilności. Stopka poprawnie renderuje logo Virtru i copyright - klon wysokiej wierności.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num">02</div><div class="stage-title">Łańcuch przekierowań - tracker Base64 → domena phishingowa</div></div>
+  <div class="stage-body">
+    Przycisk "Unlock Message" prowadzi do trackera URL na <code>mailer.servidoraweb[.]net</code> - domenie infrastruktury masowego mailingu. Parametr <code>url</code> zawiera Base64-zakodowany adres docelowy:<br><br>
+    <code>hxxps://mailer.servidoraweb[.]net/class/link.php?id=wweqsyoosepruswqy&amp;url=aHR0cHM6Ly9icmVudGJybHR0b24uY29tLz9lbWFpbD1j[...]</code><br><br>
+    <strong>Dekodowanie Base64 →</strong> <code>hxxps://brentbrltton[.]com/?email=c[email-ofiary]</code><br><br>
+    Warta uwagi rozbieżność domenowa: zakodowany URL zawiera <span class="hl-o">brentbrltton[.]com</span> (brakuje jednej litery 't'), podczas gdy przeglądarka wyświetla <span class="hl-o">brentbritton[.]com</span> - prawdopodobnie dwie osobno zarejestrowane domeny używane jako etapy przekierowania, co utrudnia pojedynczy takedown. Obie serwują ten sam kit phishingowy pod ścieżką <code>/93c67ceedebf224c</code>.<br><br>
+    Adres email ofiary jest przekazywany jako parametr URL, wypełniając stronę phishingową z góry i umożliwiając atakującemu śledzenie per ofiara.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num">03</div><div class="stage-title">Strona lądowania - fałszywy portal Adobe Acrobat Sign</div></div>
+  <div class="stage-body">
+    Strona pod adresem <code>hxxps://brentbritton[.]com/93c67ceedebf224c</code> renderuje przekonujący klon portalu Adobe Acrobat Sign:<br><br>
+    • Logo i branding Adobe (<span class="hl">Adobe Acrobat Sign</span> w nagłówku przeglądarki i na stronie)<br>
+    • Ikona zablokowanego dokumentu z nazwą pliku: <span class="hl-o">ACH_Payment-ISO 201202.pdf</span><br>
+    • "Verify your identity - To access this document, please complete verification with Microsoft."<br>
+    • Dynamicznie generowany <strong>kod weryfikacyjny</strong> wyświetlony prominentnie (zaobserwowany: <code>A2ND3XUK5</code>)<br>
+    • Przycisk <strong>Copy Code</strong> + przycisk <strong>Continue to Microsoft</strong><br>
+    • Stopka: "Secured by Microsoft" (zielona ikona kłódki) oraz "© 2026 Adobe. All rights reserved."<br><br>
+    Nazwa dokumentu <strong>ACH Payment</strong> to celowy finansowy lure - ACH (Automated Clearing House) to sieć przelewów bankowych w USA, sugerująca nieudany lub oczekujący przelew, który pracownicy działu finansowego będą chcieli pilnie zweryfikować.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num r">04</div><div class="stage-title">Nadużycie OAuth Device Code - kradzież tokenu przez microsoft.com</div></div>
+  <div class="stage-body">
+    Kliknięcie <strong>Continue to Microsoft</strong> otwiera prawdziwy portal uwierzytelniania urządzenia Microsoft:<br>
+    <code>hxxps://login.microsoftonline[.]com/common/oauth2/deviceauth</code><br><br>
+    Ofiara wkleja skopiowany kod i widzi: <em>"Logujesz się do aplikacji <span class="hl-r">Microsoft Authentication Broker</span> na innym urządzeniu znajdującym się w lokalizacji <span class="hl-r">Stany Zjednoczone</span>."</em><br><br>
+    Kończąc logowanie, ofiara nieświadomie autoryzuje aplikację atakującego, który w tym momencie otrzymuje:<br>
+    • <strong>Access Token</strong> - ważny 1 godzinę, natychmiastowy dostęp do API Microsoft 365<br>
+    • <strong>Refresh Token</strong> - ważny do 90 dni, cicho odnawia access tokeny<br><br>
+    Backend atakującego zainicjował ten przepływ przez <code>POST /api/device/start</code> do endpointu autoryzacji urządzenia Microsoft, otrzymując parę device code / user code. Strona phishingowa wyświetla user code, podczas gdy backend co 3 sekundy (<code>setInterval(ck, 3000)</code>) odpytuje <code>GET /api/device/status/{sid}</code> w oczekiwaniu na autoryzację przez ofiarę.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header"><div class="stage-num g">05</div><div class="stage-title">Kamuflaż po kompromitacji - przekierowanie na prawdziwy PDF JPMorgan</div></div>
+  <div class="stage-body">
+    Gdy kod urządzenia zostaje autoryzowany i <code>/api/device/status</code> zwraca <code>status == 'completed'</code>, strona phishingowa po cichu przekierowuje ofiarę na:<br>
+    <code>hxxps://static.chasecdn[.]com/content/dam/legal-agreements/library/en/Wire_LA.pdf</code><br><br>
+    To <span class="hl-g">prawdziwy dokument JPMorgan Chase</span> - PDF umowy prawnej Wire Transfer hostowany na własnym CDN Chase. Przekierowanie spełnia dwa cele: wzmacnia narrację marki JPMorgan z wyjściowego emaila oraz nie zostawia ofierze żadnego sygnału, że cokolwiek złośliwego się wydarzyło. Ofiara zamyka zakładkę, atakujący ma trwały dostęp do Microsoft 365.
+  </div>
+</div>
+</div>
+
+<!-- ANALIZA KODU -->
+<div class="sec">
+<div class="sl c">Analiza kodu źródłowego - architektura backendu</div>
+<p class="pr">Inspekcja DevTools strony phishingowej ujawnia dedykowany kit device code phishing z własnym API backendu - inaczej niż w THREAT-012, gdzie rolę backendu pełniło Cloudflare Workers:</p>
+
+<div class="code-wrap"><pre class="code-block"><span class="cm">// Etap 1: Inicjacja device code flow (backend atakującego → Microsoft)</span>
+<span class="kw">async function</span> <span class="fn">sf</span>() {
+  <span class="kw">const</span> r = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/device/start'</span>, {
+    method: <span class="str">'POST'</span>,
+    headers: { <span class="hl-o">'X-Antibot-Token'</span>: at }  <span class="cm">// token anty-bot / wiązanie sesji</span>
+  });
+  <span class="kw">const</span> d = <span class="kw">await</span> r.<span class="fn">json</span>();
+  <span class="kw">if</span> (d.error) { document.<span class="fn">getElementById</span>(<span class="str">'lds'</span>).<span class="fn">classList.add</span>(<span class="str">'hidden'</span>); }
+  document.<span class="fn">getElementById</span>(<span class="str">'dcs'</span>).<span class="fn">classList.remove</span>(<span class="str">'hidden'</span>);
+  pi = <span class="fn">setInterval</span>(ck, <span class="hl">3000</span>);  <span class="cm">// polling co 3 sekundy</span>
+}
+
+<span class="cm">// Etap 2: Polling do uzyskania tokenu</span>
+<span class="kw">async function</span> <span class="fn">ck</span>() {
+  <span class="kw">const</span> d = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`/api/device/status/${sid}`</span>).<span class="kw">then</span>(r => r.<span class="fn">json</span>());
+  <span class="kw">if</span> (d.status === <span class="str">'completed'</span>) {
+    <span class="fn">clearInterval</span>(pi);
+    <span class="cm">// Token przejęty - przekierowanie na PDF JPMorgan jako kamuflaż</span>
+    window.location.<span class="fn">replace</span>(<span class="hl-r">'https://static.chasecdn.com/.../Wire_LA.pdf'</span>);
+  }
+}</pre></div>
+
+<p class="pr">Nagłówek <code>X-Antibot-Token</code> sugeruje logikę filtrowania botów - bezpośredni dostęp bez ważnego tokenu sesji prawdopodobnie zwraca stronę błędu, utrudniając automatyczne skanowanie przez badaczy i crawlery bezpieczeństwa.</p>
+<p class="pr">Kod ujawnia też zachowanie dialogu autoryzacji Microsoft: gdy ofiara kończy przepływ, Microsoft wyświetla nazwę aplikacji jako <strong>"Microsoft Authentication Broker"</strong> i lokalizację urządzenia jako <strong>Stany Zjednoczone</strong> - kluczowy sygnał detekcji dla organizacji w Polsce, gdzie autoryzacja z US powinna być anomalią.</p>
+</div>
+
+<!-- ANALIZA INFRASTRUKTURY -->
+<div class="sec">
+<div class="sl o">Analiza infrastruktury</div>
+<p class="pr">Atak wykorzystuje warstwową infrastrukturę, która oddziela mechanizm dostarczenia od domeny payloadu, zmniejszając zasięg pojedynczego takedownu:</p>
+<table class="it">
+  <thead><tr><th>Warstwa</th><th>Domena / Zasób</th><th>Rola</th><th>Klasyfikacja</th></tr></thead>
+  <tbody>
+    <tr><td>Dostarczenie emaila</td><td class="ioc-d">noreplies.sua[@]jpmchase[.]com</td><td>Sfałszowany lub lookalike nadawca - impersonacja JPMorgan</td><td><span class="bdg r">ZŁOŚLIWY</span></td></tr>
+    <tr><td>Tracker URL</td><td class="ioc-d">mailer.servidoraweb[.]net</td><td>Tracker mailingowy - wrapper przekierowania Base64</td><td><span class="bdg o">PODEJRZANY</span></td></tr>
+    <tr><td>Hop przekierowania</td><td class="ioc-d">brentbrltton[.]com</td><td>Pierwsza domena (zdekodowana z Base64 w emailu)</td><td><span class="bdg r">ZŁOŚLIWY</span></td></tr>
+    <tr><td>Kit phishingowy</td><td class="ioc-d">brentbritton[.]com/93c67ceedebf224c</td><td>Fałszywy Adobe Acrobat Sign + kit device code</td><td><span class="bdg r">ZŁOŚLIWY</span></td></tr>
+    <tr><td>Legitymna (nadużycie)</td><td>login.microsoftonline[.]com/common/oauth2/deviceauth</td><td>Prawdziwy portal Microsoft - ofiara wpisuje tu kod</td><td><span class="bdg a">LEGITYMNA</span></td></tr>
+    <tr><td>Kamuflaż</td><td>static.chasecdn[.]com/.../Wire_LA.pdf</td><td>Prawdziwy PDF JPMorgan - okładka po kompromitacji</td><td><span class="bdg a">LEGITYMNA</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- PORÓWNANIE Z THREAT-012 -->
+<div class="sec">
+<div class="sl y">Porównanie z THREAT-012</div>
+<p class="pr">Dwie kampanie Device Code Phishing w ciągu 6 dni. Wspólny mechanizm OAuth przy różnej infrastrukturze lure wymaga analizy porównawczej:</p>
+<div class="compare-grid">
+  <div class="compare-card">
+    <h4 class="a">THREAT-012 (21 kwi 2026)</h4>
+    <ul>
+      <li>Lure: Microsoft Teams</li>
+      <li>Narracja: udostępniony dokument (Excel)</li>
+      <li>Dostarczenie: skompromitowane konto SendGrid</li>
+      <li>Backend: Cloudflare Workers (serverless)</li>
+      <li>Hop: skompromitowana domena .sg (leoch.sg)</li>
+      <li>Impersonacja aplikacji: Microsoft Office</li>
+    </ul>
+  </div>
+  <div class="compare-card">
+    <h4 class="o">THREAT-013 (27 kwi 2026)</h4>
+    <ul>
+      <li>Lure: JPMorgan Chase + Virtru</li>
+      <li>Narracja: płatność ACH (pilność finansowa)</li>
+      <li>Dostarczenie: nieznana infrastruktura</li>
+      <li>Backend: dedykowany serwer z /api/device/ API</li>
+      <li>Hop: tracker mailingowy (servidoraweb.net)</li>
+      <li>Impersonacja aplikacji: Microsoft Authentication Broker</li>
+    </ul>
+  </div>
+</div>
+<p class="pr">Kluczowe różnice wskazują na <strong>oddzielnych aktorów lub kity</strong>: THREAT-012 nadużywa Cloudflare Workers (serverless, trudny do takedownu), THREAT-013 używa dedykowanego serwera z własnym API i logiką tokenu anty-bot. Jednocześnie 3-sekundowy interwał pollingu i użycie legitymnego dokumentu decoy po zakończeniu powtarzają się w obu kampaniach - potencjalnie wspólny bazowy kit z konfigurowalnymi szablonami lure.</p>
+</div>
+
+<!-- TABELA IOC -->
+<div class="sec">
+<div class="sl r">Wskaźniki kompromitacji (IoC)</div>
+<table class="it">
+  <thead><tr><th>Typ</th><th>Wartość</th><th>Kontekst</th></tr></thead>
+  <tbody>
+    <tr><td>Domena</td><td class="ioc-d">mailer.servidoraweb[.]net</td><td>Tracker emaila / wrapper przekierowania URL</td></tr>
+    <tr><td>Domena</td><td class="ioc-d">brentbrltton[.]com</td><td>Hop przekierowania (zdekodowany z Base64 w linku emaila)</td></tr>
+    <tr><td>Domena</td><td class="ioc-d">brentbritton[.]com</td><td>Host kitu phishingowego - klon Adobe Acrobat Sign</td></tr>
+    <tr><td>URL</td><td class="ioc-d">hxxps://brentbritton[.]com/93c67ceedebf224c</td><td>Strona phishingowa z device code</td></tr>
+    <tr><td>URL</td><td class="ioc-d">hxxps://mailer.servidoraweb[.]net/class/link.php</td><td>Endpoint trackera przekierowania emaila</td></tr>
+    <tr><td>Endpoint API</td><td class="ioc-d">/api/device/start</td><td>Backend - inicjuje OAuth device flow</td></tr>
+    <tr><td>Endpoint API</td><td class="ioc-d">/api/device/status/{sid}</td><td>Backend - polling do uzyskania tokenu</td></tr>
+    <tr><td>Nadawca emaila</td><td class="ioc-d">noreplies.sua[@]jpmchase[.]com</td><td>Sfałszowany / lookalike nadawca JPMorgan</td></tr>
+    <tr><td>Nazwa dokumentu</td><td>ACH_Payment-ISO 201202.pdf</td><td>Fałszywa nazwa pliku wyświetlana w UI phishingowym</td></tr>
+    <tr><td>Kod weryfikacyjny</td><td>A2ND3XUK5</td><td>Zaobserwowany device code (rotuje per sesja / ofiara)</td></tr>
+    <tr><td>Nagłówek HTTP</td><td>X-Antibot-Token</td><td>Token anty-bot w żądaniach API backendu</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- DETEKCJA -->
+<div class="sec">
+<div class="sl">Detekcja - reguły KQL</div>
+<p class="pr"><strong>Microsoft Sentinel - autoryzacja device code z nieoczekiwanej lokalizacji:</strong></p>
+<div class="code-wrap"><pre class="code-block"><span class="cm">// [HIGH] Device code authorization z nieoczekiwanej lokalizacji</span>
+<span class="cm">// MITRE: T1528 · T1078.004</span>
+<span class="kw">SigninLogs</span>
+<span class="op">|</span> <span class="fn">where</span> TimeGenerated <span class="op">></span> <span class="fn">ago</span>(1d)
+<span class="op">|</span> <span class="fn">where</span> AuthenticationProtocol <span class="op">==</span> <span class="str">"deviceCode"</span>
+<span class="op">|</span> <span class="fn">where</span> ResultType <span class="op">==</span> <span class="str">"0"</span>  <span class="cm">// Tylko udane logowania</span>
+<span class="op">|</span> <span class="fn">extend</span> LocationCountry <span class="op">=</span> <span class="fn">tostring</span>(LocationDetails.countryOrRegion)
+<span class="op">|</span> <span class="fn">where</span> LocationCountry <span class="op">!=</span> <span class="str">"Poland"</span>  <span class="cm">// Dostosuj do baseline organizacji</span>
+<span class="op">|</span> <span class="fn">summarize</span> Count <span class="op">=</span> <span class="fn">count</span>() <span class="fn">by</span>
+    UserPrincipalName, LocationCountry, AppDisplayName,
+    IPAddress, <span class="fn">bin</span>(TimeGenerated, 1h)
+<span class="op">|</span> <span class="fn">order by</span> TimeGenerated <span class="fn">desc</span></pre></div>
+
+<p class="pr" style="margin-top:16px;"><strong>Microsoft Sentinel - device code flow dla Microsoft Authentication Broker:</strong></p>
+<div class="code-wrap"><pre class="code-block"><span class="cm">// [HIGH] Device code flow dla Microsoft Authentication Broker</span>
+<span class="cm">// Prawdziwy device code prawie nigdy nie jest inicjowany dla tej aplikacji z przeglądarki</span>
+<span class="cm">// MITRE: T1528</span>
+<span class="kw">SigninLogs</span>
+<span class="op">|</span> <span class="fn">where</span> TimeGenerated <span class="op">></span> <span class="fn">ago</span>(7d)
+<span class="op">|</span> <span class="fn">where</span> AuthenticationProtocol <span class="op">==</span> <span class="str">"deviceCode"</span>
+<span class="op">|</span> <span class="fn">where</span> AppDisplayName <span class="fn">has_any</span> (<span class="str">"Microsoft Authentication Broker"</span>, <span class="str">"Microsoft Office"</span>)
+<span class="op">|</span> <span class="fn">where</span> ResultType <span class="op">==</span> <span class="str">"0"</span>
+<span class="op">|</span> <span class="fn">project</span> TimeGenerated, UserPrincipalName, AppDisplayName,
+    IPAddress, LocationDetails, DeviceDetail
+<span class="op">|</span> <span class="fn">order by</span> TimeGenerated <span class="fn">desc</span></pre></div>
+
+<p class="pr" style="margin-top:16px;"><strong>Microsoft Defender XDR - email z impersonacją JPMorgan / Virtru linkujący do zewnętrznej domeny:</strong></p>
+<div class="code-wrap"><pre class="code-block"><span class="cm">// [MEDIUM] Impersonacja marki JPMorgan / Virtru w emailu z zewnętrznym linkiem</span>
+<span class="cm">// MITRE: T1566.002</span>
+<span class="kw">EmailEvents</span>
+<span class="op">|</span> <span class="fn">where</span> TimeGenerated <span class="op">></span> <span class="fn">ago</span>(7d)
+<span class="op">|</span> <span class="fn">where</span> SenderFromAddress <span class="fn">has_any</span> (<span class="str">"jpmchase"</span>, <span class="str">"jpmorgan"</span>)
+    <span class="op">and</span> SenderFromDomain <span class="op">!=</span> <span class="str">"jpmchase.com"</span>
+<span class="op">|</span> <span class="fn">join kind=inner</span> (
+    <span class="kw">EmailUrlInfo</span>
+    <span class="op">|</span> <span class="fn">where</span> Url <span class="fn">has_any</span> (<span class="str">"servidoraweb"</span>, <span class="str">"deviceauth"</span>, <span class="str">"brentbr"</span>)
+) <span class="fn">on</span> NetworkMessageId
+<span class="op">|</span> <span class="fn">project</span> TimeGenerated, Subject, SenderFromAddress,
+    RecipientEmailAddress, Url, ThreatTypes</pre></div>
+
+<div class="notice cyan">
+  <div class="notice-icon">ℹ️</div>
+  <div class="notice-body"><strong>Uwaga operacyjna</strong><br>
+  <code>SigninLogs</code> z filtrem <code>AuthenticationProtocol == "deviceCode"</code> wymaga licencji <strong>Azure AD P2</strong> lub Microsoft Sentinel z konektorem Entra ID. Dla organizacji bez P2, reguły consent grant z <a href="threat-012.html" style="color:var(--cyan);text-decoration:none;">THREAT-012</a> pozostają najbardziej dostępną warstwą detekcji. Warto też alertować na <code>AuditLogs</code> dla nowych operacji <code>Consent to application</code> inicjowanych przez device code flow.
+  </div>
+</div>
+</div>
+
+<!-- MITRE ATT&CK -->
+<div class="sec">
+<div class="sl">MITRE ATT&amp;CK</div>
+<div class="mg">
+  <div class="mc2"><div class="mid">T1566.002</div><div class="mname">Phishing: Spearphishing Link</div><div class="mtactic">Initial Access</div></div>
+  <div class="mc2"><div class="mid">T1528</div><div class="mname">Steal Application Access Token</div><div class="mtactic">Credential Access</div></div>
+  <div class="mc2"><div class="mid">T1550.001</div><div class="mname">Use Alternate Auth Material: Application Token</div><div class="mtactic">Defense Evasion / Lateral Movement</div></div>
+  <div class="mc2"><div class="mid">T1078.004</div><div class="mname">Valid Accounts: Cloud Accounts</div><div class="mtactic">Persistence / Defense Evasion</div></div>
+  <div class="mc2"><div class="mid">T1098.001</div><div class="mname">Account Manipulation: Additional Cloud Credentials</div><div class="mtactic">Persistence</div></div>
+  <div class="mc2"><div class="mid">T1036.005</div><div class="mname">Masquerading: Match Legitimate Name or Location</div><div class="mtactic">Defense Evasion</div></div>
+</div>
+</div>
+
+<!-- MITIGACJA -->
+<div class="sec">
+<div class="sl g">Mitigacja i reagowanie</div>
+
+<div class="box blue">
+<strong>1. Ograniczenie Device Code Flow przez Conditional Access</strong><br>
+Entra ID → Security → Conditional Access → Nowa polityka → Docelowi użytkownicy: "Wszyscy" → Aplikacje klienckie: "Aplikacje mobilne i klienty stacjonarne" → Udziel: Blokuj<br>
+<code>Uwaga: Przed włączeniem wyklucz konta serwisowe i znane urządzenia IoT.</code><br>
+Większość użytkowników korporacyjnych nigdy nie potrzebuje device code flow z poziomu przeglądarki - zablokowanie eliminuje ten wektor ataku. Wdrożyć najpierw w trybie Report-only i sprawdzić baseline false positive przed aktywacją.
+</div>
+
+<div class="box blue">
+<strong>2. Polityki zgody aplikacji - blokada zgody użytkownika</strong><br>
+Entra ID → Enterprise Applications → Consent and permissions → Ustawienia zgody użytkownika: <code>Nie zezwalaj na zgodę użytkownika</code><br>
+Wymusza, żeby wszystkie autoryzacje aplikacji OAuth przechodziły przez zatwierdzenie administratora. Eliminuje ryzyko wydania tokenu dla aplikacji zarejestrowanej przez atakującego bez wiedzy zespołu bezpieczeństwa.
+</div>
+
+<div class="box orange">
+<strong>3. Edukacja użytkowników - sygnały device code</strong><br>
+Kody urządzenia powinny pojawiać się <em>wyłącznie</em> gdy użytkownik samodzielnie inicjuje logowanie na urządzeniu bez przeglądarki (Smart TV, narzędzie CLI). Jeśli kod pojawia się w emailu lub na stronie internetowej - to phishing. Kluczowy sygnał ostrzegawczy w dialogu autoryzacji Microsoft: <strong>lokalizacja urządzenia = Stany Zjednoczone</strong> przy logowaniu z Polski.
+</div>
+
+<div class="box red">
+<strong>4. Jeśli token został wydany - reagowanie na incydent</strong><br>
+<code>Unieważnienie sesji:</code> Entra ID → Użytkownicy → [Użytkownik] → Unieważnij wszystkie refresh tokeny<br>
+<code>Audit zgód OAuth:</code> Enterprise Applications → [Użytkownik] → Uprawnienia OAuth - przegląd ostatnich 90 dni<br>
+<code>Sprawdź reguły skrzynki:</code> Get-InboxRule -Mailbox [user] | Where {$_.ForwardTo -ne $null}<br>
+<code>Sprawdź forwarding:</code> Get-Mailbox [user] | Select ForwardingAddress, ForwardingSMTPAddress<br>
+<code>Przegląd logów logowania:</code> Szukaj dostępu z adresów IP z USA po zdarzeniu autoryzacji
+</div>
+</div>
+
+<!-- REFERENCJE -->
+<div class="sec">
+<div class="sl c">Referencje</div>
+<table class="it">
+  <thead><tr><th>Źródło</th><th>Link</th></tr></thead>
+  <tbody>
+    <tr><td>RFC 8628</td><td><span class="ioc-d">datatracker.ietf.org/doc/html/rfc8628 - OAuth 2.0 Device Authorization Grant</span></td></tr>
+    <tr><td>Microsoft Docs</td><td><span class="ioc-d">learn.microsoft.com - OAuth 2.0 device authorization grant flow in Microsoft identity platform</span></td></tr>
+    <tr><td>MITRE ATT&amp;CK</td><td><span class="ioc-d">attack.mitre.org/techniques/T1528 - Steal Application Access Token</span></td></tr>
+    <tr><td>Powiązana analiza</td><td><a href="threat-012.html" style="color:var(--accent);text-decoration:none;">THREAT-012 - Device Code Phishing via Microsoft Teams Lure (21 kwi 2026)</a></td></tr>
+    <tr><td>Virtru</td><td><span class="ioc-d">virtru.com - platforma szyfrowania emaila Virtru (impersonowana w tej kampanii)</span></td></tr>
+    <tr><td>Zgłoszenie CERT</td><td><span class="ioc-d">incydent.cert.pl - zgłoszona infrastruktura phishingowa</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<footer>
+  <span>// THREAT-013 · Device Code Phishing · Lure JPMorgan + Adobe Acrobat Sign · 27 kwi 2026</span>
+  <span>Analiza Phishingu · Microsoft Sentinel · Entra ID · OAuth Abuse</span>
+</footer>
+
+</div>
+</body>
+</html>
