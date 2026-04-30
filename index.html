@@ -108,7 +108,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
 
   <div class="sh">Stats</div>
   <div class="stats">
-    <div class="stat"><div class="stat-val">14</div><div class="stat-label">Writeups</div></div>
+    <div class="stat"><div class="stat-val">15</div><div class="stat-label">Writeups</div></div>
     <div class="stat"><div class="stat-val g">20</div><div class="stat-label">KQL Rules</div></div>
     <div class="stat"><div class="stat-val o">9</div><div class="stat-label">Phishing cases</div></div>
     <div class="stat"><div class="stat-val p">TA569</div><div class="stat-label">Threat Actor</div></div>
@@ -148,6 +148,16 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
   <!-- WRITEUPS - newest first -->
   <div class="sh">Incident Writeups</div>
   <div class="cards">
+  <a href="threat-015.html" class="wcard yellow">
+    <div class="wcard-inner"><div class="wcard-bar"></div>
+    <div class="wcard-content">
+      <div class="wcard-top"><span class="wcard-id">THREAT-015</span><span class="wcard-date">30 Apr 2026</span></div>
+      <div class="wcard-title">CVE-2026-31431 "Copy Fail" - Linux Kernel LPE · algif_aead · CVSS 7.8 · Linux ≥4.14</div>
+      <div class="wcard-desc">Analiza laboratoryjna podatności 0-day w module algif_aead podsystemu kryptograficznego kernela Linux. Publiczny exploit (731 bajtów Python) umożliwia eskalację do root na praktycznie każdym systemie Linux od 2017 roku. Exploit potwierdzony na Debian 12 (kernel 6.12.69) i Ubuntu 24.04 LTS. Wdrożony workaround (install /bin/false) + reguła detekcyjna MDE. Brak oficjalnego patcha Debian/Ubuntu.</div>
+      <div class="wcard-tags"><span class="tag r">LPE · CVSS 7.8</span><span class="tag r">Publiczny PoC</span><span class="tag y">algif_aead · AF_ALG</span><span class="tag y">Linux ≥4.14</span><span class="tag c">Lab Confirmed ✓</span><span class="tag g">Workaround ✓</span></div>
+    </div></div>
+  </a>
+
   <a href="threat-014.html" class="wcard" style="--accent-local:#2ecc71;border-color:var(--border);" onmouseover="this.style.borderColor='#2ecc71'" onmouseout="this.style.borderColor='var(--border)'">
   <div class="wcard-inner">
     <div class="wcard-bar" style="background:#2ecc71;"></div>
