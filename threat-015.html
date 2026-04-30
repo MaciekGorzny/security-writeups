@@ -424,68 +424,8 @@ inactive</span></span></div>
 
 <!-- DETECTION ENGINEERING -->
 <div class="sec">
-  <div class="sl c">Detection Engineering - Microsoft Defender XDR</div>
-
-  <p class="pr">Detekcja była budowana iteracyjnie. Skupiono się na obserwowalnych efektach post-exploitation - modyfikacjach wrażliwych plików systemowych oraz dostępie do binarki <code>/usr/bin/su</code>.</p>
-
-  <div class="stage">
-    <div class="stage-header"><span class="stage-num c">KQL</span><span class="stage-title">Custom Detection Rule - Modyfikacja wrażliwych plików systemowych i binarek setuid</span></div>
-    <div class="stage-body">
-<div class="code-block"><span class="cm">// THREAT-015 - CVE-2026-31431 "Copy Fail" - detekcja post-exploitation
-// Wykrywa FileCreated/FileModified na /etc/passwd, /etc/shadow, /etc/sudoers
-// oraz modyfikacje /usr/bin/su (alternatywny wektor exploita - page cache setuid binary)
-// z wyłączeniem znanych legalnych procesów zarządzania użytkownikami</span>
-
-<span class="kw">DeviceFileEvents</span>
-<span class="kw">| where</span> FolderPath <span class="fn">in</span> (
-    <span class="str">"/etc/passwd"</span>, <span class="str">"/etc/shadow"</span>, <span class="str">"/etc/sudoers"</span>,
-    <span class="str">"/usr/bin/su"</span>
-)
-<span class="kw">| where not</span> (InitiatingProcessCommandLine <span class="fn">has_any</span> (
-    <span class="str">"useradd"</span>, <span class="str">"usermod"</span>, <span class="str">"userdel"</span>,
-    <span class="str">"passwd"</span>, <span class="str">"chage"</span>, <span class="str">"gpasswd"</span>,
-    <span class="str">"adduser"</span>, <span class="str">"deluser"</span>,
-    <span class="str">"systemd-sysusers"</span>, <span class="str">"chpasswd"</span>
-))
-<span class="kw">| where</span> InitiatingProcessFileName <span class="fn">!in</span> (
-    <span class="str">"useradd"</span>, <span class="str">"usermod"</span>, <span class="str">"userdel"</span>,
-    <span class="str">"passwd"</span>, <span class="str">"chage"</span>, <span class="str">"gpasswd"</span>,
-    <span class="str">"adduser"</span>, <span class="str">"deluser"</span>,
-    <span class="str">"systemd-sysusers"</span>, <span class="str">"chpasswd"</span>
-)
-<span class="kw">| project</span> Timestamp, DeviceName, FileName, FolderPath,
-    InitiatingProcessAccountName, InitiatingProcessCommandLine,
-    InitiatingProcessFileName, InitiatingProcessParentFileName</div>
-      <strong style="color:var(--accent);">Uwaga dot. /usr/bin/su:</strong> exploit modyfikuje binarke <code>su</code> w page cache jako alternatywny wektor do <code>/etc/passwd</code>. Modyfikacja tego pliku przez jakikolwiek proces inny niż package manager (<code>dpkg</code>, <code>apt</code>) powinna być traktowana jako incydent wysokiego priorytetu. Exclusiony dla <code>/usr/bin/su</code> nie są zalecane - legitymacyjne aktualizacje tej binarki są wyjątkowo rzadkie i zawsze przebiegają przez systemowy package manager.
-    </div>
-  </div>
-
-  <div class="stage">
-    <div class="stage-header"><span class="stage-num">TUNING</span><span class="stage-title">Investigacja false positive - zdarzenie z PPID=0</span></div>
-    <div class="stage-body">
-      Podczas 30-dniowego przeglądu baseline zidentyfikowano anomalne zdarzenie: <code>FileCreated</code> na <code>/etc/shadow</code>, <strong>22 kwietnia 2026 o 08:24:57</strong> - w dniu publikacji CVE. Kluczowe wskaźniki:<br><br>
-      • <span class="hl-r"><code>InitiatingProcessParentId: 0</code></span> - proces bez parenta (anomalia - poza PID 1 niemożliwa w normalnych warunkach)<br>
-      • <span class="hl-r"><code>InitiatingProcessUniqueId: 0</code></span> - Defender nie był w stanie zidentyfikować procesu<br>
-      • <code>InitiatingProcessCommandLine</code> - puste<br>
-      • <code>InitiatingProcessTokenElevation: None</code><br><br>
-      Po weryfikacji: administrator systemu zakładał w tym czasie nowe konta użytkowników. Potwierdzona legalna aktywność - znana luka telemetrii MDE Linux dla krótko żyjących procesów (puste CommandLine, brak ParentId).<br><br>
-      <strong>Udokumentowane jako false positive.</strong> Reguła zachowana bez wykluczenia - <code>FileCreated</code> na <code>/etc/shadow</code> z niezidentyfikowanym procesem wymaga ręcznej weryfikacji za każdym razem, niezależnie od kontekstu.
-    </div>
-  </div>
-
-  <div class="stage">
-    <div class="stage-header"><span class="stage-num">PLAYBOOK</span><span class="stage-title">Procedura dla analityka po wyzwoleniu alertu</span></div>
-    <div class="stage-body">
-      1. Potwierdzić z właścicielem systemu czy w okolicy timestampu (±10 min) planowane były operacje zarządzania użytkownikami<br>
-      2. Sprawdzić <code>InitiatingProcessParentFileName</code> - nawet jeśli child ma puste CommandLine, parent często ujawnia kontekst<br>
-      3. Jeśli <code>PPID=0</code> AND proces niezidentyfikowany AND brak planowanej aktywności admin → <span class="hl-r">eskalacja i izolacja hosta</span><br>
-      4. Dla zdarzeń na <code>/usr/bin/su</code>: jeśli InitiatingProcessFileName to nie <code>dpkg</code>/<code>apt</code> → traktować jako True Positive do odwołania<br>
-      5. Skorelować z <code>DeviceLogonEvents</code> w oknie ±10 min<br>
-      6. Sprawdzić <code>DeviceProcessEvents</code> pod kątem nieoczekiwanej eskalacji uprawnień
-    </div>
-  </div>
-
-  <div class="box cyan"><strong>Uwaga dot. telemetrii MDE Linux:</strong> ActionType <code>KernelModuleLoaded</code> nie jest dostępny w agentach MDE dla Linuxa. Do detekcji załadowania modułu rozważ reguły <code>auditd</code> przekierowywane do Sentinela przez AMA: <code>-a always,exit -F arch=b64 -S socket -F a0=38 -k af_alg_socket</code> - przechwytuje wywołania <code>socket(AF_ALG,...)</code> z bliskim zerem false positives.</div>
+  <div class="sl c">Detection Engineering</div>
+  <div class="box cyan"><strong>W trakcie weryfikacji.</strong> Exploit modyfikuje pliki przez page cache via <code>splice()</code> — nie przez standardowe syscalle zapisu. Nie zostało potwierdzone czy MDE Linux rejestruje <code>FileModified</code> w tym kontekście. Reguła detekcji zostanie opublikowana po weryfikacji w środowisku z agentem MDE.</div>
 </div>
 
 <!-- MITRE ATT&CK -->
@@ -542,7 +482,7 @@ sudo depmod -a</div>
 
 <footer>
   <span>// THREAT-015 · CVE-2026-31431 "Copy Fail" · 30 kwi 2026</span>
-  <span>Tools: MDE · KQL · Debian 12 Lab · Ubuntu 24.04 Lab · Wazuh</span>
+  <span>Tools: MDE · Debian 12 Lab · Ubuntu 24.04 Lab · Wazuh</span>
 </footer>
 
 </div>
