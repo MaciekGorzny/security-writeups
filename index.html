@@ -149,6 +149,18 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
   <div class="sh">Incident Writeups</div>
   <div class="cards">
 
+  <a href="threat-018.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#c084fc'" onmouseout="this.style.borderColor='var(--border)'">
+    <div class="wcard-inner">
+      <div class="wcard-bar" style="background:#c084fc;"></div>
+      <div class="wcard-content">
+        <div class="wcard-top"><span class="wcard-id" style="color:#c084fc;">THREAT-018</span><span class="wcard-date">14 maj 2026</span></div>
+        <div class="wcard-title">Fragnesia CVE-2026-46300 - Linux Kernel LPE · XFRM ESP-in-TCP Page Cache Corruption · Dirty Frag Family</div>
+        <div class="wcard-desc">Analiza laboratoryjna trzeciej podatności z rodziny Dirty Frag. Błąd w skb_try_coalesce() powoduje utratę znacznika SKBFL_SHARED_FRAG, co pozwala na in-place AES-GCM decrypt na stronach page cache /usr/bin/su przez nieuprzywilejowanego użytkownika. Exploit deterministyczny (brak race condition), publiczny PoC V12 Security. Ubuntu 24.04 podatny po wyłączeniu AppArmor userns restrict. Debian 13 (kernel 6.12.74) strukturalnie odporny — CONFIG_INET_ESPINTCP not set. Zwalidowane reguły auditd na obu dystrybucjach.</div>
+        <div class="wcard-tags"><span class="tag r">LPE · CVSS 7.2</span><span class="tag r">Publiczny PoC</span><span class="tag p">XFRM ESP-in-TCP</span><span class="tag p">Dirty Frag Family</span><span class="tag c">Lab Confirmed ✓</span><span class="tag g">auditd Detection ✓</span></div>
+      </div>
+    </div>
+  </a>
+
   <a href="threat-017.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#e8732a'" onmouseout="this.style.borderColor='var(--border)'">
     <div class="wcard-inner">
       <div class="wcard-bar" style="background:#e8732a;"></div>
