@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THREAT-020 - Dotloop Lure · AiTM Credential Harvesting · vexloreo[.]com · Maj 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{
+  --bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--border2:#1e2e45;
+  --cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;
+  --yellow:#ffd166;--yellow2:#f5c842;--purple:#c084fc;--blue:#4da6ff;
+  --accent:#c084fc;--accent2:#a855f7;
+  --text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 20%,rgba(192,132,252,.03) 0%,transparent 55%),
+    radial-gradient(ellipse 50% 35% at 85% 75%,rgba(168,85,247,.02) 0%,transparent 55%),
+    linear-gradient(rgba(192,132,252,.01) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(192,132,252,.01) 1px,transparent 1px);
+  background-size:100% 100%,100% 100%,44px 44px,44px 44px;
+  pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--accent);}
+.nav span{color:var(--border);}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--accent);box-shadow:0 0 8px var(--accent);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,38px);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:20px;}
+h1 span{color:var(--accent);}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:32px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.g{color:var(--green);}.mv.b{color:var(--accent);}
+.notice{border-radius:6px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px;font-size:12px;line-height:1.8;}
+.notice.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.2);}
+.notice.purple{background:rgba(192,132,252,.04);border:1px solid rgba(192,132,252,.2);}
+.notice.blue{background:rgba(77,166,255,.04);border:1px solid rgba(77,166,255,.2);}
+.notice-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.notice-body strong{color:var(--white);}
+.notice.red .notice-body strong{color:var(--red);}
+.notice.purple .notice-body strong{color:var(--accent);}
+.notice.blue .notice-body strong{color:var(--blue);}
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.g{color:var(--green);}.sl.r{color:var(--red);}
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.2);color:var(--accent);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
+.stage-header{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.stage-num{font-size:9px;font-weight:700;color:#000;background:var(--accent);padding:2px 8px;border-radius:2px;letter-spacing:1px;}
+.stage-num.r{background:var(--red);color:var(--white);}
+.stage-num.g{background:var(--green);color:#000;}
+.stage-num.b{background:var(--blue);color:#000;}
+.stage-title{font-size:12px;font-weight:700;color:var(--white);}
+.stage-body{padding:14px 18px;font-size:12px;color:var(--text);line-height:1.8;}
+.stage-body code{background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.15);color:var(--accent);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage-body .hl{color:var(--accent);font-weight:700;}
+.stage-body .hl-r{color:var(--red);font-weight:700;}
+.stage-body .hl-g{color:var(--green);font-weight:700;}
+.stage-body .hl-b{color:var(--blue);font-weight:700;}
+.code-block{background:#020508;border:1px solid var(--border);border-radius:4px;padding:16px 18px;font-size:11px;line-height:1.8;overflow-x:auto;color:#a8c0d6;white-space:pre;margin:12px 0;}
+.code-block .kw{color:var(--cyan);}
+.code-block .fn{color:var(--accent);}
+.code-block .str{color:var(--green);}
+.code-block .cm{color:var(--muted);font-style:italic;}
+.code-block .hl{color:var(--accent);font-weight:700;}
+.code-block .hl-r{color:var(--red);font-weight:700;}
+.code-block .hl-g{color:var(--green);font-weight:700;}
+.code-block .hl-y{color:var(--yellow);}
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(192,132,252,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.it td code{background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.15);color:var(--accent);padding:1px 5px;border-radius:2px;font-size:10px;}
+.it td .r{color:var(--red);font-weight:700;}
+.it td .g{color:var(--green);font-weight:700;}
+.it td .b{color:var(--blue);}
+.it td .p{color:var(--accent);}
+.bdg{display:inline-block;font-size:9px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.bdg.r{background:rgba(255,69,96,.12);color:var(--red);border:1px solid rgba(255,69,96,.25);}
+.bdg.p{background:rgba(192,132,252,.1);color:var(--accent);border:1px solid rgba(192,132,252,.2);}
+.bdg.b{background:rgba(77,166,255,.1);color:var(--blue);border:1px solid rgba(77,166,255,.2);}
+.bdg.g{background:rgba(61,255,143,.1);color:var(--green);border:1px solid rgba(61,255,143,.2);}
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+.box{border-radius:6px;padding:14px 18px;font-size:12px;line-height:1.8;margin-bottom:14px;}
+.box.purple{background:rgba(192,132,252,.04);border:1px solid rgba(192,132,252,.15);border-left:3px solid var(--accent);}
+.box.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.15);border-left:3px solid var(--red);}
+.box.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.15);border-left:3px solid var(--green);}
+.box.blue{background:rgba(77,166,255,.04);border:1px solid rgba(77,166,255,.15);border-left:3px solid var(--blue);}
+.box strong{color:var(--white);}
+.box code{background:rgba(255,255,255,.06);padding:1px 6px;border-radius:2px;font-size:11px;color:var(--accent);}
+.kc{display:flex;align-items:stretch;margin-bottom:16px;}
+.kcs{flex:1;padding:14px;background:var(--card);border:1px solid var(--border);border-right:none;position:relative;}
+.kcs:last-child{border-right:1px solid var(--border);}
+.kcs::after{content:'→';position:absolute;right:-11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;z-index:2;background:var(--card);padding:2px 0;}
+.kcs:last-child::after{display:none;}
+.kcnum{font-size:18px;font-weight:900;font-family:'Epilogue',sans-serif;color:var(--border2);margin-bottom:4px;}
+.kcs.a .kcnum{color:var(--accent);}
+.kcs.r .kcnum{color:var(--red);}
+.kcs.g .kcnum{color:var(--green);}
+.kcs.b .kcnum{color:var(--blue);}
+.kcn{font-size:11px;font-weight:700;color:var(--white);margin-bottom:3px;}
+.kct{font-size:9px;color:var(--muted);}
+.flow{background:#020508;border:1px solid var(--border);border-radius:4px;padding:16px 20px;font-size:11px;line-height:2;overflow-x:auto;white-space:pre;margin:12px 0;}
+.flow .ep{color:var(--accent);}
+.flow .method{color:var(--cyan);}
+.flow .status{color:var(--green);}
+.flow .status.r{color:var(--red);}
+.flow .arrow{color:var(--muted);}
+.flow .param{color:var(--yellow);}
+.flow .comment{color:var(--muted);font-style:italic;}
+footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+@media(max-width:600px){.kc{flex-direction:column;}.kcs{border-right:1px solid var(--border);border-bottom:none;}.kcs::after{content:'↓';right:auto;left:50%;bottom:-13px;top:auto;transform:translateX(-50%);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="nav">
+  <a href="index.html">← Portfolio</a>
+  <span>/</span>
+  <span style="color:var(--text)">THREAT-020</span>
+</nav>
+
+<div class="eyebrow"><span>▮</span> Incident Writeup · Phishing · AiTM · Kit Analysis</div>
+<h1>THREAT-020 - <span>Dotloop Lure · AiTM Credential Harvesting</span><br>Browser Fingerprinting Stage · WebSocket C2 · vexloreo[.]com</h1>
+
+<div class="meta">
+  <div class="mc"><div class="ml">ID</div><div class="mv b">THREAT-020</div></div>
+  <div class="mc"><div class="ml">Data</div><div class="mv">20 maj 2026</div></div>
+  <div class="mc"><div class="ml">Severity</div><div class="mv r">HIGH</div></div>
+  <div class="mc"><div class="ml">Verdict</div><div class="mv r">True Positive</div></div>
+  <div class="mc"><div class="ml">Wektor</div><div class="mv r">Phishing Email</div></div>
+  <div class="mc"><div class="ml">Lure</div><div class="mv b">Dotloop · podpisanie umowy</div></div>
+  <div class="mc"><div class="ml">Target</div><div class="mv r">Microsoft 365 credentials</div></div>
+  <div class="mc"><div class="ml">Technika</div><div class="mv r">AiTM · WebSocket C2</div></div>
+  <div class="mc"><div class="ml">Infrastruktura</div><div class="mv r">vexloreo[.]com · yupak[.]pe</div></div>
+  <div class="mc"><div class="ml">MTA delivery</div><div class="mv b">Mandrill (Mailchimp)</div></div>
+  <div class="mc"><div class="ml">Analiza</div><div class="mv b">HAR · view-source · Windows Sandbox</div></div>
+</div>
+
+<div class="notice red">
+  <div class="notice-icon">🔴</div>
+  <div class="notice-body"><strong>True Positive - aktywna kampania AiTM.</strong> Kampania aktywna w momencie analizy. Phishing kit na domenie <code>vexloreo[.]com</code> renderuje pixel-perfect klon strony logowania Microsoft 365, pobiera adres e-mail ofiary z parametru URL i wykonuje live walidację konta w Azure AD. Operator monitoruje sesje w czasie rzeczywistym przez WebSocket na <code>manlivep[.]org</code>. Ofiara jest precyzyjnie targetowana - adres e-mail zakodowany w Base64 obecny na każdym etapie łańcucha przekierowań.</div>
+</div>
+
+<div class="notice purple">
+  <div class="notice-icon">🔍</div>
+  <div class="notice-body"><strong>Uwaga dot. anonimizacji.</strong> Adres e-mail ofiary, domena organizacji docelowej oraz publiczny adres IP zostały zredagowane (<code>[REDACTED]</code>) ze względu na ochronę danych osobowych i informacji poufnych pracodawcy. Wszystkie pozostałe IoC są autentyczne.</div>
+</div>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="sec">
+  <div class="sl">Executive Summary</div>
+  <p class="pr">20 maja 2026 odebrano wiadomość e-mail podszywającą się pod platformę <strong>Dotloop</strong> (narzędzie do podpisywania dokumentów nieruchomości, należące do Zillow Group) z informacją o zakończeniu procesu podpisania dokumentu "Contract and Purchase Agreement (NHAR)". Wiadomość wysłana przez serwis transakcyjny <strong>Mandrill</strong> (Mailchimp) z konta nadawcy o nazwie "Mary Merkley / Renner and Sons", co nadaje jej pozory autentyczności - nagłówki e-mail pochodzą z legalnej infrastruktury Mandrill.</p>
+  <p class="pr">Kliknięcie przycisku "VIEW ALL DOCUMENTS" inicjuje <strong>trzyetapowy łańcuch przekierowań</strong>: link śledzący Mandrill → dedykowany staging/fingerprinting layer na domenie <code>yupak[.]pe</code> → właściwy phishing kit AiTM na domenie <code>0ssjc47zqg.vexloreo[.]com</code>. Adres e-mail ofiary jest zakodowany w Base64 i przekazywany przez cały łańcuch jako parametr identyfikujący cel ataku.</p>
+  <p class="pr">Domena <code>yupak[.]pe</code> pełni rolę warstwy fingerprintingu - przed przekierowaniem na kit zbiera szczegółowy profil przeglądarki ofiary (obiekt <code>document</code>, <code>console</code>, lista błędów JS) i wysyła go do serwera w POST. Właściwy kit na <code>vexloreo[.]com</code> używa obfuskowanego JavaScript, biblioteki Socket.io do komunikacji WebSocket z panelem operatora (<code>manlivep[.]org</code>) oraz osobnego endpointu do live walidacji konta w Azure AD. W analizowanej sesji serwer zwrócił lokalizację ofiary (<code>PL / Poznań</code>) - prawdopodobnie na potrzeby geofencingu lub logów operatora.</p>
+  <p class="pr">Kampania wykazuje cechy wspólne z THREAT-010 (AiTM Session Cookie Hijacking) - identyczna technika przekazywania e-mail w Base64, docelowa platforma Microsoft 365 - jednak infrastruktura, lure oraz mechanizm C2 (WebSocket zamiast standardowego pollingu HTTP) są odmienne, co wskazuje na inną kampanię lub ewolucję tego samego aktora.</p>
+</div>
+
+<!-- ATTACK CHAIN -->
+<div class="sec">
+  <div class="sl">Attack Chain</div>
+  <div class="kc">
+    <div class="kcs a"><div class="kcnum">01</div><div class="kcn">Phishing Email</div><div class="kct">Mandrill → skrzynka ofiary · lure Dotloop</div></div>
+    <div class="kcs b"><div class="kcnum">02</div><div class="kcn">Fingerprinting Stage</div><div class="kct">yupak[.]pe · Browser profiling · cookie _cid</div></div>
+    <div class="kcs r"><div class="kcnum">03</div><div class="kcn">AiTM Phishing Kit</div><div class="kct">vexloreo[.]com · Microsoft 365 clone</div></div>
+    <div class="kcs r"><div class="kcnum">04</div><div class="kcn">WebSocket C2</div><div class="kct">manlivep[.]org · live monitoring operatora</div></div>
+    <div class="kcs r"><div class="kcnum">05</div><div class="kcn">Azure AD Lookup</div><div class="kct">Live walidacja konta ofiary w AAD</div></div>
+  </div>
+</div>
+
+<!-- LURE ANALYSIS -->
+<div class="sec">
+  <div class="sl">Analiza lure'a (e-mail)</div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">LURE</span><span class="stage-title">Dotloop - "Contract and Purchase Agreement (NHAR) complete"</span></div>
+    <div class="stage-body">
+      Wiadomość imituje automatyczne powiadomienie z platformy <strong class="hl">Dotloop</strong> (by Zillow) o zakończeniu procesu podpisywania umowy kupna-sprzedaży nieruchomości. Prezentuje elementy budujące wiarygodność: logo Dotloop, ikonę podpisu z checkmark, imię i nazwisko rzekomego agenta nieruchomości (<strong class="hl-r">[REDACTED - dane osoby trzeciej]</strong>), nazwę firmy "Renner and Sons" oraz numer telefonu. Na końcu wiadomości widnieje przycisk <strong class="hl">VIEW ALL DOCUMENTS</strong> prowadzący do linku śledzącego Mandrill.<br><br>
+      Wiadomość jest wiarygodna dla ofiary nieznającej platformy Dotloop - branża nieruchomości (real estate closings) jest typowym kontekstem, który wywołuje poczucie pilności ("podpisanie umowy"). Lure adresuje odbiorcę przez precyzyjne targetowanie - e-mail ofiary jest zakodowany w łańcuchu przekierowań, co sugeruje wcześniejsze pozyskanie listy celów.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">DELIVERY</span><span class="stage-title">Mandrill (Mailchimp) jako warstwa dostarczania</span></div>
+    <div class="stage-body">
+      Link w wiadomości prowadzi przez <strong class="hl">Mandrill tracking URL</strong> - legalny serwis transakcyjny Mailchimp używany do śledzenia kliknięć. Konto na Mandrill (<code>account ID 30727001</code>) zostało użyte do wysyłki, co pozwala na:<br><br>
+      • Obejście reputacji domeny - linki mandrillapp[.]com są klasyfikowane jako bezpieczne przez większość filtrów e-mail<br>
+      • Natywne śledzenie kliknięć - Mandrill rejestruje moment kliknięcia i przekierowuje na docelowy URL<br>
+      • Maskowanie finalnej domeny phishingowej w treści wiadomości<br><br>
+      Parametr <code>p=</code> w URL Mandrill zawiera JSON z docelowym URL (<code>yupak[.]pe/docs-loopvault/...</code>) i ID wiadomości zakodowane w Base64. Timestamp w parametrze: <code>msg_ts: 1779267791</code>.
+    </div>
+  </div>
+</div>
+
+<!-- FINGERPRINTING LAYER -->
+<div class="sec">
+  <div class="sl">Fingerprinting Stage - yupak[.]pe</div>
+
+  <p class="pr">Przed przekierowaniem na właściwy phishing kit ofiara ląduje na domenie <code>yupak[.]pe</code> - dedykowanej warstwie stagingowej, której zadaniem jest zebranie profilu przeglądarki i prawdopodobnie weryfikacja, czy sesja nie pochodzi od sandboxa lub crawlera.</p>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num b">URL PATTERN</span><span class="stage-title">Struktura URL na yupak[.]pe</span></div>
+    <div class="stage-body">
+<div class="flow"><span class="ep">https://yupak[.]pe/docs-loopvault/</span><span class="param">&lt;SHA1_hash&gt;</span>/<span class="param">&lt;SHA1_hash&gt;</span>/<span class="param">&lt;base64_email&gt;</span>
+
+<span class="comment"># SHA1 hash: ce4dd13ac72df09769d1cda215f675a9d3f24115 (identyczny w obu segmentach)</span>
+<span class="comment"># Base64 email: ZGFyaXV[REDACTED]QuY29t → [REDACTED]@[REDACTED]</span></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num b">POST DATA</span><span class="stage-title">Browser fingerprint wysyłany do serwera</span></div>
+    <div class="stage-body">
+      Po załadowaniu strony JavaScript wykonuje POST z zebranym profilem środowiska. Dane obejmują:<br><br>
+      • <code>mode: "php"</code> - identyfikator trybu kitu<br>
+      • <code>errors.touchEvent: "NotSupportedError"</code> - wykrywanie urządzenia (brak touch = desktop)<br>
+      • Pełny obiekt <code>console</code> z listą dostępnych metod<br>
+      • Pełny obiekt <code>document</code>: URL, referrer, <code>cookie: "_cid=6a0d813d1b57fe3a"</code>, charset, <code>readyState</code>, listy formularzy/skryptów/linków<br><br>
+      Profil pozwala operatorowi odrzucić sesje sandbox (np. brak cookies, anomalie w obiekcie document) przed przekierowaniem na główny kit. Cookie <code>_cid</code> z unikalnym identyfikatorem sesji jest ustawiane przez yupak[.]pe i może być używane do korelacji sesji po stronie serwera.
+    </div>
+  </div>
+
+  <div class="box purple">
+    <strong>Obserwacja:</strong> Warstwa yupak[.]pe jako dedykowany fingerprinting stage to element rzadziej dokumentowany w analizach phishingu AiTM. Typowe kity (np. Evilginx2, Tycoon 2FA) przyjmują ofiarę bezpośrednio. Tutaj dodatkowy etap zwiększa odporność kitu na automatyczną detekcję przez crawlery i sandboxing systemów e-mail.
+  </div>
+</div>
+
+<!-- PHISHING KIT - VEXLOREO -->
+<div class="sec">
+  <div class="sl">Phishing Kit - vexloreo[.]com</div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num r">LANDING</span><span class="stage-title">Inicjalizacja - przekazanie e-mail przez parametr state=</span></div>
+    <div class="stage-body">
+      Ofiara ląduje na subdomenie <code>0ssjc47zqg.vexloreo[.]com</code> z e-mailem przekazanym w parametrze URL:<br>
+      <code>/?state=[REDACTED]@[REDACTED]</code><br><br>
+      Serwer odpowiada 302 i przekierowuje na wewnętrzny zasób kitu. Subdomena zawiera losowy prefix (<code>0ssjc47zqg</code>) - prawdopodobnie generowany per kampania lub per batch ofiar, co utrudnia blokowanie po domenie bazowej.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num r">BOOTSTRAP</span><span class="stage-title">Inicjalizacja kitu - pearl_bamboo resource</span></div>
+    <div class="stage-body">
+      Główna strona kitu ładowana jest przez zasób o nazwie losowego słowa kluczowego (<code>/pearl_bamboo_unity_nectar_vision_...</code>). W atrybutach tagu <code>&lt;html&gt;</code> zakodowane są parametry konfiguracyjne:<br><br>
+      • <code>e="[REDACTED]@[REDACTED]"</code> - e-mail ofiary przekazany do JS<br>
+      • <code>p="aHR0cHM6Ly8wc3NqYzQ3enFnLnZleGxvcmVvLmNvbS8="</code> → <code>https://0ssjc47zqg.vexloreo[.]com/</code> - baza URL kitu<br>
+      • <code>b="bS9zYy9CMFNFQklSTEpMWjEySUJPRzI2TE1LODJK"</code> → <code>m/sc/B0SEBIRLJLZ12IBOG26LMK82J</code> - endpoint API C2<br>
+      • <code>m="1"</code> - nieznany tryb/flaga<br><br>
+      Strona ładuje Socket.io (<code>cdnjs.cloudflare.com</code>), jQuery 4.0 (<code>code.jquery.com</code>), Bootstrap 5.3.8 (<code>cdn.jsdelivr.net</code>) oraz obfuskowany skrypt kitu z endpointu <code>/a/X3HJXZ682VOSXX7D1A0YFMSQY</code>.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num r">OBFUSKACJA</span><span class="stage-title">Obfuskowany JavaScript - /a/X3HJXZ682VOSXX7D1A0YFMSQY</span></div>
+    <div class="stage-body">
+      Główna logika kitu dostarczona jako obfuskowany JavaScript (technika <strong class="hl-r">string array shuffling + hex encoding</strong>, charakterystyczna dla narzędzi takich jak JavaScript Obfuscator Tool / obfuscator.io). Wzorzec:<br>
+      <code>_0x17d6d3</code>, <code>_0xea4ff6</code>, <code>parseInt(...) ^ _0xea4ff6</code> - rotujący self-executing array.<br><br>
+      Deobfuskacja jest możliwa (narzędzia: <strong class="hl">de4js</strong>, <strong class="hl">JStillery</strong>), jednak nie wykonano jej w tej analizie. Zachowanie kitu jest w pełni udokumentowane przez HAR - deobfuskacja JS byłaby kolejnym krokiem przy głębszej analizie kitu lub potwierdzeniu rodziny (Tycoon 2FA / EvilProxy / inne).
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num r">API C2</span><span class="stage-title">Endpoint /m/sc/ - sterowanie przepływem ataku</span></div>
+    <div class="stage-body">
+      Wszystkie etapy interakcji z ofiarą przechodzą przez jeden endpoint POST: <code>/m/sc/B0SEBIRLJLZ12IBOG26LMK82J</code>. Zaobserwowane wywołania:<br><br>
+
+<div class="flow"><span class="comment"># 1. Inicjalizacja - pobranie szablonu HTML strony ładowania</span>
+<span class="method">POST</span> <span class="ep">/m/sc/B0SEBIRLJLZ12IBOG26LMK82J</span>
+  body: <span class="param">action=signup&atype=body_off&email=&phone=&mode=GotoType</span>
+  <span class="arrow">→</span> <span class="status">200</span> {status:"success", msg: "&lt;style&gt;...CSS...&lt;/style&gt;"}
+
+<span class="comment"># 2. Geolokalizacja ofiary</span>
+<span class="method">POST</span> <span class="ep">/m/sc/B0SEBIRLJLZ12IBOG26LMK82J</span>
+  body: <span class="param">action=signup&mode=GetPro</span>
+  <span class="arrow">→</span> <span class="status">200</span> {"country":"PL","city":"Poznan","rad":122587,"port":10005}
+
+<span class="comment"># 3. Pobranie szablonu strony hasła</span>
+<span class="method">POST</span> <span class="ep">/m/sc/B0SEBIRLJLZ12IBOG26LMK82J</span>
+  body: <span class="param">action=signup&atype=PassPage&email=&phone=&mode=GotoType</span>
+  <span class="arrow">→</span> <span class="status">200</span> {status:"success", msg: "&lt;div role='main'&gt;...HTML formularza hasła..."}
+
+<span class="comment"># 4. Walidacja e-mail w Azure AD (live lookup)</span>
+<span class="method">POST</span> <span class="ep">/m/sc/B0SEBIRLJLZ12IBOG26LMK82J</span>
+  body: <span class="param">action=signup&username=[REDACTED]@[REDACTED]&mode=validem</span>
+  <span class="arrow">→</span> <span class="status">200</span> {"IfExistsResult":0,"HasPassword":true,"DesktopSsoEnabled":true,...}</div>
+    </div>
+  </div>
+
+  <div class="box red">
+    <strong>Azure AD live lookup:</strong> Odpowiedź na <code>mode=validem</code> zawierała pełną strukturę AAD: <code>IfExistsResult: 0</code> (konto istnieje), <code>HasPassword: true</code>, <code>DesktopSsoEnabled: true</code>. Serwer phishingowy wykonał w czasie rzeczywistym zapytanie do Azure AD, by zweryfikować czy konto ofiary jest aktywne - technika stosowana przez zaawansowane kity AiTM w celu uniknięcia wyświetlania strony logowania dla nieistniejących kont.
+  </div>
+</div>
+
+<!-- WEBSOCKET C2 -->
+<div class="sec">
+  <div class="sl">WebSocket C2 - manlivep[.]org</div>
+
+  <p class="pr">Po załadowaniu kitu nawiązywane jest połączenie WebSocket z domeną <code>manlivep[.]org</code> przez bibliotekę Socket.io. To element odróżniający tę kampanię od typowych kitów phishingowych używających HTTP polling.</p>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num r">WEBSOCKET</span><span class="stage-title">wss://manlivep[.]org/socket.io/?EIO=4&transport=websocket</span></div>
+    <div class="stage-body">
+      W analizowanej sesji odebrano 11 wiadomości WebSocket - wyłącznie heartbeat (ping/pong Engine.io: wartości <code>2</code> i <code>3</code>). Brak poleceń operatora w tej sesji, co może oznaczać że operator nie był aktywny podczas analizy lub że sandbox był rozpoznany przez fingerprint yupak[.]pe.<br><br>
+      Komunikacja Socket.io używa protokołu Engine.io v4 (<code>EIO=4</code>). Serwer przydzielił session ID: <code>wvXKQzTB7SyiU4v-AB38</code> (kanał ofiary) i <code>wCPs4u1BKu2LlDv5AB39</code> (kanał odpowiedzi). Ping interval: 25s, timeout: 20s.
+    </div>
+  </div>
+
+  <div class="box purple">
+    <strong>WebSocket vs HTTP polling:</strong> Użycie WebSocket (Socket.io) zamiast standardowego <code>fetch.php?update=1</code> (jak w THREAT-016) daje operatorowi możliwość wysyłania poleceń do kitu w dowolnym momencie bez konieczności czekania na polling interval. Operator widzi sesję ofiary w czasie rzeczywistym i może dynamicznie sterować przepływem - np. wymusić dodatkowy krok MFA, zmienić treść strony lub zamknąć sesję.
+  </div>
+</div>
+
+<!-- IP GEOLOCATION -->
+<div class="sec">
+  <div class="sl">Geolokalizacja ofiary przez ipify[.]org</div>
+
+  <p class="pr">Kit wykonuje żądanie do <code>api.ipify[.]org/?format=json</code> - publicznego serwisu zwracającego publiczny adres IP klienta. Odpowiedź (IP ofiary: <strong>[REDACTED]</strong>) jest prawdopodobnie wysyłana do panelu operatora przez WebSocket lub kolejny POST do <code>/m/sc/</code>. Serwer C2 niezależnie wykonał geolokalizację (<code>GetPro</code>) zwracając Poznań/PL - oba mechanizmy służą do profilowania ofiary.</p>
+</div>
+
+<!-- HTTP FLOW SUMMARY -->
+<div class="sec">
+  <div class="sl">Pełny flow HTTP (26 requestów)</div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">FLOW</span><span class="stage-title">Łańcuch przekierowań i kontaktowane domeny</span></div>
+    <div class="stage-body">
+<div class="flow"><span class="comment"># ETAP 1: Mandrill tracking</span>
+<span class="method">GET</span>  <span class="ep">mandrillapp[.]com/track/click/30727001/yupak[.]pe?p=&lt;base64&gt;</span>
+     <span class="arrow">→</span> <span class="status">302</span> Location: yupak[.]pe/docs-loopvault/&lt;sha1&gt;/&lt;sha1&gt;/&lt;base64_email&gt;
+
+<span class="comment"># ETAP 2: Fingerprinting stage</span>
+<span class="method">GET</span>  <span class="ep">yupak[.]pe/docs-loopvault/ce4dd13a.../ce4dd13a.../[REDACTED_B64]</span>
+     <span class="arrow">→</span> <span class="status">200</span> (fingerprint collection page)
+<span class="method">POST</span> <span class="ep">yupak[.]pe/docs-loopvault/ce4dd13a.../...</span>
+     <span class="arrow">→</span> <span class="status">200</span> (browser profile: document+console+errors JSON)
+
+<span class="comment"># ETAP 3: Phishing kit AiTM</span>
+<span class="method">GET</span>  <span class="ep">0ssjc47zqg.vexloreo[.]com/?state=[REDACTED]@[REDACTED]</span>
+     <span class="arrow">→</span> <span class="status">302</span> → /pearl_bamboo_unity_nectar_...
+<span class="method">GET</span>  <span class="ep">0ssjc47zqg.vexloreo[.]com/pearl_bamboo_unity_nectar_vision_...</span>
+     <span class="arrow">→</span> <span class="status">200</span> (bootstrap HTML z e=email, p=base, b=endpoint)
+<span class="method">GET</span>  <span class="ep">0ssjc47zqg.vexloreo[.]com/a/X3HJXZ682VOSXX7D1A0YFMSQY</span>
+     <span class="arrow">→</span> <span class="status">200</span> (obfuskowany JS kitu)
+
+<span class="comment"># Zewnętrzne zależności JS (CDN)</span>
+<span class="method">GET</span>  <span class="ep">cdnjs.cloudflare.com/...</span>  socket.io 4.7.5
+<span class="method">GET</span>  <span class="ep">code.jquery.com/jquery-4.0.0.min.js</span>
+<span class="method">GET</span>  <span class="ep">cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js</span>
+
+<span class="comment"># Geolokalizacja ofiary</span>
+<span class="method">GET</span>  <span class="ep">api.ipify[.]org/?format=json</span>  <span class="arrow">→</span> {"ip":"[REDACTED]"}
+
+<span class="comment"># C2 API - etapy interakcji</span>
+<span class="method">POST</span> <span class="ep">0ssjc47zqg.vexloreo[.]com/m/sc/B0SEBIRLJLZ12IBOG26LMK82J</span> (×5)
+     mode: body_off → GetPro → PassPage → body_live → validem
+
+<span class="comment"># WebSocket C2</span>
+<span class="method">GET</span>  <span class="ep">wss://manlivep[.]org/socket.io/?EIO=4&transport=websocket</span>
+     <span class="arrow">→</span> <span class="status r">101</span> Switching Protocols (11 wiadomości heartbeat)
+
+<span class="comment"># Zasoby graficzne kitu (Microsoft branding)</span>
+<span class="method">GET</span>  <span class="ep">0ssjc47zqg.vexloreo[.]com/m/folder/key.svg</span>
+<span class="method">GET</span>  <span class="ep">0ssjc47zqg.vexloreo[.]com/m/folder/logo.svg</span>
+<span class="method">GET</span>  <span class="ep">0ssjc47zqg.vexloreo[.]com/m/folder/bg.svg</span>
+<span class="method">GET</span>  <span class="ep">0ssjc47zqg.vexloreo[.]com/m/folder/arrow_left.svg</span>
+<span class="method">GET</span>  <span class="ep">aadcdn.msauthimages[.]net/.../logintenantbranding/...</span>  <span class="comment"># legalny CDN Microsoft</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- NETWORK DOMAINS -->
+<div class="sec">
+  <div class="sl">Kontaktowane domeny</div>
+  <table class="it">
+    <tr><th>Domena</th><th>Rola</th><th>Ocena</th></tr>
+    <tr><td><code>mandrillapp[.]com</code></td><td>Mandrill tracking URL - legalny serwis Mailchimp używany do dostarczenia phishingu</td><td><span class="b">ABUSED LEGITIMATE</span></td></tr>
+    <tr><td><code>yupak[.]pe</code></td><td>Fingerprinting / staging layer - zbiera browser fingerprint przed przekierowaniem na kit</td><td><span class="r">MALICIOUS</span></td></tr>
+    <tr><td><code>0ssjc47zqg.vexloreo[.]com</code></td><td>Główna infrastruktura phishingowa - AiTM kit Microsoft 365</td><td><span class="r">MALICIOUS</span></td></tr>
+    <tr><td><code>manlivep[.]org</code></td><td>WebSocket C2 - real-time monitoring sesji ofiary przez operatora</td><td><span class="r">MALICIOUS</span></td></tr>
+    <tr><td><code>api.ipify[.]org</code></td><td>Publiczny serwis IP lookup - używany przez kit do profilowania ofiary</td><td><span class="b">ABUSED LEGITIMATE</span></td></tr>
+    <tr><td><code>cdnjs.cloudflare.com</code></td><td>CDN - Socket.io 4.7.5 (legalny, załadowany przez kit)</td><td><span class="b">ABUSED LEGITIMATE</span></td></tr>
+    <tr><td><code>code.jquery.com</code></td><td>CDN - jQuery 4.0.0 (legalny, załadowany przez kit)</td><td><span class="b">ABUSED LEGITIMATE</span></td></tr>
+    <tr><td><code>cdn.jsdelivr.net</code></td><td>CDN - Bootstrap 5.3.8 (legalny, załadowany przez kit)</td><td><span class="b">ABUSED LEGITIMATE</span></td></tr>
+    <tr><td><code>aadcdn.msauthimages[.]net</code></td><td>Legalny CDN Microsoft - branding tenant (logo organizacji na stronie logowania)</td><td><span class="g">LEGITIMATE</span></td></tr>
+  </table>
+</div>
+
+<!-- COMPARISON WITH THREAT-010 -->
+<div class="sec">
+  <div class="sl">Porównanie z THREAT-010</div>
+  <table class="it">
+    <tr><th>Element</th><th>THREAT-010</th><th>THREAT-020</th></tr>
+    <tr><td>Lure</td><td>SharePoint / OneDrive document sharing</td><td>Dotloop - podpisanie umowy nieruchomości</td></tr>
+    <tr><td>Target platform</td><td>Microsoft 365</td><td>Microsoft 365</td></tr>
+    <tr><td>E-mail w URL</td><td>Base64 w parametrze</td><td>Base64 w parametrze (identyczna technika)</td></tr>
+    <tr><td>Staging layer</td><td>Brak</td><td><code class="p">yupak[.]pe</code> - dedykowany fingerprinting</td></tr>
+    <tr><td>Kit domain</td><td>Inna infrastruktura</td><td><code class="r">vexloreo[.]com</code></td></tr>
+    <tr><td>C2 mechanizm</td><td>HTTP (standardowy)</td><td><code class="r">WebSocket (Socket.io)</code> - real-time</td></tr>
+    <tr><td>Operator monitoring</td><td>Nieznany</td><td><code class="r">manlivep[.]org</code></td></tr>
+    <tr><td>Azure AD lookup</td><td>Niepotwierdzony</td><td><strong class="r">Potwierdzony</strong> - live validem</td></tr>
+    <tr><td>Geolokalizacja ofiary</td><td>Niepotwierdzony</td><td><strong class="r">Potwierdzony</strong> - GetPro response</td></tr>
+  </table>
+</div>
+
+<!-- IOCS -->
+<div class="sec">
+  <div class="sl r">Indicators of Compromise</div>
+  <table class="it">
+    <tr><th>Type</th><th>Indicator</th><th>Kontekst</th></tr>
+    <tr><td>Domain</td><td><code>vexloreo[.]com</code></td><td>Phishing kit host - AiTM Microsoft 365 clone</td></tr>
+    <tr><td>Domain</td><td><code>0ssjc47zqg.vexloreo[.]com</code></td><td>Subdomena kampanii (prefix losowy per batch)</td></tr>
+    <tr><td>Domain</td><td><code>yupak[.]pe</code></td><td>Fingerprinting / staging layer</td></tr>
+    <tr><td>Domain</td><td><code>manlivep[.]org</code></td><td>WebSocket C2 - operator monitoring</td></tr>
+    <tr><td>URL</td><td><code>hxxps://yupak[.]pe/docs-loopvault/ce4dd13ac72df09769d1cda215f675a9d3f24115/</code></td><td>Fingerprinting endpoint tej kampanii</td></tr>
+    <tr><td>URL</td><td><code>hxxps://0ssjc47zqg.vexloreo[.]com/m/sc/B0SEBIRLJLZ12IBOG26LMK82J</code></td><td>C2 API endpoint kitu</td></tr>
+    <tr><td>URL</td><td><code>wss://manlivep[.]org/socket.io/?EIO=4&transport=websocket</code></td><td>WebSocket C2 URI</td></tr>
+    <tr><td>Hash</td><td><code>ce4dd13ac72df09769d1cda215f675a9d3f24115</code></td><td>SHA1 hash w ścieżce yupak[.]pe - ID kampanii</td></tr>
+    <tr><td>Pattern</td><td><code>/?state=&lt;email&gt;</code> na subdomenie *.vexloreo[.]com</td><td>Charakterystyczna struktura URL kitu</td></tr>
+    <tr><td>Pattern</td><td>POST <code>action=signup&mode=validem&username=&lt;email&gt;</code></td><td>Azure AD email validation request</td></tr>
+    <tr><td>Pattern</td><td>Atrybut <code>e=&lt;email&gt;</code> w tagu &lt;html&gt;</td><td>Metoda przekazywania e-mail do JS w kicie</td></tr>
+    <tr><td>Mandrill ID</td><td><code>account 30727001</code>, <code>msg_id cc2cb524664f470080bd4bd13b68d446</code></td><td>Identyfikatory kampanii w Mandrill</td></tr>
+  </table>
+</div>
+
+<!-- MITRE -->
+<div class="sec">
+  <div class="sl">MITRE ATT&amp;CK Mapping</div>
+  <div class="mg">
+    <div class="mc2"><div class="mid">T1566.002</div><div class="mname">Phishing: Spearphishing Link</div><div class="mtactic">Initial Access</div></div>
+    <div class="mc2"><div class="mid">T1078.004</div><div class="mname">Valid Accounts: Cloud Accounts</div><div class="mtactic">Initial Access (cel ataku)</div></div>
+    <div class="mc2"><div class="mid">T1557</div><div class="mname">Adversary-in-the-Middle</div><div class="mtactic">Credential Access</div></div>
+    <div class="mc2"><div class="mid">T1056.003</div><div class="mname">Input Capture: Web Portal Capture</div><div class="mtactic">Credential Access</div></div>
+    <div class="mc2"><div class="mid">T1539</div><div class="mname">Steal Web Session Cookie</div><div class="mtactic">Credential Access</div></div>
+    <div class="mc2"><div class="mid">T1036.005</div><div class="mname">Masquerading: Match Legitimate Name</div><div class="mtactic">Defense Evasion</div></div>
+    <div class="mc2"><div class="mid">T1027</div><div class="mname">Obfuscated Files or Information</div><div class="mtactic">Defense Evasion (JS obfuskacja)</div></div>
+    <div class="mc2"><div class="mid">T1589.002</div><div class="mname">Gather Victim Identity: Email Addresses</div><div class="mtactic">Reconnaissance</div></div>
+    <div class="mc2"><div class="mid">T1583.001</div><div class="mname">Acquire Infrastructure: Domains</div><div class="mtactic">Resource Development</div></div>
+    <div class="mc2"><div class="mid">T1584.001</div><div class="mname">Compromise Infrastructure: Domains</div><div class="mtactic">Resource Development (Mandrill)</div></div>
+    <div class="mc2"><div class="mid">T1102</div><div class="mname">Web Service (Mandrill, ipify, CDN)</div><div class="mtactic">Command and Control</div></div>
+    <div class="mc2"><div class="mid">T1071.001</div><div class="mname">Application Layer Protocol: WebSocket</div><div class="mtactic">Command and Control</div></div>
+  </div>
+</div>
+
+<!-- KQL -->
+<div class="sec">
+  <div class="sl g">KQL Detection Rules</div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num g">KQL-1</span><span class="stage-title">Detekcja dostępu do domeny vexloreo[.]com i manlivep[.]org</span></div>
+    <div class="stage-body">
+<div class="code-block"><span class="cm">// Sentinel - Microsoft Defender XDR / DNS logs
+// Detekcja kontaktu z infrastrukturą phishingową tej kampanii</span>
+<span class="fn">DeviceNetworkEvents</span>
+<span class="kw">| where</span> <span class="fn">Timestamp</span> > <span class="fn">ago</span>(<span class="str">7d</span>)
+<span class="kw">| where</span> <span class="fn">RemoteUrl</span> <span class="kw">has_any</span> (<span class="str">"vexloreo.com"</span>, <span class="str">"manlivep.org"</span>, <span class="str">"yupak.pe"</span>)
+<span class="kw">| project</span> Timestamp, DeviceName, InitiatingProcessFileName,
+          RemoteUrl, RemoteIP, ActionType
+<span class="kw">| order by</span> Timestamp <span class="kw">desc</span></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num g">KQL-2</span><span class="stage-title">Detekcja wzorca AiTM - URL z parametrem state= zawierającym e-mail</span></div>
+    <div class="stage-body">
+<div class="code-block"><span class="cm">// Sentinel - UrlClickEvents (Defender for Office 365)
+// Wzorzec URL kitu: subdomena losowa + /?state=email@domain</span>
+<span class="fn">UrlClickEvents</span>
+<span class="kw">| where</span> <span class="fn">Timestamp</span> > <span class="fn">ago</span>(<span class="str">30d</span>)
+<span class="kw">| where</span> <span class="fn">Url</span> <span class="kw">matches regex</span> <span class="str">@"https://[a-z0-9]{8,12}\.[a-z]+\.[a-z]+/\?state=.+@.+"</span>
+<span class="kw">| project</span> Timestamp, NetworkMessageId, Url, AccountUpn, IPAddress, IsClickedThrough
+<span class="kw">| order by</span> Timestamp <span class="kw">desc</span></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num g">KQL-3</span><span class="stage-title">Detekcja WebSocket do podejrzanych domen (Socket.io EIO=4)</span></div>
+    <div class="stage-body">
+<div class="code-block"><span class="cm">// Sentinel - DeviceNetworkEvents
+// WebSocket upgrade do domen spoza znanych CDN/usług (potencjalny C2)</span>
+<span class="fn">DeviceNetworkEvents</span>
+<span class="kw">| where</span> <span class="fn">Timestamp</span> > <span class="fn">ago</span>(<span class="str">7d</span>)
+<span class="kw">| where</span> <span class="fn">RemoteUrl</span> <span class="kw">contains</span> <span class="str">"socket.io"</span>
+    <span class="kw">and</span> <span class="fn">RemoteUrl</span> <span class="kw">contains</span> <span class="str">"EIO=4"</span>
+    <span class="kw">and not</span> (<span class="fn">RemoteUrl</span> <span class="kw">has_any</span> (<span class="str">"socket.io"</span>, <span class="str">"socketlabs.com"</span>,
+                                   <span class="str">"pusher.com"</span>, <span class="str">"ably.io"</span>))
+<span class="kw">| project</span> Timestamp, DeviceName, RemoteUrl, RemoteIP, InitiatingProcessFileName
+<span class="kw">| order by</span> Timestamp <span class="kw">desc</span></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num g">KQL-4</span><span class="stage-title">Detekcja kliknięcia linku Mandrill prowadzącego do domeny spoza *.mailchimp.com</span></div>
+    <div class="stage-body">
+<div class="code-block"><span class="cm">// Sentinel - UrlClickEvents
+// Mandrill tracking URL przekierowujący na domeny inne niż mailchimp.com / chimpified.com
+// Atakujący nadużywają Mandrill do ukrycia finalnej domeny phishingowej</span>
+<span class="fn">UrlClickEvents</span>
+<span class="kw">| where</span> <span class="fn">Timestamp</span> > <span class="fn">ago</span>(<span class="str">30d</span>)
+<span class="kw">| where</span> <span class="fn">Url</span> <span class="kw">startswith</span> <span class="str">"https://mandrillapp.com/track/click/"</span>
+<span class="kw">| extend</span> TargetDomain = <span class="fn">extract</span>(<span class="str">@"mandrillapp\.com/track/click/\d+/([^?/]+)"</span>, <span class="str">1</span>, Url)
+<span class="kw">| where</span> TargetDomain !<span class="kw">endswith</span> <span class="str">"mailchimp.com"</span>
+    <span class="kw">and</span> TargetDomain !<span class="kw">endswith</span> <span class="str">"chimpified.com"</span>
+<span class="kw">| project</span> Timestamp, NetworkMessageId, Url, TargetDomain, AccountUpn, IsClickedThrough
+<span class="kw">| order by</span> Timestamp <span class="kw">desc</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- MITIGATION -->
+<div class="sec">
+  <div class="sl g">Mitigation</div>
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num g">OCHRONA</span><span class="stage-title">Zalecane działania ochronne</span></div>
+    <div class="stage-body">
+      <span class="hl-g">✓</span> <strong>Blokada domen</strong> - dodać <code>vexloreo[.]com</code>, <code>manlivep[.]org</code>, <code>yupak[.]pe</code> do blocklist na proxy / Defender for Endpoint / DNS sinkhole<br><br>
+      <span class="hl-g">✓</span> <strong>MFA odporne na phishing</strong> - FIDO2 / hardware keys są odporne na AiTM; TOTP/SMS są podatne. Kampania celuje w kradzież credentials + cookie sesji, które pozwalają ominąć standardowe MFA<br><br>
+      <span class="hl-g">✓</span> <strong>Conditional Access</strong> - polityki wymuszające compliant device lub zatwierdzony network range skutecznie mitygują użycie skradzionych sesji z lokalizacji atakującego<br><br>
+      <span class="hl-g">✓</span> <strong>Microsoft Defender for Office 365</strong> - Safe Links powinien detonować linki Mandrill i wykrywać przekierowania do nieznanych domen; sprawdzić czy polityki Safe Links obejmują linki przez zewnętrzne trackery<br><br>
+      <span class="hl-g">✓</span> <strong>User awareness</strong> - lure Dotloop jest szczególnie skuteczny wobec osób niezaznajomionych z platformą. Szkolenia dot. weryfikacji domeny w pasku adresu (nie treści strony) są kluczowe wobec pixel-perfect clones
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>// THREAT-020 · 20 maj 2026 · AiTM Kit Analysis · HAR · Windows Sandbox</span>
+  <span>Related: THREAT-010 (AiTM Session Cookie Hijack) · THREAT-016 (Real-Time Panel C2)</span>
+</footer>
+
+</div>
+</body>
+</html>

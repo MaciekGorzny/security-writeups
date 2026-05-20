@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THREAT-019 - Multi-Stage Phishing · Impersonacja Firmy Nadawcy · Behavioral Bot Detection · Maj 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{
+  --bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#182438;--border2:#1e2e45;
+  --cyan:#00d9f5;--green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;
+  --yellow:#ffd166;--purple:#c084fc;--blue:#4da6ff;
+  --accent:#ff7b2c;--accent2:#cc6020;
+  --text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 20%,rgba(255,123,44,.03) 0%,transparent 55%),
+    radial-gradient(ellipse 50% 35% at 85% 75%,rgba(204,96,32,.02) 0%,transparent 55%),
+    linear-gradient(rgba(255,123,44,.01) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,123,44,.01) 1px,transparent 1px);
+  background-size:100% 100%,100% 100%,44px 44px,44px 44px;
+  pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--accent);}
+.nav span{color:var(--border);}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--accent);box-shadow:0 0 8px var(--accent);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,36px);font-weight:900;color:var(--white);line-height:1.05;margin-bottom:20px;}
+h1 span{color:var(--accent);}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:32px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.g{color:var(--green);}.mv.a{color:var(--accent);}
+.notice{border-radius:6px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px;font-size:12px;line-height:1.8;}
+.notice.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.2);}
+.notice.orange{background:rgba(255,123,44,.04);border:1px solid rgba(255,123,44,.2);}
+.notice.blue{background:rgba(77,166,255,.04);border:1px solid rgba(77,166,255,.2);}
+.notice.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.2);}
+.notice-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.notice-body strong{color:var(--white);}
+.notice.red .notice-body strong{color:var(--red);}
+.notice.orange .notice-body strong{color:var(--accent);}
+.notice.blue .notice-body strong{color:var(--blue);}
+.notice.green .notice-body strong{color:var(--green);}
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.g{color:var(--green);}.sl.r{color:var(--red);}
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(255,123,44,.08);border:1px solid rgba(255,123,44,.2);color:var(--accent);padding:1px 6px;border-radius:2px;font-size:11px;}
+/* Attack chain stages */
+.stage{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
+.stage-header{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.stage-num{font-size:9px;font-weight:700;color:#000;background:var(--accent);padding:2px 8px;border-radius:2px;letter-spacing:1px;}
+.stage-num.r{background:var(--red);color:var(--white);}
+.stage-num.g{background:var(--green);color:#000;}
+.stage-num.b{background:var(--blue);color:#000;}
+.stage-title{font-size:12px;font-weight:700;color:var(--white);}
+.stage-body{padding:14px 18px;font-size:12px;color:var(--text);line-height:1.8;}
+.stage-body code{background:rgba(255,123,44,.08);border:1px solid rgba(255,123,44,.15);color:var(--accent);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage-body .hl{color:var(--accent);font-weight:700;}
+.stage-body .hl-r{color:var(--red);font-weight:700;}
+.stage-body .hl-g{color:var(--green);font-weight:700;}
+/* Code block */
+.code-block{background:#020508;border:1px solid var(--border);border-radius:4px;padding:16px 18px;font-size:11px;line-height:1.8;overflow-x:auto;color:#a8c0d6;white-space:pre;margin:12px 0;}
+.code-block .kw{color:var(--cyan);}
+.code-block .fn{color:var(--accent);}
+.code-block .str{color:var(--green);}
+.code-block .cm{color:var(--muted);font-style:italic;}
+.code-block .hl{color:var(--accent);font-weight:700;}
+.code-block .hl-r{color:var(--red);font-weight:700;}
+.code-block .hl-g{color:var(--green);font-weight:700;}
+/* Tables */
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(255,123,44,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.it td code{background:rgba(255,123,44,.08);border:1px solid rgba(255,123,44,.15);color:var(--accent);padding:1px 5px;border-radius:2px;font-size:10px;}
+.it td .r{color:var(--red);font-weight:700;}
+.it td .g{color:var(--green);font-weight:700;}
+.it td .a{color:var(--accent);}
+/* MITRE grid */
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+/* Boxes */
+.box{border-radius:6px;padding:14px 18px;font-size:12px;line-height:1.8;margin-bottom:14px;}
+.box.orange{background:rgba(255,123,44,.04);border:1px solid rgba(255,123,44,.15);border-left:3px solid var(--accent);}
+.box.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.15);border-left:3px solid var(--red);}
+.box.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.15);border-left:3px solid var(--green);}
+.box.blue{background:rgba(77,166,255,.04);border:1px solid rgba(77,166,255,.15);border-left:3px solid var(--blue);}
+.box strong{color:var(--white);}
+.box code{background:rgba(255,255,255,.06);padding:1px 6px;border-radius:2px;font-size:11px;color:var(--accent);}
+/* Screenshots */
+.ss{border:1px solid var(--border);border-radius:6px;overflow:hidden;margin:16px 0;}
+.ss-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 14px;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:8px;}
+.ss-dot{width:8px;height:8px;border-radius:50%;}
+.ss-dot.r{background:var(--red);}
+.ss-dot.y{background:var(--accent);}
+.ss-dot.g{background:var(--green);}
+.ss img{width:100%;display:block;cursor:zoom-in;}
+.ss-caption{background:var(--surface);padding:10px 14px;font-size:10px;color:var(--muted);border-top:1px solid var(--border);}
+.ss-caption strong{color:var(--accent);}
+/* Flow diagram */
+.flow{background:#020508;border:1px solid var(--border);border-radius:4px;padding:16px 20px;font-size:11px;line-height:2.2;overflow-x:auto;white-space:pre;margin:12px 0;}
+.flow .ep{color:var(--accent);}
+.flow .method{color:var(--cyan);}
+.flow .status{color:var(--green);}
+.flow .status.r{color:var(--red);}
+.flow .arrow{color:var(--muted);}
+.flow .comment{color:var(--muted);font-style:italic;}
+/* Lightbox */
+.lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;align-items:center;justify-content:center;padding:24px;}
+.lb.open{display:flex;}
+.lb img{max-width:100%;max-height:100%;object-fit:contain;border:1px solid var(--border);border-radius:4px;cursor:zoom-out;}
+.lb-close{position:fixed;top:16px;right:20px;font-size:28px;color:var(--muted);cursor:pointer;line-height:1;transition:color .15s;}
+.lb-close:hover{color:var(--white);}
+footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="lb" id="lb"><span class="lb-close" id="lb-close">✕</span><img id="lb-img" src="" alt=""></div>
+
+<div class="wrap">
+
+<nav class="nav">
+  <a href="index.html">← Portfolio</a>
+  <span>/</span>
+  <span style="color:var(--text)">THREAT-019</span>
+</nav>
+
+<div class="eyebrow"><span>▮</span> Incident Writeup · Phishing · Behavioral Evasion</div>
+<h1>THREAT-019 - <span>Multi-Stage Phishing z Impersonacją Firmy Nadawcy</span><br>4-Etapowy Łańcuch · Behavioral Bot Detection · Fake Microsoft Login</h1>
+
+<div class="meta">
+  <div class="mc"><div class="ml">ID</div><div class="mv a">THREAT-019</div></div>
+  <div class="mc"><div class="ml">Data</div><div class="mv">13 maj 2026</div></div>
+  <div class="mc"><div class="ml">Severity</div><div class="mv r">HIGH</div></div>
+  <div class="mc"><div class="ml">Verdict</div><div class="mv r">True Positive</div></div>
+  <div class="mc"><div class="ml">Wektor</div><div class="mv r">Phishing Email</div></div>
+  <div class="mc"><div class="ml">Lure</div><div class="mv a">Dokument PDF (firma nadawcy)</div></div>
+  <div class="mc"><div class="ml">Target</div><div class="mv r">Microsoft credentials</div></div>
+  <div class="mc"><div class="ml">Nadawca</div><div class="mv a">Legit. tenant M365 (DE)</div></div>
+  <div class="mc"><div class="ml">Evasion</div><div class="mv r">Behavioral CAPTCHA · Bot Detection</div></div>
+  <div class="mc"><div class="ml">Infrastruktura</div><div class="mv r">Jimdo · Skomprom. domena DE</div></div>
+  <div class="mc"><div class="ml">Etapy</div><div class="mv r">4 hopping</div></div>
+  <div class="mc"><div class="ml">Analiza</div><div class="mv a">Headers · Screenshots · Source</div></div>
+</div>
+
+<div class="notice red">
+  <div class="notice-icon">🔴</div>
+  <div class="notice-body"><strong>True Positive - zgłoszony przez użytkownika.</strong> Email wysłany z prawdziwego tenanta Microsoft 365 firmy podszywającej się. Łańcuch ataku obejmuje 4 etapy z własnoręcznie napisanym kodem detekcji botów, który ukrywa finalną stronę phishingową przed automatycznymi skanerami URL. Dane wrażliwe (adresy email, nazwy organizacji po stronie ofiary) zostały zanonimizowane.</div>
+</div>
+
+<div class="notice orange">
+  <div class="notice-icon">⚠️</div>
+  <div class="notice-body"><strong>Potwierdzone przejęcie konta nadawcy.</strong> Email wyszedł z prawdziwego tenanta M365 firmy <strong>[SENDER ORG]</strong> ([miasto], DE) - zarejestrowanej, działającej kancelarii podatkowej. Firma potwierdziła incydent: konto <code>[sender][@][sender-domain][.]com</code> zostało przejęte i użyte do rozsyłania kampanii phishingowej bez wiedzy właścicieli. <strong>[SENDER ORG]</strong> nie była stroną atakującą.</div>
+</div>
+
+<!-- ŁAŃCUCH ATAKU -->
+<div class="sec">
+  <div class="sl">Łańcuch ataku (4 etapy)</div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">ETAP 1</span><span class="stage-title">Email phishingowy z prawdziwego tenanta M365 · [sender-domain][.]com</span></div>
+    <div class="stage-body">
+      Użytkownik otrzymał wiadomość od <span class="hl">[SENDER NAME] &lt;[sender][@][sender-domain][.]com&gt;</span> z [SENDER ORG] - realnie istniejącej kancelarii podatkowej z [miasto]. Temat: <code>FYI</code>. Priorytet: <code>High / X-Priority: 1</code>. Konto zostało <span class="hl-r">potwierdzone jako przejęte</span> przez właściciela organizacji po zgłoszeniu incydentu.<br><br>
+      Treść emaila była pusta poza stopką firmową (imię, stanowisko, dane kontaktowe). Jedyną zawartością był <span class="hl-r">obraz linkujący do zewnętrznej domeny</span> - po najechaniu myszą pasek statusu ujawniał URL <code>hxxps://[sender-org-name]partners[.]jimdofree[.]com</code>. Obraz nie wyświetlał się (usunięty lub zablokowany przez klienta pocztowego), co wywołało komunikat "Nie można wyświetlić połączonego obrazu."
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">ETAP 2</span><span class="stage-title">Fałszywa strona firmowa na Jimdo · [sender-org-name]partners[.]jimdofree[.]com</span></div>
+    <div class="stage-body">
+      Kliknięcie linku z obrazu prowadziło do <span class="hl">strony zbudowanej na platformie Jimdo</span> (bezpłatny hosting), stylizowanej na stronę firmy "[SENDER ORG]" - z nagłówkiem i przyciskiem <code>DOKUMENT ANZEIGEN</code> ("Pokaż dokument"). Strona zawierała ikonę PDF i komunikat "[SENDER ORG] hat Ihnen ein Dokument gesendet" (wysłał Ci dokument).<br><br>
+      W metadanych HTML strony: <code>robots: NOINDEX, NOFOLLOW</code> - celowe ukrycie przed indeksowaniem. Kliknięcie przycisku przekierowywało do etapu 3.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num r">ETAP 3</span><span class="stage-title">Fałszywa weryfikacja CAPTCHA na skompromitowanej domenie · [compromised-domain][.]de</span></div>
+    <div class="stage-body">
+      Przycisk na stronie Jimdo przekierowywał na <span class="hl-r"><code>hxxps://encoded-document[.][compromised-domain][.]de/service/</code></span> - subdomenę legalnej niemieckiej domeny (<em>[COMPROMISED ORG]</em>), która najprawdopodobniej została skompromitowana i użyta jako hosting dla kitu.<br><br>
+      Strona wyświetlała fałszywy widget CAPTCHA "I'm not a robot" z własnym kodem JavaScript odpowiedzialnym za <span class="hl-r">detekcję behawioralną botów</span>. Tytuł zakładki: <em>"PDF Preview Verification"</em>.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num r">ETAP 4</span><span class="stage-title">Fałszywa strona logowania Microsoft · online-app[.]creaters[.]info</span></div>
+    <div class="stage-body">
+      Po "weryfikacji" CAPTCHA, skrypt przekierowywał na <span class="hl-r"><code>hxxps://online-app[.]creaters[.]info/gefZIyLu</code></span>. Strona wyglądała identycznie jak strona logowania Microsoft - logo, formularz email, button "Access Document", napis "Secured Connection".<br><br>
+      Po kliknięciu "Access Document" pojawiała się pełna replika formularza logowania Microsoft (Microsoft logo, pole email, przycisk "Dalej"). URL zmieniał się na <code>hxxps://online-app[.]creaters[.]info/?auth2=7D6dvr3tXzVoD73XI3JpKhgMYhI0HgGs</code>.<br><br>
+      Całą infrastrukturę CDN (skrypty, style) serwowano z subdomen: <span class="hl-r"><code>aadcdn[.]creaters[.]info</code></span> i <span class="hl-r"><code>cdn-2[.]creaters[.]info</code></span> - typosquatting <code>aadcdn.msauth.net</code>. Strona była hostowana na infrastrukturze Cloudflare.
+    </div>
+  </div>
+
+</div>
+
+<!-- ANALIZA NAGŁÓWKÓW -->
+<div class="sec">
+  <div class="sl">Analiza nagłówków email</div>
+
+  <p class="pr">Email przeszedł przez infrastrukturę Mimecast (MTA dostawcy) przed dostarczeniem do Exchange Online. Kluczowe obserwacje z nagłówków:</p>
+
+  <table class="it">
+    <tr><th>Nagłówek / Parametr</th><th>Wartość</th><th>Interpretacja</th></tr>
+    <tr><td>From</td><td><code>[sender][@][sender-domain][.]com</code></td><td>Adres z prawdziwej domeny firmy [SENDER ORG]</td></tr>
+    <tr><td>Return-Path</td><td><code>[sender][@][sender-domain][.]com</code></td><td>Zgodny z From - brak spoofingu nagłówkowego</td></tr>
+    <tr><td>Wysłano przez</td><td><code>[SENDER-MBX].PROD.OUTLOOK.COM</code></td><td>Prawdziwy tenant Microsoft 365 w regionie Niemcy ([SENDER-REGION])</td></tr>
+    <tr><td>SPF (Mimecast)</td><td><span class="g">pass</span> - <code>[M365-IP]</code> jako permitted sender</td><td>SPF zdany: wiadomość wyszła z legalnego serwera M365 tej domeny</td></tr>
+    <tr><td>SPF (Exchange Online)</td><td><span class="r">softfail</span> - IP <code>[MIMECAST-IP]</code></td><td>IP Mimecast (relay) nie figuruje w SPF dostawcy odbiorcy; normalny artefakt relay</td></tr>
+    <tr><td>DKIM</td><td><span class="r">none</span> - wiadomość niepodpisana</td><td>Brak podpisu DKIM; uwaga: Mimecast dodał własny ARC, nie DKIM nadawcy</td></tr>
+    <tr><td>DMARC (Exchange)</td><td><span class="r">fail</span> - action=none</td><td>DMARC fail z powodu braku DKIM i SPF softfail; policy=none, więc brak odrzucenia</td></tr>
+    <tr><td>ARC (Mimecast, i=2)</td><td><code>arc=reject</code> - ARC i=1 od microsoft.com odrzucony</td><td>Mimecast odrzucił ARC chain Microsoft - możliwa modyfikacja wiadomości w transporcie</td></tr>
+    <tr><td>Accept-Language</td><td><code>de-DE, en-US</code></td><td>Tenant skonfigurowany po niemiecku - zgodne z lokalizacją firmy ([miasto])</td></tr>
+    <tr><td>X-MS-Has-Attach</td><td><code>yes</code></td><td>Wiadomość zawiera załącznik (osadzony obraz w treści HTML)</td></tr>
+    <tr><td>Importance / X-Priority</td><td><code>high / 1</code></td><td>Ręcznie ustawiony wysoki priorytet - technika social engineering</td></tr>
+    <tr><td>Content-Type</td><td><code>multipart/related</code></td><td>Format HTML z osadzonym obrazem (inline attachment)</td></tr>
+  </table>
+
+  <div class="box orange">
+    <strong>Kluczowa obserwacja:</strong> Email faktycznie wyszedł z prawdziwego tenanta M365 firmy <code>[sender-domain].com</code> (serwer <code>BE1P281MB1922.[SENDER-REGION]</code>). SPF był zdany na warstwie Mimecast dla adresu <code>[sender]@[sender-domain].com</code> i IP <code>[M365-IP]</code> (M365 Germany West Central). To wyklucza klasyczny spoofing domenowy - konto nadawcy zostało <strong>potwierdzone jako przejęte</strong> przez właściciela domeny.
+  </div>
+
+</div>
+
+<!-- ANALIZA INFRASTRUKTURY PHISHINGOWEJ -->
+<div class="sec">
+  <div class="sl">Infrastruktura phishingowa</div>
+
+  <div class="flow"><span class="comment"># Pełny łańcuch przekierowań</span>
+
+<span class="method">EMAIL</span>   <span class="ep">[sender][@][sender-domain][.]com</span>  <span class="comment"># prawdziwy tenant M365 ([SENDER-REGION])</span>
+  <span class="arrow">↓</span>  obraz HTML linkuje do:
+
+<span class="method">ETAP 2</span>  <span class="ep">hxxps://[sender-org-name]partners[.]jimdofree[.]com/</span>   <span class="comment"># Jimdo - bezpłatny hosting</span>
+  <span class="arrow">↓</span>  przycisk "DOKUMENT ANZEIGEN"
+
+<span class="method">ETAP 3</span>  <span class="ep">hxxps://encoded-document[.][compromised-domain][.]de/service/</span>   <span class="comment"># skompromitowana legalna domena DE</span>
+  <span class="arrow">↓</span>  CAPTCHA "I'm not a robot" → po weryfikacji:
+
+<span class="method">ETAP 4</span>  <span class="ep">hxxps://online-app[.]creaters[.]info/gefZIyLu</span>   <span class="comment"># credential harvesting</span>
+  <span class="arrow">↓</span>  "Access Document" →
+
+<span class="method">FINAL</span>   <span class="ep">hxxps://online-app[.]creaters[.]info/?auth2=7D6dvr3tXzVoD73XI3JpKhgMYhI0HgGs</span>
+          <span class="comment"># replika Microsoft login - zbieranie email + hasła</span>
+          <span class="comment"># CDN: aadcdn[.]creaters[.]info, cdn-2[.]creaters[.]info</span></div>
+
+  <table class="it">
+    <tr><th>Domena / Zasób</th><th>Rola</th><th>Ocena</th></tr>
+    <tr><td><code>[sender-domain][.]com</code></td><td>Domena nadawcy - prawdziwa firma [SENDER ORG] ([miasto]). Konto pocztowe <strong>potwierdzone jako przejęte</strong>.</td><td><span class="r">KONTO PRZEJĘTE (potwierdzone)</span></td></tr>
+    <tr><td><code>[sender-org-name]partners[.]jimdofree[.]com</code></td><td>Fałszywa strona firmowa - bezpłatna platforma Jimdo</td><td><span class="r">MALICIOUS</span></td></tr>
+    <tr><td><code>encoded-document[.][compromised-domain][.]de</code></td><td>Host dla fałszywego widgetu CAPTCHA - prawdopodobnie skompromitowana domena DE</td><td><span class="r">MALICIOUS (skomprom.)</span></td></tr>
+    <tr><td><code>online-app[.]creaters[.]info</code></td><td>Główna domena credential harvestingu - Microsoft login clone</td><td><span class="r">MALICIOUS</span></td></tr>
+    <tr><td><code>aadcdn[.]creaters[.]info</code></td><td>CDN phishingowy - serwuje JS/CSS repliki M365 login (typosquat <code>aadcdn.msauth.net</code>)</td><td><span class="r">MALICIOUS</span></td></tr>
+    <tr><td><code>cdn-2[.]creaters[.]info</code></td><td>Dodatkowe CDN zasoby strony logowania</td><td><span class="r">MALICIOUS</span></td></tr>
+    <tr><td><code>ssolive[.]creaters[.]info</code></td><td>SSO endpoint - prefetch w kodzie HTML (typosquat <code>sso.microsoft.com</code>)</td><td><span class="r">MALICIOUS</span></td></tr>
+  </table>
+
+</div>
+
+<!-- ANALIZA KODU: BEHAVIORAL BOT DETECTION -->
+<div class="sec">
+  <div class="sl">Analiza kodu: Behavioral Bot Detection (CAPTCHA)</div>
+
+  <p class="pr">Fałszywy widget CAPTCHA na etapie 3 zawierał własnoręcznie napisany kod JavaScript implementujący wielowarstwową detekcję botów. Celem było <strong>ukrycie finalnej strony phishingowej przed automatycznymi skanerami URL</strong> - narzędziami security, sandboxami i crawlerami, które nie poruszają myszą.</p>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">WARSTWA 1</span><span class="stage-title">Honeypot field</span></div>
+    <div class="stage-body">
+      Ukryte pole <code>&lt;input id="honeypot" name="email"&gt;</code> z pozycją <code>left: -9999px</code> - niewidoczne dla użytkownika, ale wykrywalne przez boty z funkcją autouzupełniania. Jeśli pole zawiera jakąkolwiek wartość → <span class="hl-r">bot detected, CAPTCHA reset bez przekierowania</span>.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">WARSTWA 2</span><span class="stage-title">Time gate (800 ms)</span></div>
+    <div class="stage-body">
+      Kliknięcie w ciągu pierwszych 800 ms od załadowania strony → <span class="hl-r">bot detected</span>. Automaty często klikają natychmiast po załadowaniu DOM; prawdziwy użytkownik potrzebuje chwili na zlokalizowanie widgetu.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">WARSTWA 3</span><span class="stage-title">Mouse movement tracking + wariancja prędkości</span></div>
+    <div class="stage-body">
+      Skrypt rejestruje do 100 ostatnich punktów ruchu myszy (<code>mousemove</code>), oblicza prędkość między kolejnymi punktami i ich <span class="hl">wariancję</span>. Warunek odrzucenia: jeśli <code>avg &gt; 0.2 px/ms AND variance &lt; 0.0005</code> → ruch jest zbyt równomierny → <span class="hl-r">bot detected</span>. Prawdziwy ruch myszy charakteryzuje się naturalną nieregularnością; automaty często symulują jednostajne przesuwanie.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num g">BYPASS</span><span class="stage-title">Mobile auto-pass</span></div>
+    <div class="stage-body">
+      Jeśli <code>navigator.userAgent</code> zawiera <code>Mobi|Android|iPhone</code> → <code>isHuman()</code> zwraca <span class="hl-g">true</span> bez dalszej weryfikacji. Na urządzeniach mobilnych dane ruchu myszy są niedostępne, więc sprawdzanie wariancji jest pomijane.
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-header"><span class="stage-num">UX DECEPTION</span><span class="stage-title">Losowe opóźnienie + animacja ładowania</span></div>
+    <div class="stage-body">
+      Po kliknięciu: stan <code>loading</code> (animacja spinner) przez losowe <code>900 + Math.random() * 500</code> ms (0.9–1.4 s), następnie checkmark i kolejne 600 ms przed przekierowaniem. Symuluje prawdziwą weryfikację i utrudnia identyfikację jako fałszywy widget.
+    </div>
+  </div>
+
+  <div class="box red">
+    <strong>Efekt detekcyjny:</strong> Większość automatycznych skanerów URL (sandboxe, crawlery, reputacyjne systemy threat intelligence) nie generuje naturalnego ruchu myszy. Skrypt skutecznie ukrywa finalną stronę credential harvestingu przed tymi narzędziami. Komentarz w kodzie <code>// ← change this</code> przy stałej <code>REDIRECT</code> wskazuje na gotowy <strong>template wielokrotnego użytku</strong> - kampania prawdopodobnie nie jest jednorazowa.
+  </div>
+
+  <div class="code-block"><span class="cm">// Fragment kodu: funkcja isHuman() - wielowarstwowa detekcja botów</span>
+<span class="kw">function</span> <span class="fn">isHuman</span>() {
+  <span class="cm">// WARSTWA 1: honeypot</span>
+  <span class="kw">if</span> (honeypot.value !== <span class="str">''</span>) <span class="kw">return false</span>;
+  <span class="cm">// WARSTWA 2: time gate</span>
+  <span class="kw">if</span> (Date.now() - loadTime &lt; <span class="hl">800</span>) <span class="kw">return false</span>;
+  <span class="cm">// BYPASS: mobile UA</span>
+  <span class="kw">if</span> (<span class="hl">/Mobi|Android|iPhone/i</span>.test(navigator.userAgent)) <span class="kw">return true</span>;
+  <span class="kw">if</span> (mousePoints.length &lt; <span class="hl">3</span>) <span class="kw">return false</span>;
+  <span class="cm">// WARSTWA 3: analiza wariancji prędkości myszy</span>
+  <span class="kw">if</span> (mousePoints.length >= <span class="hl">6</span>) {
+    <span class="kw">const</span> speeds = mousePoints.slice(-<span class="hl">10</span>).map(p =>
+      Math.sqrt(p.dx * p.dx + p.dy * p.dy) / Math.max(p.dt, <span class="hl">1</span>));
+    <span class="kw">const</span> avg = speeds.reduce((a, b) => a + b, <span class="hl">0</span>) / speeds.length;
+    <span class="kw">const</span> variance = speeds.reduce((s, v) => s + Math.pow(v - avg, <span class="hl">2</span>), <span class="hl">0</span>) / speeds.length;
+    <span class="kw">if</span> (avg > <span class="hl-r">0.2</span> && variance &lt; <span class="hl-r">0.0005</span>) <span class="kw">return false</span>; <span class="cm">// ruch zbyt jednostajny = bot</span>
+  }
+  <span class="kw">return true</span>;
+}</div>
+
+</div>
+
+<!-- ANALIZA STRONY PHISHINGOWEJ -->
+<div class="sec">
+  <div class="sl">Analiza strony credential harvestingu</div>
+
+  <p class="pr">Kod źródłowy strony logowania (Kubernetes.txt - pobrany przed zablokowaniem przez Cloudflare) ujawnił szczegóły infrastruktury phishingowej:</p>
+
+  <table class="it">
+    <tr><th>Element kodu</th><th>Wartość / obserwacja</th></tr>
+    <tr><td>Title zakładki</td><td><code>Big data drives informed decisions</code> - niezwiązany z Microsoftem, prawdopodobnie przeoczony artefakt szablonu</td></tr>
+    <tr><td>Meta PageID</td><td><code>ConvergedSignIn</code> - skopiowany z prawdziwej strony Microsoft login</td></tr>
+    <tr><td>Lang</td><td><code>lang="pl"</code> - strona polonizowana, ukierunkowanie na polskich użytkowników</td></tr>
+    <tr><td>CSS CDN</td><td><code>hxxps://aadcdn[.]creaters[.]info/ests/2.1/content/...</code> - kopiuje strukturę URL <code>aadcdn.msauth.net</code></td></tr>
+    <tr><td>JS CDN</td><td><code>hxxps://aadcdn[.]creaters[.]info/shared/1.0/content/js/ConvergedLogin_PCore_...</code></td></tr>
+    <tr><td>SSO prefetch</td><td><code>hxxps://ssolive[.]creaters[.]info/Me.htm?v=3</code> - replika <code>sso.microsoft.com</code></td></tr>
+    <tr><td>DNS prefetch</td><td><code>aadcdn[.]creaters[.]info</code>, <code>cdn-2[.]creaters[.]info</code></td></tr>
+    <tr><td>robots</td><td><code>none</code> - ukryte przed wyszukiwarkami</td></tr>
+  </table>
+
+</div>
+
+<!-- IOCS -->
+<div class="sec">
+  <div class="sl r">Indicators of Compromise</div>
+  <table class="it">
+    <tr><th>Type</th><th>Indicator</th><th>Kontekst</th></tr>
+    <tr><td>Domain</td><td><code>[sender-org-name]partners[.]jimdofree[.]com</code></td><td>Etap 2 - fałszywa strona firmowa (Jimdo)</td></tr>
+    <tr><td>Domain</td><td><code>encoded-document[.][compromised-domain][.]de</code></td><td>Etap 3 - host fałszywej CAPTCHA (skompromitowana domena DE)</td></tr>
+    <tr><td>Domain</td><td><code>online-app[.]creaters[.]info</code></td><td>Etap 4 - credential harvesting, Microsoft login clone</td></tr>
+    <tr><td>Domain</td><td><code>aadcdn[.]creaters[.]info</code></td><td>CDN phishingowy - typosquat aadcdn.msauth.net</td></tr>
+    <tr><td>Domain</td><td><code>cdn-2[.]creaters[.]info</code></td><td>CDN phishingowy - dodatkowe zasoby JS/CSS</td></tr>
+    <tr><td>Domain</td><td><code>ssolive[.]creaters[.]info</code></td><td>SSO endpoint - typosquat sso.microsoft.com</td></tr>
+    <tr><td>URL</td><td><code>hxxps://online-app[.]creaters[.]info/gefZIyLu</code></td><td>Landing page po CAPTCHA</td></tr>
+    <tr><td>URL</td><td><code>hxxps://online-app[.]creaters[.]info/?auth2=7D6dvr3tXzVoD73XI3JpKhgMYhI0HgGs</code></td><td>Formularz logowania (sesja analizy)</td></tr>
+    <tr><td>URL</td><td><code>hxxps://encoded-document[.][compromised-domain][.]de/service/</code></td><td>Strona CAPTCHA etap 3</td></tr>
+    <tr><td>Email</td><td><code>[sender][@][sender-domain][.]com</code></td><td>Adres nadawcy - <span class="r">konto potwierdzone jako przejęte</span> (potwierdzenie od właściciela)</td></tr>
+    <tr><td>Header</td><td><code>Importance: high</code> + <code>X-Priority: 1</code></td><td>Social engineering - wymuszony wysoki priorytet</td></tr>
+    <tr><td>Message-ID</td><td><code>[REDACTED]@[SENDER-MBX].PROD.OUTLOOK.COM</code></td><td>Message-ID tej kampanii</td></tr>
+    <tr><td>Pattern</td><td>JS: <code>isHuman()</code> z honeypot + mouse variance + 800ms gate</td><td>Fingerprint behavioral bot detection</td></tr>
+    <tr><td>Pattern</td><td>JS comment: <code>const REDIRECT = '...'; // ← change this</code></td><td>Template wielokrotnego użytku</td></tr>
+    <tr><td>Cloudflare Ray ID</td><td><code>9fba43d4681bbbc6</code></td><td>Ray ID z ostrzeżenia Cloudflare dla tej kampanii</td></tr>
+  </table>
+</div>
+
+<!-- MITRE -->
+<div class="sec">
+  <div class="sl">MITRE ATT&amp;CK Mapping</div>
+  <div class="mg">
+    <div class="mc2"><div class="mid">T1566.002</div><div class="mname">Phishing: Spearphishing Link</div><div class="mtactic">Initial Access</div></div>
+    <div class="mc2"><div class="mid">T1584.001</div><div class="mname">Compromise Infrastructure: Domains</div><div class="mtactic">Resource Development - [compromised-domain].de</div></div>
+    <div class="mc2"><div class="mid">T1583.001</div><div class="mname">Acquire Infrastructure: Domains</div><div class="mtactic">Resource Development - creaters.info</div></div>
+    <div class="mc2"><div class="mid">T1608.005</div><div class="mname">Stage Capabilities: Link Target</div><div class="mtactic">Resource Development - Jimdo lure page</div></div>
+    <div class="mc2"><div class="mid">T1036.005</div><div class="mname">Masquerading: Match Legitimate Name</div><div class="mtactic">Defense Evasion - impersonacja firmy nadawcy</div></div>
+    <div class="mc2"><div class="mid">T1056.003</div><div class="mname">Input Capture: Web Portal Capture</div><div class="mtactic">Credential Access - Microsoft login clone</div></div>
+    <div class="mc2"><div class="mid">T1027</div><div class="mname">Obfuscated Files or Information</div><div class="mtactic">Defense Evasion - behavioral bot detection ukrywający stronę przed skanerami</div></div>
+    <div class="mc2"><div class="mid">T1598.003</div><div class="mname">Phishing for Information: Spearphishing Link</div><div class="mtactic">Reconnaissance / Credential Collection</div></div>
+  </div>
+</div>
+
+<!-- DETEKCJA -->
+<div class="sec">
+  <div class="sl g">Rekomendacje detekcyjne</div>
+
+  <div class="box green">
+    <strong>KQL - Sentinel / Defender XDR: Wykrywanie emaili z domeny .jimdofree.com w URL</strong><br>
+    <code>EmailUrlInfo | where Url has "jimdofree.com" | join kind=inner EmailEvents on NetworkMessageId</code>
+  </div>
+
+  <div class="box green">
+    <strong>KQL - Wykrywanie domen creaters.info w ruchu sieciowym</strong><br>
+    <code>DeviceNetworkEvents | where RemoteUrl has "creaters.info" or RemoteUrl has "encoded-document"</code>
+  </div>
+
+  <div class="box blue">
+    <strong>Reguła behawioralna:</strong> Email z <code>Importance: high</code> + pusty temat lub jednowyrazowy (FYI, URGENT, CHECK) + zewnętrzny nadawca + obraz z zewnętrznym URL w treści → priorytetowa analiza nagłówków.<br><br>
+    <strong>Pattern behavioral CAPTCHA:</strong> Strony z JS zawierającym jednocześnie: honeypot field (<code>left: -9999px</code>), <code>mousemove</code> tracking + variance calculation, <code>window.location.href = REDIRECT</code> po setTimeout - wzorzec evasion do dodania do reguł YARA-L / Sigma dla proxy/EDR.
+  </div>
+
+  <div class="box orange">
+    <strong>Uwaga na SPF softfail ≠ spoofing:</strong> Email zdał SPF na warstwie Mimecast (wyszedł z prawdziwego M365), ale dostał softfail od strony Exchange Online odbiorcy z powodu relay przez Mimecast. Automatyczne reguły odrzucające wyłącznie na podstawie SPF softfail mogłyby dawać false positives w podobnych scenariuszach. Kluczowe jest zestawienie SPF + DKIM + DMARC + analiza pełnej ścieżki dostarczenia.
+  </div>
+
+</div>
+
+<footer>
+  <span>// THREAT-019 · 13 maj 2026 · Multi-Stage Phishing · Behavioral Bot Detection</span>
+  <span>Tools: Windows Sandbox · Email Header Analysis · DevTools · view-source</span>
+</footer>
+
+</div>
+<script>
+(function(){
+  var lb=document.getElementById('lb'),lbImg=document.getElementById('lb-img');
+  function open(src){lbImg.src=src;lb.classList.add('open');}
+  function close(){lb.classList.remove('open');lbImg.src='';}
+  document.querySelectorAll('.ss img').forEach(function(el){
+    el.addEventListener('click',function(e){e.stopPropagation();open(el.getAttribute('src'));});
+  });
+  document.getElementById('lb-close').addEventListener('click',function(e){e.stopPropagation();close();});
+  lb.addEventListener('click',function(e){if(e.target===lb)close();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+})();
+</script>
+</body>
+</html>
