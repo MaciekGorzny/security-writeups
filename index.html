@@ -108,12 +108,12 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
 
   <div class="sh">Stats</div>
   <div class="stats">
-    <div class="stat"><div class="stat-val">18</div><div class="stat-label">Writeups</div></div>
+    <div class="stat"><div class="stat-val">20</div><div class="stat-label">Writeups</div></div>
     <div class="stat"><div class="stat-val g">20</div><div class="stat-label">KQL Rules</div></div>
-    <div class="stat"><div class="stat-val o">10</div><div class="stat-label">Phishing cases</div></div>
+    <div class="stat"><div class="stat-val o">12</div><div class="stat-label">Phishing cases</div></div>
     <div class="stat"><div class="stat-val p">TA569</div><div class="stat-label">Threat Actor</div></div>
     <div class="stat"><div class="stat-val r">0</div><div class="stat-label">Payload executions</div></div>
-    <div class="stat"><div class="stat-val y">12/12</div><div class="stat-label">User reported</div></div>
+    <div class="stat"><div class="stat-val y">14/14</div><div class="stat-label">User reported</div></div>
   </div>
 
   <!-- KQL LIBRARY CARD -->
@@ -148,6 +148,46 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
   <!-- WRITEUPS - newest first -->
   <div class="sh">Incident Writeups</div>
   <div class="cards">
+
+  <a href="threat-020.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#c084fc'" onmouseout="this.style.borderColor='var(--border)'">
+  <div class="wcard-inner">
+    <div class="wcard-bar" style="background:#c084fc;"></div>
+    <div class="wcard-content">
+      <div class="wcard-top"><span class="wcard-id" style="color:#c084fc;">THREAT-020</span><span class="wcard-date">20 maj 2026</span></div>
+      <div class="wcard-title">Dotloop Lure · AiTM Credential Harvesting · Browser Fingerprinting Stage · WebSocket C2 · vexloreo[.]com</div>
+      <div class="wcard-desc">Kampania phishingowa imitująca powiadomienie platformy Dotloop (podpisywanie dokumentów nieruchomości) dostarczona przez Mandrill. Trzyetapowy łańcuch przekierowań: Mandrill tracking → dedykowany fingerprinting layer (yupak[.]pe zbierający browser fingerprint przed kit) → AiTM phishing kit na vexloreo[.]com. Kit wykonuje live walidację konta w Azure AD (IfExistsResult, HasPassword), a operator monitoruje sesje w czasie rzeczywistym przez WebSocket Socket.io na manlivep[.]org. Adres e-mail ofiary przekazywany przez cały łańcuch zakodowany w Base64.</div>
+      <div class="wcard-tags">
+        <span class="tag r">AiTM</span>
+        <span class="tag r">Microsoft 365</span>
+        <span class="tag p">WebSocket C2</span>
+        <span class="tag p">Browser Fingerprinting</span>
+        <span class="tag c">HAR Analysis</span>
+        <span class="tag b">Mandrill Delivery</span>
+        <span class="tag o">Azure AD Live Lookup</span>
+      </div>
+    </div>
+  </div>
+</a>
+
+  <a href="threat-019.html" class="wcard orange">
+    <div class="wcard-inner">
+      <div class="wcard-bar"></div>
+      <div class="wcard-content">
+        <div class="wcard-top"><span class="wcard-id">THREAT-019</span><span class="wcard-date">13 maj 2026</span></div>
+        <div class="wcard-title">Multi-Stage Phishing · Impersonacja Firmy Nadawcy · Behavioral Bot Detection · Fake Microsoft Login</div>
+        <div class="wcard-desc">4-etapowa kampania phishingowa wysłana z przejętego konta Microsoft 365 (potwierdzone przez właściciela). Łańcuch: legit. tenant M365 → fałszywa strona Jimdo → skompromitowana legalna domena DE z własnym CAPTCHA (behavioral bot detection: honeypot + mouse variance analysis + time gate) → replika logowania Microsoft. Evasion skutecznie ukrywał stronę phishingową przed automatycznymi skanerami URL.</div>
+        <div class="wcard-tags">
+          <span class="tag r">Phishing · True Positive</span>
+          <span class="tag r">Przejęte konto M365</span>
+          <span class="tag o">Behavioral Bot Detection</span>
+          <span class="tag o">4-Stage Chain</span>
+          <span class="tag c">Skompromitowana domena DE</span>
+          <span class="tag g">User Reported ✓</span>
+        </div>
+      </div>
+    </div>
+  </a>
+
 
   <a href="threat-018.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#c084fc'" onmouseout="this.style.borderColor='var(--border)'">
     <div class="wcard-inner">
