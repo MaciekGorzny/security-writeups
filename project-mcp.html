@@ -276,7 +276,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;displ
   <strong>Operation Cyber Flag 2026</strong> to finałowe zawody attack-defence zorganizowane przez Dowództwo Komponentu Wojsk Obrony Cyberprzestrzeni. W finale zmierzyło się <strong>12 drużyn</strong> wyłonionych z eliminacji. Format: każda drużyna broni własnych instancji przydzielonych serwisów, jednocześnie atakując serwisy przeciwników. Sprawdzaczka organizatorów weryfikuje dostępność serwisów (CHECK_SLA), pobiera flagi (GET_FLAG) i próbuje umieszczać flagi na serwisach rywali (PUT_FLAG) - każda nieudana operacja to strata punktów SLA.
 </p>
 <p class="pr">
-  Zawody trwały <strong>81 rund po 10 minut</strong> każda, rozłożonych na dwa dni. Infrastruktura CTF opierała się na dwóch podsieciach: <code>172.28.0.0/16</code> - wewnętrzna, dostępna tylko dla drużyny (bronione maszyny), oraz <code>10.10.5.0/24</code> - zewnętrzna, wspólna dla wszystkich uczestników. Dostęp do bronionych maszyn odbywał się przez SSH.
+  Zawody trwały <strong>81 rund po 10 minut</strong> każda, rozłożonych na dwa dni. Infrastruktura CTF opierała się na dwóch podsieciach: <code>172.28.0.0/16</code> - wewnętrzna, dostępna tylko dla drużyny (bronione maszyny), oraz <code>10.10.X.0/24</code> - zewnętrzna, wspólna dla wszystkich uczestników. Dostęp do bronionych maszyn odbywał się przez SSH.
 </p>
 
 <div class="arch">
@@ -292,7 +292,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;displ
   <div class="arch-row" style="margin-top:6px;">
     <div class="arch-node r">Atakujący (rywale)</div>
     <div class="arch-arrow">→</div>
-    <div class="arch-node y">10.10.5.0/24</div>
+    <div class="arch-node y">10.10.X.0/24</div>
     <div class="arch-arrow">→</div>
     <div class="arch-node g">Te same serwisy</div>
     <div class="arch-arrow" style="color:var(--cyan);">←</div>
@@ -326,7 +326,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;displ
   <div class="stage-header">
     <div class="stage-num g">S-02</div>
     <div class="stage-title">Shellfire - Aplikacja do zarządzania ogniem</div>
-    <div class="stage-sub"><span class="bdg g">Najlepsze SLA</span></div>
+    <div class="stage-sub"><span class="bdg g">Nasze najlepsze SLA</span></div>
   </div>
   <div class="stage-body">
     Stack: Go (fires-api, fds-gateway), Rust (crypto-bunker), Redis, nginx reverse proxy. Shellfire był serwisem, na którym MCP spędził najwięcej czasu i gdzie przyniósł największy efekt. Agent przeprowadził rekonesans kodu źródłowego, zidentyfikował szereg podatności i wdrożył łatki na żywym systemie - wszystko bez zatrzymywania serwisu.<br><br>
