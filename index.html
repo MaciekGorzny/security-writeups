@@ -108,12 +108,12 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
 
   <div class="sh">Stats</div>
   <div class="stats">
-    <div class="stat"><div class="stat-val">20</div><div class="stat-label">Writeups</div></div>
+    <div class="stat"><div class="stat-val">21</div><div class="stat-label">Writeups</div></div>
     <div class="stat"><div class="stat-val g">20</div><div class="stat-label">KQL Rules</div></div>
-    <div class="stat"><div class="stat-val o">12</div><div class="stat-label">Phishing cases</div></div>
+    <div class="stat"><div class="stat-val o">13</div><div class="stat-label">Phishing cases</div></div>
     <div class="stat"><div class="stat-val p">TA569</div><div class="stat-label">Threat Actor</div></div>
     <div class="stat"><div class="stat-val r">0</div><div class="stat-label">Payload executions</div></div>
-    <div class="stat"><div class="stat-val y">14/14</div><div class="stat-label">User reported</div></div>
+    <div class="stat"><div class="stat-val y">15/15</div><div class="stat-label">User reported</div></div>
   </div>
 
   <!-- KQL LIBRARY CARD -->
@@ -157,7 +157,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
             <span class="wcard-date">26-27 maj 2026</span>
           </div>
           <div class="wcard-title">MCP Blue Team Server · Agent AI do obrony w czasie rzeczywistym</div>
-          <div class="wcard-desc">Serwer MCP zbudowany na Claude Code do automatyzacji obrony w formacie attack-defence CTF. 24 narzędzia pokrywające pełny cykl blue team: rekonesans, audyt, hardening, monitoring, generowanie exploitów. Przetestowany bojowo na finałach Operation Cyber Flag 2026 (OCF) — zawodów organizowanych przez Dowództwo Komponentu Wojsk Obrony Cyberprzestrzeni.</div>
+          <div class="wcard-desc">Serwer MCP zbudowany na Claude Code do automatyzacji obrony w formacie attack-defence CTF. 24 narzędzia pokrywające pełny cykl blue team: rekonesans, audyt, hardening, monitoring, generowanie exploitów. Przetestowany bojowo na finałach Operation Cyber Flag 2026 (OCF) - zawodów organizowanych przez Dowództwo Komponentu Wojsk Obrony Cyberprzestrzeni.</div>
           <div class="wcard-tags">
             <span class="tag o">Claude Code · MCP</span>
             <span class="tag c">SSH · Parrot OS</span>
@@ -174,6 +174,18 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
   <!-- WRITEUPS - newest first -->
   <div class="sh">Incident Writeups</div>
   <div class="cards">
+
+  <a href="threat-021.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#8899aa'" onmouseout="this.style.borderColor='var(--border)'">
+  <div class="wcard-inner">
+    <div class="wcard-bar" style="background:#8899aa;"></div>
+    <div class="wcard-content">
+      <div class="wcard-top"><span class="wcard-id" style="color:#8899aa;">THREAT-021</span><span class="wcard-date">02 cze 2026</span></div>
+      <div class="wcard-title">Device Code Phishing - Lure DocuSign NDA · Cloudflare Workers Proxy Polling · Staging Jimdo</div>
+      <div class="wcard-desc">Kampania phishingowa wykorzystująca OAuth 2.0 Device Authorization Grant (RFC 8628) do kradzieży tokenów Microsoft 365 z pominięciem MFA. Kluczowa różnica względem poprzednich kampanii: Cloudflare Worker pełni rolę proxy OAuth polling - przeglądarka ofiary nie komunikuje się bezpośrednio z Microsoft. Kod urządzenia wstępnie wygenerowany i statycznie osadzony w HTML. Strona pośrednicząca na darmowym hostingu Jimdo imituje portal DocuSign. Atak powstrzymany - przeglądarka oznaczyła domenę jako niebezpieczną.</div>
+      <div class="wcard-tags"><span class="tag r">OAuth Phishing</span><span class="tag r">Bypass MFA</span><span class="tag o">Cloudflare Workers</span><span class="tag o">Device Code</span><span class="tag y">DocuSign Lure</span><span class="tag g">Contained ✓</span></div>
+    </div>
+  </div>
+</a>
 
   <a href="threat-020.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#c084fc'" onmouseout="this.style.borderColor='var(--border)'">
   <div class="wcard-inner">
@@ -221,7 +233,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
       <div class="wcard-content">
         <div class="wcard-top"><span class="wcard-id" style="color:#c084fc;">THREAT-018</span><span class="wcard-date">14 maj 2026</span></div>
         <div class="wcard-title">Fragnesia CVE-2026-46300 - Linux Kernel LPE · XFRM ESP-in-TCP Page Cache Corruption · Dirty Frag Family</div>
-        <div class="wcard-desc">Analiza laboratoryjna trzeciej podatności z rodziny Dirty Frag. Błąd w skb_try_coalesce() powoduje utratę znacznika SKBFL_SHARED_FRAG, co pozwala na in-place AES-GCM decrypt na stronach page cache /usr/bin/su przez nieuprzywilejowanego użytkownika. Exploit deterministyczny (brak race condition), publiczny PoC V12 Security. Ubuntu 24.04 podatny po wyłączeniu AppArmor userns restrict. Debian 13 (kernel 6.12.74) strukturalnie odporny — CONFIG_INET_ESPINTCP not set. Zwalidowane reguły auditd na obu dystrybucjach.</div>
+        <div class="wcard-desc">Analiza laboratoryjna trzeciej podatności z rodziny Dirty Frag. Błąd w skb_try_coalesce() powoduje utratę znacznika SKBFL_SHARED_FRAG, co pozwala na in-place AES-GCM decrypt na stronach page cache /usr/bin/su przez nieuprzywilejowanego użytkownika. Exploit deterministyczny (brak race condition), publiczny PoC V12 Security. Ubuntu 24.04 podatny po wyłączeniu AppArmor userns restrict. Debian 13 (kernel 6.12.74) strukturalnie odporny - CONFIG_INET_ESPINTCP not set. Zwalidowane reguły auditd na obu dystrybucjach.</div>
         <div class="wcard-tags"><span class="tag r">LPE · CVSS 7.2</span><span class="tag r">Publiczny PoC</span><span class="tag p">XFRM ESP-in-TCP</span><span class="tag p">Dirty Frag Family</span><span class="tag c">Lab Confirmed ✓</span><span class="tag g">auditd Detection ✓</span></div>
       </div>
     </div>
