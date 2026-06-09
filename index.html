@@ -108,7 +108,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
 
   <div class="sh">Stats</div>
   <div class="stats">
-    <div class="stat"><div class="stat-val">21</div><div class="stat-label">Writeups</div></div>
+    <div class="stat"><div class="stat-val">22</div><div class="stat-label">Writeups</div></div>
     <div class="stat"><div class="stat-val g">20</div><div class="stat-label">KQL Rules</div></div>
     <div class="stat"><div class="stat-val o">13</div><div class="stat-label">Phishing cases</div></div>
     <div class="stat"><div class="stat-val p">TA569</div><div class="stat-label">Threat Actor</div></div>
@@ -174,7 +174,24 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
   <!-- WRITEUPS - newest first -->
   <div class="sh">Incident Writeups</div>
   <div class="cards">
-
+  <a href="threat-022.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#ff4560'" onmouseout="this.style.borderColor='var(--border)'">
+  <div class="wcard-inner">
+    <div class="wcard-bar" style="background:#ff4560;"></div>
+    <div class="wcard-content">
+      <div class="wcard-top"><span class="wcard-id" style="color:#ff4560;">THREAT-022</span><span class="wcard-date">09 cze 2026</span></div>
+      <div class="wcard-title">Formbook Stealer - Dystrybucja przez TAR · NSIS Self-Extracting EXE · Skompromitowana polska domena C2</div>
+      <div class="wcard-desc">Malware z rodziny Formbook/XLoader dostarczony jako archiwum TAR zawierające 32-bitowy plik wykonywalny NSIS SFX. Plik opatrzony unieważnionym podpisem cyfrowym, wykryty przez Microsoft Defender for Endpoint (alert 'Suschil' malware was prevented) przed wykonaniem. Dynamiczna analiza w ANY.RUN wykazała process injection do relog.exe (legalny plik systemowy Windows) jako technikę ukrycia. C2 osadzony w podkatalogu skompromitowanego hostingu polskiej fundacji - serwer NETARTGROUP, 403 Forbidden na root, brak TLS.</div>
+      <div class="wcard-tags">
+        <span class="tag r">Formbook · XLoader</span>
+        <span class="tag r">Process Injection</span>
+        <span class="tag o">NSIS SFX</span>
+        <span class="tag o">TAR Container</span>
+        <span class="tag y">Skompromitowany C2 PL</span>
+        <span class="tag g">Contained ✓</span>
+      </div>
+    </div>
+  </div>
+</a>
   <a href="threat-021.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#8899aa'" onmouseout="this.style.borderColor='var(--border)'">
   <div class="wcard-inner">
     <div class="wcard-bar" style="background:#8899aa;"></div>
