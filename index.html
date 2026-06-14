@@ -108,9 +108,9 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
 
   <div class="sh">Stats</div>
   <div class="stats">
-    <div class="stat"><div class="stat-val">22</div><div class="stat-label">Writeups</div></div>
+    <div class="stat"><div class="stat-val">24</div><div class="stat-label">Writeups</div></div>
     <div class="stat"><div class="stat-val g">20</div><div class="stat-label">KQL Rules</div></div>
-    <div class="stat"><div class="stat-val o">13</div><div class="stat-label">Phishing cases</div></div>
+    <div class="stat"><div class="stat-val o">15</div><div class="stat-label">Phishing cases</div></div>
     <div class="stat"><div class="stat-val p">TA569</div><div class="stat-label">Threat Actor</div></div>
     <div class="stat"><div class="stat-val r">0</div><div class="stat-label">Payload executions</div></div>
     <div class="stat"><div class="stat-val y">15/15</div><div class="stat-label">User reported</div></div>
@@ -174,6 +174,18 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
   <!-- WRITEUPS - newest first -->
   <div class="sh">Incident Writeups</div>
   <div class="cards">
+    
+  <a href="threat-024.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#00c2d4'" onmouseout="this.style.borderColor='var(--border)'">
+  <div class="wcard-inner">
+    <div class="wcard-bar" style="background:#00c2d4;"></div>
+    <div class="wcard-content">
+      <div class="wcard-top"><span class="wcard-id" style="color:#00c2d4;">THREAT-024</span><span class="wcard-date">12 cze 2026</span></div>
+      <div class="wcard-title">ERGO Hestia Brand Impersonation - Multi-Stage Card Skimmer · tryverif[.]com</div>
+      <div class="wcard-desc">Kampania masowego phishingu finansowego wysłana z przejętego konta edukacyjnego (atouati@cps.edu) do listy kilkudziesięciu odbiorców. Lure: "nadpłata 279,79 PLN" od ERGO Hestia. Trójwarstwowy łańcuch przekierowań: AWS S3 bucket (kamufluje link w mailu) → węgierska domena pośrednicząca (302) → backend tryverif[.]com. Pixel-perfect klon portalu ubezpieczyciela z operator-controlled JS state machine (loadi.php) umożliwiającą sterowanie przebiegiem ataku w czasie rzeczywistym. Dane karty przesyłane POST do ura.php z zaciemnionymi nazwami pól.</div>
+      <div class="wcard-tags"><span class="tag r">Card Skimmer</span><span class="tag r">Phishing Finansowy</span><span class="tag o">Operator Control</span><span class="tag o">3-Stage Redirect</span><span class="tag c">HAR Analysis</span><span class="tag b">AWS S3 Lure</span></div>
+    </div>
+  </div>
+</a>  
     
   <a href="threat-023.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#1877f2'" onmouseout="this.style.borderColor='var(--border)'">
   <div class="wcard-inner">
