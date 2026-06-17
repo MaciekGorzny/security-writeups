@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HUNT-001 - The Gentlemen Ransomware · Threat-Informed Detection Engineering · Storm-2697</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{
+  --bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#1e2a38;--border2:#243344;
+  --accent:#00d9f5;--accent2:#4dd9f5;
+  --green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;--cyan:#00d9f5;
+  --text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 60% 40% at 15% 25%,rgba(0,217,245,.04) 0%,transparent 55%),
+  radial-gradient(ellipse 50% 35% at 80% 70%,rgba(0,217,245,.02) 0%,transparent 55%),
+  linear-gradient(rgba(0,217,245,.01) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,217,245,.01) 1px,transparent 1px);
+  background-size:100% 100%,100% 100%,44px 44px,44px 44px;pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--accent2);}
+.nav span{color:var(--border);}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--accent);box-shadow:0 0 6px var(--accent);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,36px);font-weight:900;color:var(--white);line-height:1.08;margin-bottom:20px;}
+h1 span{color:var(--accent2);}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:32px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.o{color:var(--orange);}.mv.g{color:var(--green);}.mv.c{color:var(--cyan);}.mv.y{color:var(--yellow);}.mv.a{color:var(--accent2);}
+.notice{border-radius:6px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px;font-size:12px;line-height:1.8;}
+.notice.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.2);}
+.notice.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.2);}
+.notice.grey{background:rgba(136,153,170,.04);border:1px solid rgba(136,153,170,.2);}
+.notice.cyan{background:rgba(0,217,245,.04);border:1px solid rgba(0,217,245,.2);}
+.notice-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.notice-body strong{color:var(--white);}
+.notice.red .notice-body strong{color:var(--red);}
+.notice.green .notice-body strong{color:var(--green);}
+.notice.cyan .notice-body strong{color:var(--cyan);}
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.g{color:var(--green);}.sl.r{color:var(--red);}.sl.o{color:var(--orange);}.sl.c{color:var(--cyan);}
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(136,153,170,.08);border:1px solid rgba(136,153,170,.2);color:var(--accent2);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
+.stage-header{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.stage-num{font-size:9px;font-weight:700;color:#000;background:var(--cyan);padding:2px 8px;border-radius:2px;letter-spacing:1px;}
+.stage-num.r{background:var(--red);color:var(--white);}
+.stage-num.g{background:var(--green);color:#000;}
+.stage-num.o{background:var(--orange);color:#000;}
+.stage-num.y{background:var(--yellow);color:#000;}
+.stage-title{font-size:12px;font-weight:700;color:var(--white);}
+.stage-mitre{font-size:10px;color:var(--muted);margin-left:auto;}
+.stage-body{padding:14px 18px;font-size:12px;color:var(--text);line-height:1.8;}
+.stage-body code{background:rgba(136,153,170,.08);border:1px solid rgba(136,153,170,.15);color:var(--accent2);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage-body .hl{color:var(--accent2);font-weight:700;}
+.stage-body .hl-r{color:var(--red);font-weight:700;}
+.stage-body .hl-g{color:var(--green);font-weight:700;}
+.stage-body .hl-c{color:var(--cyan);font-weight:700;}
+.code-block{background:#020508;border:1px solid var(--border);border-radius:4px;padding:16px 18px;font-size:11px;line-height:1.8;overflow-x:auto;color:#a8c0d6;white-space:pre;margin:10px 0;}
+.code-block .kw{color:var(--cyan);}
+.code-block .fn{color:var(--yellow);}
+.code-block .str{color:var(--green);}
+.code-block .cm{color:var(--muted);font-style:italic;}
+.code-block .hl{color:var(--accent2);font-weight:700;}
+.code-block .hl-r{color:var(--red);}
+.code-block .num{color:var(--orange);}
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(136,153,170,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.td-r{color:var(--red);font-weight:700;}
+.td-g{color:var(--green);font-weight:700;}
+.td-c{color:var(--cyan);}
+.td-o{color:var(--orange);}
+.td-y{color:var(--yellow);}
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--accent2);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+.rule-card{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px;}
+.rule-header{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.rule-id{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--cyan);}
+.rule-title{font-size:13px;font-weight:700;color:var(--white);}
+.rule-mitre{font-size:10px;color:var(--muted);margin-left:auto;}
+.rule-body{padding:14px 18px;}
+.rule-desc{font-size:12px;color:var(--text);line-height:1.8;margin-bottom:12px;}
+.rule-desc code{background:rgba(136,153,170,.08);border:1px solid rgba(136,153,170,.15);color:var(--accent2);padding:1px 6px;border-radius:2px;font-size:11px;}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 8px;border-radius:2px;text-transform:uppercase;margin-right:6px;}
+.badge.c{background:rgba(0,217,245,.08);color:var(--cyan);border:1px solid rgba(0,217,245,.2);}
+.badge.g{background:rgba(61,255,143,.08);color:var(--green);border:1px solid rgba(61,255,143,.2);}
+.badge.r{background:rgba(255,69,96,.08);color:var(--red);border:1px solid rgba(255,69,96,.2);}
+.badge.o{background:rgba(255,123,44,.08);color:var(--orange);border:1px solid rgba(255,123,44,.2);}
+.badge.y{background:rgba(255,209,102,.08);color:var(--yellow);border:1px solid rgba(255,209,102,.2);}
+footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="nav">
+  <a href="index.html">← Portfolio</a>
+  <span>/</span>
+  <a href="kql-library.html">KQL Library</a>
+  <span>/</span>
+  <span style="color:var(--cyan)">HUNT-001</span>
+</nav>
+
+<div class="eyebrow">Detection Engineering · Threat-Informed Defense · Ransomware</div>
+<h1>The Gentlemen Ransomware -<br><span>Threat-Informed Detection Engineering</span><br>Storm-2697 · RaaS · Go Encryptor · Czerwiec 2026</h1>
+
+<div class="meta">
+  <div class="mc"><div class="ml">ID</div><div class="mv a">HUNT-001</div></div>
+  <div class="mc"><div class="ml">Data</div><div class="mv">17 Cze 2026</div></div>
+  <div class="mc"><div class="ml">Typ</div><div class="mv c">Detection Engineering</div></div>
+  <div class="mc"><div class="ml">Źródło TI</div><div class="mv">MS Threat Intelligence</div></div>
+  <div class="mc"><div class="ml">Aktor</div><div class="mv r">Storm-2697</div></div>
+  <div class="mc"><div class="ml">Malware</div><div class="mv r">The Gentlemen</div></div>
+  <div class="mc"><div class="ml">Język</div><div class="mv">Go + Garble</div></div>
+  <div class="mc"><div class="ml">Model</div><div class="mv o">RaaS</div></div>
+  <div class="mc"><div class="ml">Reguły KQL</div><div class="mv g">6</div></div>
+  <div class="mc"><div class="ml">MITRE Tactics</div><div class="mv c">5</div></div>
+  <div class="mc"><div class="ml">Status</div><div class="mv g">Wdrożone ✓</div></div>
+</div>
+
+<div class="notice cyan">
+  <div class="notice-icon">🔵</div>
+  <div class="notice-body"><strong>Threat-Informed Detection - nie incydent produkcyjny</strong><br>
+  Niniejszy wpis dokumentuje proaktywne budowanie detekcji na podstawie raportu Microsoft Threat Intelligence (28 maja 2026) dotyczącego ransomware The Gentlemen operowanego przez Storm-2697. Reguły KQL zostały opracowane, wdrożone w środowisku testowym i zweryfikowane przed rozszerzeniem na pełną infrastrukturę.</div>
+</div>
+
+<div class="notice grey">
+  <div class="notice-icon">ℹ️</div>
+  <div class="notice-body"><strong>Metodologia</strong><br>
+  Analiza raportu MS TI → identyfikacja artefaktów detekcyjnych per faza ataku → budowa reguł KQL → staged rollout (wybrane grupy serwerów) → weryfikacja false positive rate → rozszerzenie na wszystkie endpointy i serwery.</div>
+</div>
+
+<!-- KONTEKST ZAGROŻENIA -->
+<div class="sec">
+<div class="sl">Kontekst zagrożenia</div>
+<p class="pr">The Gentlemen to ransomware-as-a-service (RaaS) śledzony przez Microsoft jako <strong>Storm-2697</strong>. Platforma aktywna od połowy 2025 roku, od września 2025 dostępna dla afiliowanych operatorów. Nawiązała oficjalne partnerstwo z BreachForums w celu rekrutacji pentesterów i initial access brokerów.</p>
+<p class="pr">Malware napisany w <strong>Go</strong>, zaciemniony przez <strong>Garble</strong>, atakuje środowiska Windows. Stosuje <strong>double extortion</strong> - szyfrowanie danych połączone z ich eksfiltrację przed zaszyfrowaniem, co zwiększa presję na ofiarę.</p>
+<p class="pr">Odnotowane ofiary w sektorach: edukacja, transport, ochrona zdrowia i <strong>sektor finansowy</strong> - w Ameryce Północnej i Południowej, Europie, Afryce i Azji.</p>
+
+<p class="pr"><strong>Co wyróżnia The Gentlemen technicznie:</strong></p>
+<p class="pr">Szyfrowanie per-file z efemerycznym kluczem <strong>Curve25519 + XChaCha20</strong> - każdy plik szyfrowany osobnym kluczem. Flagi szybkości szyfrowania (<code>--ultrafast</code>, <code>--superfast</code>, <code>--fast</code>) pozwalają operatorowi zaszyfrować zaledwie 0.9% zawartości dużych plików, dramatycznie przyspieszając atak. Najbardziej charakterystyczny element: <strong>self-propagation przez 21 równoległych technik lateral movement per host</strong> - PsExec, WMIC, scheduled tasks (user + SYSTEM), Windows services, PowerShell remoting, PS WMI.</p>
+</div>
+
+<!-- ŁAŃCUCH ATAKU -->
+<div class="sec">
+<div class="sl">Łańcuch ataku - fazy</div>
+
+<div class="stage">
+  <div class="stage-header">
+    <span class="stage-num">FAZA 1</span>
+    <span class="stage-title">Local Staging - SMB Share + Anonymous Access</span>
+    <span class="stage-mitre">T1021.002 · T1078</span>
+  </div>
+  <div class="stage-body">
+    Malware kopiuje swój plik wykonywalny do <code>C:\Temp</code>, tworzy ukryty udział SMB <code>share$</code> wskazujący na ten katalog oraz modyfikuje klucze rejestru LSA, zezwalając na dostęp anonimowy. Umożliwia to pobieranie payloadu z <code>\\&lt;infected_host&gt;\share$</code> bez posiadania ważnych poświadczeń.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header">
+    <span class="stage-num">FAZA 2</span>
+    <span class="stage-title">PsExec Drop - Embedded lub Download z Sysinternals Live</span>
+    <span class="stage-mitre">T1570 · T1105</span>
+  </div>
+  <div class="stage-body">
+    Malware wypakowuje wbudowaną kopię PsExec do <code>C:\Temp\psexec.exe</code>. W przypadku niepowodzenia - pobiera PsExec bezpośrednio z <code>live.sysinternals.com</code> przez PowerShell. Zarówno drop do <code>C:\Temp</code> jak i pobranie z zewnętrznego URL są <span class="hl-r">wykrywalne</span>.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header">
+    <span class="stage-num">FAZA 3</span>
+    <span class="stage-title">Network Enumeration - Discovery Zdalnych Hostów</span>
+    <span class="stage-mitre">T1018 · T1135 · T1069.002</span>
+  </div>
+  <div class="stage-body">
+    Enumeracja stacji roboczych, serwerów i kontrolerów domeny jako kandydatów do propagacji. Wykorzystuje <code>net.exe</code>, <code>nltest.exe</code>, <code>nslookup.exe</code> z typowymi flagami rekonesansu domenowego.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header">
+    <span class="stage-num r">FAZA 4</span>
+    <span class="stage-title">Defense Evasion na Zdalnych Hostach - PowerShell Blob</span>
+    <span class="stage-mitre">T1562.001 · T1112</span>
+  </div>
+  <div class="stage-body">
+    Przed wdrożeniem payloadu na zdalnym hoście malware wykonuje zdalnie PowerShell blob wyłączający: Defender real-time monitoring, Windows Firewall (wszystkie profile), włączający SMB1, nadający permissive NTFS access oraz modyfikujący klucze LSA dla dostępu anonimowego. <span class="hl-r">Jeden z najsilniejszych sygnałów detekcyjnych w łańcuchu.</span>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header">
+    <span class="stage-num o">FAZA 5</span>
+    <span class="stage-title">Payload Deployment - 21 Równoległych Technik Lateral Movement</span>
+    <span class="stage-mitre">T1021 · T1047 · T1053.005 · T1543.003 · T1059.001</span>
+  </div>
+  <div class="stage-body">
+    Dla każdego odkrytego hosta malware uruchamia <span class="hl-r">wszystkie poniższe techniki jednocześnie</span>, niezależnie od sukcesu poprzednich:
+    <br><br>
+    <span class="hl-c">5.1</span> - Remote file copy przez <code>C$</code> admin share<br>
+    <span class="hl-c">5.2</span> - PsExec (multi-stage: defense evasion blob → payload → <code>-h -c -f</code>)<br>
+    <span class="hl-c">5.3</span> - WMIC remote process creation (<code>wmic.exe /node process call create</code>)<br>
+    <span class="hl-c">5.4</span> - Scheduled tasks user context: <code>DefU</code>, <code>UpdateGU</code>, <code>UpdateGU2</code><br>
+    <span class="hl-c">5.5</span> - Scheduled tasks SYSTEM context: te same nazwy<br>
+    <span class="hl-c">5.6</span> - Windows services: <code>DefSvc</code>, <code>UpdateSvc</code>, <code>UpdateSvc2</code><br>
+    <span class="hl-c">5.7</span> - PowerShell remoting (<code>Invoke-Command</code> przez WinRM)<br>
+    <span class="hl-c">5.8</span> - PowerShell WMI (<code>Win32_Process</code> przez PS zamiast wmic.exe)
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header">
+    <span class="stage-num y">FAZA 6</span>
+    <span class="stage-title">Pre-Encryption - Privilege Escalation + Defense Evasion</span>
+    <span class="stage-mitre">T1053.005 · T1562.001 · T1490 · T1070.001</span>
+  </div>
+  <div class="stage-body">
+    Na zainfekowanym hoście: tworzenie scheduled task <code>gentlemen_system</code> jako SYSTEM (<code>/SC ONCE /RU SYSTEM</code>), wyłączenie Defender + wykluczenie całego <code>C:\</code>, usunięcie Volume Shadow Copies przez <code>vssadmin</code> i <code>wmic</code>, wyczyszczenie logów System/Application/Security przez <code>wevtutil cl</code>, usunięcie prefetch i historii PSReadline.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header">
+    <span class="stage-num r">FAZA 7</span>
+    <span class="stage-title">Encryption - Per-File Curve25519 + XChaCha20</span>
+    <span class="stage-mitre">T1486</span>
+  </div>
+  <div class="stage-body">
+    Szyfrowanie z efemerycznym kluczem per plik. Tryb <code>--full</code> uruchamia dwa procesy: <code>--system</code> dla dysków lokalnych (przez scheduled task jako SYSTEM) i <code>--shares</code> dla udziałów sieciowych. Flagi szybkości pozwalają zaszyfrować minimalny fragment pliku (0.9% przy <code>--ultrafast</code>) co radykalnie skraca czas operacji.
+  </div>
+</div>
+
+</div>
+
+<!-- REGUŁY DETEKCYJNE -->
+<div class="sec">
+<div class="sl g">Reguły Detekcyjne KQL</div>
+
+<!-- REGUŁA 1 -->
+<div class="rule-card">
+  <div class="rule-header">
+    <span class="rule-id">RULE-01</span>
+    <span class="rule-title">[Persistence / PrivEsc - T1053.005] Suspicious Scheduled Task Creation</span>
+    <span class="rule-mitre">DeviceProcessEvents</span>
+  </div>
+  <div class="rule-body">
+    <div class="rule-desc">
+      Wykrywa tworzenie zaplanowanych zadań z hardcoded nazwami charakterystycznymi dla The Gentlemen (<code>gentlemen_system</code>, <code>UpdateGU</code>, <code>DefU</code>) lub z kombinacją flag typowych dla privilege escalation: <code>/Create</code> + trigger <code>ONSTART/ONLOGON/ONCE</code> + <code>/RU SYSTEM</code> lub <code>/RL HIGHEST</code>. Obejmuje zarówno lokalną jak i zdalną (faza 5.4/5.5) kreację tasków.
+    </div>
+<div class="code-block"><span class="cm">// UpdateGU / DefU / gentlemen_system - hardcoded task names in The Gentlemen ransomware (Storm-2697)</span>
+<span class="kw">let</span> <span class="hl">suspicious_tasks</span> = <span class="fn">dynamic</span>([<span class="str">"UpdateSystem"</span>, <span class="str">"UpdateUser"</span>, <span class="str">"gentlemen_system"</span>, <span class="str">"DefU"</span>, <span class="str">"UpdateGU"</span>, <span class="str">"UpdateGU2"</span>]);
+<span class="kw">let</span> <span class="hl">whitelist_tasks</span> = <span class="fn">dynamic</span>([<span class="str">"TeamViewer_.exe"</span>]);
+DeviceProcessEvents
+| <span class="kw">where</span> FileName =~ <span class="str">"schtasks.exe"</span>
+| <span class="kw">where</span> ProcessCommandLine <span class="fn">has_any</span> (suspicious_tasks)
+   <span class="kw">or</span> (
+        ProcessCommandLine <span class="fn">has</span> <span class="str">"/Create"</span>
+        <span class="kw">and</span> ProcessCommandLine <span class="fn">has_any</span> (<span class="str">"/SC ONSTART"</span>, <span class="str">"/SC ONLOGON"</span>, <span class="str">"/SC ONCE"</span>)
+        <span class="kw">and</span> ProcessCommandLine <span class="fn">has_any</span> (<span class="str">"/RU SYSTEM"</span>, <span class="str">"/RL HIGHEST"</span>)
+        <span class="kw">and not</span> (ProcessCommandLine <span class="fn">has_any</span> (whitelist_tasks))
+      )
+| <span class="kw">project</span> Timestamp, DeviceId, DeviceName, ReportId, AccountName, FileName,
+          ProcessCommandLine, InitiatingProcessFileName, InitiatingProcessCommandLine
+| <span class="kw">order by</span> Timestamp <span class="kw">desc</span></div>
+  </div>
+</div>
+
+<!-- REGUŁA 2 -->
+<div class="rule-card">
+  <div class="rule-header">
+    <span class="rule-id">RULE-02</span>
+    <span class="rule-title">[Impact - T1486] The Gentlemen Encryptor Execution</span>
+    <span class="rule-mitre">DeviceProcessEvents</span>
+  </div>
+  <div class="rule-body">
+    <div class="rule-desc">
+      Wykrywa uruchomienie encryptora na podstawie wymaganego argumentu <code>--password</code> w połączeniu z charakterystycznymi flagami operacyjnymi. Każde uruchomienie The Gentlemen wymaga podania hasła - jest to unikalny anchor dla tej kampanii.
+    </div>
+<div class="code-block"><span class="kw">let</span> <span class="hl">whitelist_process</span> = <span class="fn">dynamic</span>([<span class="str">"chrome.exe"</span>]);
+DeviceProcessEvents
+| <span class="kw">where</span> FileName <span class="fn">!in~</span> (whitelist_process)
+| <span class="kw">where</span> ProcessCommandLine <span class="fn">has</span> <span class="str">"--password"</span>
+| <span class="kw">where</span> ProcessCommandLine <span class="fn">has_any</span> (<span class="str">"--path"</span>, <span class="str">"--T"</span>, <span class="str">"--silent"</span>, <span class="str">"--system"</span>,
+    <span class="str">"--shares"</span>, <span class="str">"--full"</span>, <span class="str">"--spread"</span>, <span class="str">"--ultrafast"</span>,
+    <span class="str">"--superfast"</span>, <span class="str">"--fast"</span>, <span class="str">"--keep"</span>, <span class="str">"--wipe"</span>)
+| <span class="kw">project</span> Timestamp, DeviceId, DeviceName, ReportId, AccountName, FileName,
+          FolderPath, SHA1, ProcessCommandLine,
+          InitiatingProcessFileName, InitiatingProcessCommandLine</div>
+  </div>
+</div>
+
+<!-- REGUŁA 3 -->
+<div class="rule-card">
+  <div class="rule-header">
+    <span class="rule-id">RULE-03</span>
+    <span class="rule-title">[Defense Evasion - T1562.001] Defender Exclusion or Protection Disabled</span>
+    <span class="rule-mitre">DeviceProcessEvents</span>
+  </div>
+  <div class="rule-body">
+    <div class="rule-desc">
+      Wykrywa wyłączenie ochrony Defender lub dodanie wykluczeń przez PowerShell. Kolumna <code>HighSeverity</code> flaguje przypadki wykluczenia całego wolumenu <code>C:\</code> - zachowanie skrajnie rzadkie w legalnym środowisku, charakterystyczne dla faz 4 i pre-encryption The Gentlemen.
+    </div>
+<div class="code-block"><span class="kw">let</span> <span class="hl">whitelist_process</span> = <span class="fn">dynamic</span>([<span class="str">"MpCmdRun.exe"</span>, <span class="str">"ConfigSecurityPolicy.exe"</span>]);
+DeviceProcessEvents
+| <span class="kw">where</span> InitiatingProcessFileName <span class="fn">!in~</span> (whitelist_process)
+| <span class="kw">where</span> FileName <span class="fn">in~</span> (<span class="str">"powershell.exe"</span>, <span class="str">"pwsh.exe"</span>, <span class="str">"cmd.exe"</span>)
+| <span class="kw">extend</span> <span class="hl">HighSeverity</span> = ProcessCommandLine <span class="fn">has</span> <span class="str">"C:\\"</span>
+    <span class="kw">and</span> ProcessCommandLine <span class="fn">has</span> <span class="str">"ExclusionPath"</span>
+| <span class="kw">where</span> ProcessCommandLine <span class="fn">has_any</span> (<span class="str">"Set-MpPreference"</span>, <span class="str">"Add-MpPreference"</span>,
+    <span class="str">"DisableRealtimeMonitoring"</span>, <span class="str">"ExclusionPath"</span>, <span class="str">"ExclusionProcess"</span>)
+| <span class="kw">project</span> Timestamp, DeviceId, DeviceName, ReportId, AccountName, FileName,
+          ProcessCommandLine, InitiatingProcessFileName, InitiatingProcessCommandLine,
+          HighSeverity
+| <span class="kw">order by</span> Timestamp <span class="kw">desc</span></div>
+  </div>
+</div>
+
+<!-- REGUŁA 4 -->
+<div class="rule-card">
+  <div class="rule-header">
+    <span class="rule-id">RULE-04</span>
+    <span class="rule-title">[Defense Evasion / Impact - T1490, T1070.001] Shadow Copy Deletion and Event Log Clearing</span>
+    <span class="rule-mitre">DeviceProcessEvents</span>
+  </div>
+  <div class="rule-body">
+    <div class="rule-desc">
+      Wykrywa usunięcie Volume Shadow Copies przez <code>vssadmin</code> lub <code>wmic</code> oraz wyczyszczenie logów zdarzeń przez <code>wevtutil</code>. The Gentlemen wykonuje wszystkie trzy sekwencyjnie w fazie pre-encryption. Reguła łączy oba typy zachowań w jednym zapytaniu.
+    </div>
+<div class="code-block">DeviceProcessEvents
+| <span class="kw">where</span> (FileName =~ <span class="str">"vssadmin.exe"</span>
+    <span class="kw">and</span> ProcessCommandLine <span class="fn">has_all</span> (<span class="str">"delete"</span>, <span class="str">"shadows"</span>))
+   <span class="kw">or</span> (FileName =~ <span class="str">"wmic.exe"</span>
+    <span class="kw">and</span> ProcessCommandLine <span class="fn">has</span> <span class="str">"shadowcopy"</span>
+    <span class="kw">and</span> ProcessCommandLine <span class="fn">has</span> <span class="str">"delete"</span>)
+   <span class="kw">or</span> (FileName =~ <span class="str">"wevtutil.exe"</span>
+    <span class="kw">and</span> ProcessCommandLine <span class="fn">has_any</span> (<span class="str">"cl"</span>, <span class="str">"clear-log"</span>))
+| <span class="kw">project</span> Timestamp, DeviceId, DeviceName, ReportId, AccountName, FileName,
+          ProcessCommandLine, InitiatingProcessFileName, InitiatingProcessCommandLine
+| <span class="kw">order by</span> Timestamp <span class="kw">desc</span></div>
+  </div>
+</div>
+
+<!-- REGUŁA 5 -->
+<div class="rule-card">
+  <div class="rule-header">
+    <span class="rule-id">RULE-05</span>
+    <span class="rule-title">[Lateral Movement / Execution - T1543.003] Suspicious Service Creation</span>
+    <span class="rule-mitre">DeviceProcessEvents</span>
+  </div>
+  <div class="rule-body">
+    <div class="rule-desc">
+      Wykrywa tworzenie usług Windows z hardcoded nazwami The Gentlemen: <code>DefSvc</code>, <code>UpdateSvc</code>, <code>UpdateSvc2</code>. Są to nazwy zakodowane statycznie w malwarze - zero false positives w normalnym środowisku. Najwyższy confidence spośród wszystkich reguł w tym zestawie.
+    </div>
+<div class="code-block"><span class="cm">// DefSvc / UpdateSvc / UpdateSvc2 - hardcoded service names in The Gentlemen (Storm-2697)</span>
+<span class="kw">let</span> <span class="hl">gentlemen_services</span> = <span class="fn">dynamic</span>([<span class="str">"DefSvc"</span>, <span class="str">"UpdateSvc"</span>, <span class="str">"UpdateSvc2"</span>]);
+DeviceProcessEvents
+| <span class="kw">where</span> FileName =~ <span class="str">"sc.exe"</span>
+| <span class="kw">where</span> ProcessCommandLine <span class="fn">has</span> <span class="str">"create"</span>
+| <span class="kw">where</span> ProcessCommandLine <span class="fn">has_any</span> (gentlemen_services)
+| <span class="kw">project</span> Timestamp, DeviceId, DeviceName, AccountName,
+          ProcessCommandLine, InitiatingProcessFileName, InitiatingProcessCommandLine</div>
+  </div>
+</div>
+
+<!-- REGUŁA 6 -->
+<div class="rule-card">
+  <div class="rule-header">
+    <span class="rule-id">RULE-06</span>
+    <span class="rule-title">[Lateral Movement / Execution - T1021, T1047] WMI Remote Process from Staging Path</span>
+    <span class="rule-mitre">DeviceProcessEvents</span>
+  </div>
+  <div class="rule-body">
+    <div class="rule-desc">
+      Wykrywa zdalne tworzenie procesów przez WMI (zarówno <code>wmic.exe</code> jak i PowerShell <code>Win32_Process</code>) z charakterystycznych ścieżek staging: <code>C:\Temp\</code> lub <code>share$</code>. Kontekst ścieżki eliminuje legalne użycie WMI w środowisku. Pokrywa fazy 5.3 i 5.8 The Gentlemen.
+    </div>
+<div class="code-block">DeviceProcessEvents
+| <span class="kw">where</span> (FileName =~ <span class="str">"wmic.exe"</span>
+    <span class="kw">and</span> ProcessCommandLine <span class="fn">has</span> <span class="str">"process call create"</span>
+    <span class="kw">and</span> ProcessCommandLine <span class="fn">has_any</span> (<span class="str">"C:\\Temp\\"</span>, <span class="str">"share$"</span>))
+   <span class="kw">or</span> (FileName <span class="fn">in~</span> (<span class="str">"powershell.exe"</span>, <span class="str">"pwsh.exe"</span>)
+    <span class="kw">and</span> ProcessCommandLine <span class="fn">has</span> <span class="str">"Win32_Process"</span>
+    <span class="kw">and</span> ProcessCommandLine <span class="fn">has</span> <span class="str">"Create"</span>
+    <span class="kw">and</span> ProcessCommandLine <span class="fn">has_any</span> (<span class="str">"C:\\Temp\\"</span>, <span class="str">"share$"</span>))
+| <span class="kw">project</span> Timestamp, DeviceId, DeviceName, AccountName, FileName,
+          ProcessCommandLine, InitiatingProcessFileName, InitiatingProcessCommandLine
+| <span class="kw">order by</span> Timestamp <span class="kw">desc</span></div>
+  </div>
+</div>
+</div>
+
+<!-- COVERAGE MAP -->
+<div class="sec">
+<div class="sl c">Mapa Pokrycia Detekcyjnego</div>
+<table class="it">
+  <thead>
+    <tr>
+      <th>Faza</th>
+      <th>Opis</th>
+      <th>MITRE</th>
+      <th>Reguła</th>
+      <th>Pokrycie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>SMB Share + Anonymous Access (LSA registry)</td>
+      <td class="td-c">T1021.002</td>
+      <td class="td-c">-</td>
+      <td class="td-y">Częściowe</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>PsExec drop do C:\Temp / download z Sysinternals</td>
+      <td class="td-c">T1105 · T1570</td>
+      <td class="td-c">-</td>
+      <td class="td-y">Defender natywnie</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Network enumeration (net, nltest, nslookup)</td>
+      <td class="td-c">T1018 · T1069.002</td>
+      <td class="td-c">-</td>
+      <td class="td-y">Ogólna reguła enum</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Defense evasion blob na zdalnych hostach</td>
+      <td class="td-c">T1562.001</td>
+      <td class="td-g">RULE-03</td>
+      <td class="td-g">Pełne ✓</td>
+    </tr>
+    <tr>
+      <td>5.4 / 5.5</td>
+      <td>Scheduled tasks (user + SYSTEM): DefU, UpdateGU, UpdateGU2</td>
+      <td class="td-c">T1053.005</td>
+      <td class="td-g">RULE-01</td>
+      <td class="td-g">Pełne ✓</td>
+    </tr>
+    <tr>
+      <td>5.6</td>
+      <td>Windows services: DefSvc, UpdateSvc, UpdateSvc2</td>
+      <td class="td-c">T1543.003</td>
+      <td class="td-g">RULE-05</td>
+      <td class="td-g">Pełne ✓</td>
+    </tr>
+    <tr>
+      <td>5.3 / 5.8</td>
+      <td>WMIC + PS WMI remote process z C:\Temp\ lub share$</td>
+      <td class="td-c">T1047</td>
+      <td class="td-g">RULE-06</td>
+      <td class="td-g">Pełne ✓</td>
+    </tr>
+    <tr>
+      <td>5.7</td>
+      <td>PowerShell remoting (Invoke-Command / WinRM)</td>
+      <td class="td-c">T1021.006</td>
+      <td class="td-g">Istniejąca reguła PS remoting</td>
+      <td class="td-g">Pełne ✓</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>Scheduled task gentlemen_system (SYSTEM privilege escalation)</td>
+      <td class="td-c">T1053.005</td>
+      <td class="td-g">RULE-01</td>
+      <td class="td-g">Pełne ✓</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>Defender exclusion + wyłączenie ochrony</td>
+      <td class="td-c">T1562.001</td>
+      <td class="td-g">RULE-03</td>
+      <td class="td-g">Pełne ✓</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>VSS deletion + Event Log clearing</td>
+      <td class="td-c">T1490 · T1070.001</td>
+      <td class="td-g">RULE-04</td>
+      <td class="td-g">Pełne ✓</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>Encryptor execution (--password + flagi)</td>
+      <td class="td-c">T1486</td>
+      <td class="td-g">RULE-02</td>
+      <td class="td-g">Pełne ✓</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- MITRE -->
+<div class="sec">
+<div class="sl">Mapowanie MITRE ATT&amp;CK</div>
+<div class="mg">
+  <div class="mc2"><div class="mid">T1053.005</div><div class="mname">Scheduled Task/Job</div><div class="mtactic">Persistence · Privilege Escalation - gentlemen_system, DefU, UpdateGU</div></div>
+  <div class="mc2"><div class="mid">T1486</div><div class="mname">Data Encrypted for Impact</div><div class="mtactic">Impact - Curve25519 + XChaCha20 per-file encryption</div></div>
+  <div class="mc2"><div class="mid">T1562.001</div><div class="mname">Disable or Modify Tools</div><div class="mtactic">Defense Evasion - Defender RT monitoring, Firewall, exclusions</div></div>
+  <div class="mc2"><div class="mid">T1490</div><div class="mname">Inhibit System Recovery</div><div class="mtactic">Impact - vssadmin + wmic shadow copy deletion</div></div>
+  <div class="mc2"><div class="mid">T1070.001</div><div class="mname">Clear Windows Event Logs</div><div class="mtactic">Defense Evasion - wevtutil cl System/Application/Security</div></div>
+  <div class="mc2"><div class="mid">T1543.003</div><div class="mname">Create or Modify System Process: Windows Service</div><div class="mtactic">Persistence · Lateral Movement - DefSvc, UpdateSvc, UpdateSvc2</div></div>
+  <div class="mc2"><div class="mid">T1047</div><div class="mname">Windows Management Instrumentation</div><div class="mtactic">Lateral Movement / Execution - wmic + PS Win32_Process</div></div>
+  <div class="mc2"><div class="mid">T1021.006</div><div class="mname">Remote Services: Windows Remote Management</div><div class="mtactic">Lateral Movement - Invoke-Command przez WinRM</div></div>
+  <div class="mc2"><div class="mid">T1105</div><div class="mname">Ingress Tool Transfer</div><div class="mtactic">Resource Development - PsExec z live.sysinternals.com</div></div>
+  <div class="mc2"><div class="mid">T1021.002</div><div class="mname">Remote Services: SMB/Windows Admin Shares</div><div class="mtactic">Lateral Movement - ukryty share$ dla dystrybucji payloadu</div></div>
+</div>
+</div>
+
+<!-- REKOMENDACJE -->
+<div class="sec">
+<div class="sl g">Rekomendacje</div>
+<p class="pr"><strong>1. Staged rollout reguł:</strong> Reguły RULE-01 do RULE-04 wdrożono najpierw na wybranych grupach serwerów w celu weryfikacji false positive rate przed rozszerzeniem na pełną infrastrukturę. RULE-05 (hardcoded service names) można wdrożyć bezpośrednio na wszystkie hosty - ryzyko FP jest zerowe.</p>
+<p class="pr"><strong>2. Luki w pokryciu do adresowania:</strong> Faza 1 (SMB anonymous share + LSA registry) i faza 3 (network enumeration) wymagają dodatkowych reguł opartych na <code>DeviceRegistryEvents</code> i <code>DeviceProcessEvents</code> dla narzędzi enumeracji domenowej.</p>
+<p class="pr"><strong>3. Hardening uzupełniający:</strong> Blokada <code>SMB1</code> przez Group Policy, wyłączenie anonymous access do udziałów sieciowych, ograniczenie dostępu do <code>C$</code> admin share, monitoring <code>C:\Temp\</code> jako lokalizacji staging.</p>
+<p class="pr"><strong>4. Źródło TI:</strong> Microsoft Threat Intelligence Blog, 28 maja 2026 - <em>The Gentlemen ransomware: Dissecting a self-propagating Go encryptor</em>. Storm-2697 aktywnie rekrutuje afiliowanych operatorów przez BreachForums - aktywność może wzrosnąć.</p>
+</div>
+
+<!-- REFERENCJE -->
+<div class="sec">
+<div class="sl">Referencje</div>
+<table class="it">
+  <thead><tr><th>Źródło</th><th>Odniesienie</th></tr></thead>
+  <tbody>
+    <tr><td>Microsoft Threat Intelligence</td><td class="td-c">The Gentlemen ransomware: Dissecting a self-propagating Go encryptor · 28 maja 2026</td></tr>
+    <tr><td>MITRE ATT&amp;CK</td><td class="td-c">attack.mitre.org/groups - Storm-2697</td></tr>
+    <tr><td>MITRE ATT&amp;CK</td><td class="td-c">T1053.005, T1486, T1562.001, T1490, T1070.001, T1543.003, T1047</td></tr>
+    <tr><td>KQL Library</td><td class="td-c">kql-library.html - Detection Rules · Advanced Hunting</td></tr>
+  </tbody>
+</table>
+</div>
+
+<footer>
+  <span>// HUNT-001 · The Gentlemen Ransomware · Detection Engineering · Storm-2697 · 17 Cze 2026</span>
+  <span>KQL · Defender XDR · Sentinel · MITRE ATT&CK · Threat-Informed Defense</span>
+</footer>
+
+</div>
+</body>
+</html>
