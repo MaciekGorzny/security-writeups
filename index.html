@@ -199,6 +199,27 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
   <!-- WRITEUPS - newest first -->
   <div class="sh">Incident Writeups</div>
   <div class="cards">
+
+  <a href="threat-025.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#ff4560'" onmouseout="this.style.borderColor='var(--border)'">
+  <div class="wcard-inner">
+    <div class="wcard-bar" style="background:#ff4560;"></div>
+    <div class="wcard-content">
+      <div class="wcard-top"><span class="wcard-id" style="color:#ff4560;">THREAT-025</span><span class="wcard-date">22 cze 2026</span></div>
+      <div class="wcard-title">Real Madrid Brand Impersonation · ClickFix → Multi-Stage PowerShell → ScreenConnect RAT</div>
+      <div class="wcard-desc">Kampania ClickFix dostarczana przez e-mail podszywający się pod Real Madrid C.F. (nadawca: donotreply@updox[.]com, infrastruktura platformy komunikacji medycznej). Lure: bezpłatny cyfrowy token kolekcjonerski "Madridista Platinum". Czterostopniowy łańcuch: zakodowana B64 komenda PowerShell w schowku (IEX+IRM) → obfuskowany loader 2.txt/1.txt z XOR decryption (klucz "write" z nazwy cmdletu) → dropper your.cmd (UAC bypass, Defender exclusion, Supabase CDN) → python.msi (ScreenConnect RAT, C2: erooslaa[.]com). VT 9/60 w chwili analizy. Defender for Endpoint wykrył i zablokował na Stage 1 jako Trojan:Win32/ClickFix.Q!ml.</div>
+      <div class="wcard-tags">
+        <span class="tag r">ClickFix</span>
+        <span class="tag r">ScreenConnect RAT</span>
+        <span class="tag o">Multi-Stage PS</span>
+        <span class="tag o">XOR Obfuscation</span>
+        <span class="tag o">UAC Bypass</span>
+        <span class="tag c">Supabase CDN</span>
+        <span class="tag y">Brand Impersonation</span>
+        <span class="tag g">Blocked ✓</span>
+      </div>
+    </div>
+  </div>
+</a>
     
   <a href="threat-024.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#00c2d4'" onmouseout="this.style.borderColor='var(--border)'">
   <div class="wcard-inner">
