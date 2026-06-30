@@ -148,21 +148,21 @@ footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;displ
 <div class="notice red">
   <div class="notice-icon">⚠️</div>
   <div class="notice-body"><strong>Kluczowa obserwacja: brak łatki silnika w momencie publikacji</strong><br>
-  Microsoft potwierdził podatność, ale nie podał wersji silnika Malware Protection Engine, w której zostanie naprawiona. Posiadanie najnowszego pakietu intelligence Defendera <strong>nie oznacza automatycznie remediacji</strong> — aktualizacje silnika/platformy mają inny cykl wydawniczy niż codzienne sygnatury. Do czasu wydania łatki priorytetem pozostaje detekcja behawioralna i ograniczenie blast radius.</div>
+  Microsoft potwierdził podatność, ale nie podał wersji silnika Malware Protection Engine, w której zostanie naprawiona. Posiadanie najnowszego pakietu intelligence Defendera <strong>nie oznacza automatycznie remediacji</strong> - aktualizacje silnika/platformy mają inny cykl wydawniczy niż codzienne sygnatury. Do czasu wydania łatki priorytetem pozostaje detekcja behawioralna i ograniczenie blast radius.</div>
 </div>
 
 <div class="notice grey">
   <div class="notice-icon">🧪</div>
   <div class="notice-body"><strong>Notatka z lab</strong><br>
-  Publiczny PoC testowany w naszym środowisku laboratoryjnym ok. dwóch tygodni przed publikacją tego wpisu — już wtedy obserwowaliśmy problemy z konsystentnym działaniem exploita. Jest to zgodne z naturą luki: autor PoC sam opisuje ją jako race condition o zmiennej skuteczności w zależności od konkretnej maszyny i stanu systemu. Niezawodność exploita w realnych środowiskach produkcyjnych — różnorodnych pod względem sterowników, oprogramowania trzeciego i obciążenia systemu — pozostaje source'em niepewności, dlatego detekcja celuje w sygnały odporne na to, czy dana próba zakończyła się sukcesem czy nie.</div>
+  Publiczny PoC testowany w środowisku laboratoryjnym ok. dwóch tygodni przed publikacją tego wpisu - już wtedy pojawiły się problemy z działaniem exploita. Jest to zgodne z naturą luki: autor PoC sam opisuje ją jako race condition o zmiennej skuteczności w zależności od konkretnej maszyny i stanu systemu. Niezawodność exploita w realnych środowiskach produkcyjnych - różnorodnych pod względem sterowników, oprogramowania trzeciego i obciążenia systemu - pozostaje źródłem niepewności, dlatego detekcja celuje w sygnały odporne na to, czy dana próba zakończyła się sukcesem czy nie.</div>
 </div>
 
 <!-- KONTEKST ZAGROŻENIA -->
 <div class="sec">
 <div class="sl">Kontekst zagrożenia</div>
-<p class="pr">CVE-2026-50656 to luka elevation-of-privilege w <strong>Microsoft Malware Protection Engine</strong> — komponencie silnika Microsoft Defender, publicznie nazwana <strong>RoguePlanet</strong>. Opublikowana przez Microsoft 16 czerwca 2026, sklasyfikowana jako <code>CWE-59 — Improper Link Resolution Before File Access (Link Following)</code>.</p>
-<p class="pr">CVSS 3.1 base score <strong>7.8 High</strong> (wektor lokalny, niska złożoność, wymagane niskie uprawnienia, brak interakcji użytkownika). NVD ocenia attack complexity wyżej (7.0, high complexity) — rozbieżność wynika z probabilistycznej natury luki, opisanej szerzej poniżej. CISA-ADP klasyfikuje exploitation jako "public proof-of-concept", bez potwierdzonej aktywnej eksploatacji w momencie publikacji advisory.</p>
-<p class="pr"><strong>Autor i kontekst:</strong> badacz działający pod pseudonimem Nightmare Eclipse (alias Chaotic Eclipse) publikuje od marca 2026 serię zero-day'ów dla produktów Microsoft, najwyraźniej w odpowiedzi na spór dotyczący procesu disclosure z firmą. RoguePlanet jest czwartą luką tego autora po BlueHammer (CVE-2026-33825), RedSun (CVE-2026-41091) i UnDefend (CVE-2026-45498) — część z nich była eksploatowana in-the-wild zanim doczekała się łatki. Ten wzorzec ma znaczenie operacyjne: <strong>traktujemy komponenty bezpieczeństwa (sam silnik Defendera) jako potencjalny cel ataku, a nie wyłącznie jako linię obrony.</strong></p>
+<p class="pr">CVE-2026-50656 to luka elevation-of-privilege w <strong>Microsoft Malware Protection Engine</strong> - komponencie silnika Microsoft Defender, publicznie nazwana <strong>RoguePlanet</strong>. Opublikowana przez Microsoft 16 czerwca 2026, sklasyfikowana jako <code>CWE-59 - Improper Link Resolution Before File Access (Link Following)</code>.</p>
+<p class="pr">CVSS 3.1 base score <strong>7.8 High</strong> (wektor lokalny, niska złożoność, wymagane niskie uprawnienia, brak interakcji użytkownika). NVD ocenia attack complexity wyżej (7.0, high complexity) - rozbieżność wynika z probabilistycznej natury luki, opisanej szerzej poniżej. CISA-ADP klasyfikuje exploitation jako "public proof-of-concept", bez potwierdzonej aktywnej eksploatacji w momencie publikacji advisory.</p>
+<p class="pr"><strong>Autor i kontekst:</strong> badacz działający pod pseudonimem Nightmare Eclipse (alias Chaotic Eclipse) publikuje od marca 2026 serię zero-day'ów dla produktów Microsoft, najwyraźniej w odpowiedzi na spór dotyczący procesu disclosure z firmą. RoguePlanet jest czwartą luką tego autora po BlueHammer (CVE-2026-33825), RedSun (CVE-2026-41091) i UnDefend (CVE-2026-45498) - część z nich była eksploatowana in-the-wild zanim doczekała się łatki. Ten wzorzec ma znaczenie operacyjne: <strong>traktujemy komponenty bezpieczeństwa (sam silnik Defendera) jako potencjalny cel ataku, a nie wyłącznie jako linię obrony.</strong></p>
 </div>
 
 <!-- MECHANIZM ATAKU -->
@@ -176,7 +176,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;displ
     <span class="stage-mitre">T1204 (kontekst)</span>
   </div>
   <div class="stage-body">
-    Luka wymaga, by atakujący posiadał już dostęp z niskimi uprawnieniami na hoście (phishing, dropper, skradzione poświadczenia). Publiczny PoC wymaga zamontowania obrazu ISO/VHD jako standardowy użytkownik jako etap przygotowawczy. Autor PoC zaznacza, że na Windows Server ten krok nie działa, ponieważ standardowi użytkownicy nie mogą montować obrazów — wskazuje to jednak na ograniczenie samego PoC, nie na odporność platformy: wg autora wszystkie wersje Windows Server pozostają teoretycznie podatne, exploit wymagałby tylko przeprojektowania tego etapu.
+    Luka wymaga, by atakujący posiadał już dostęp z niskimi uprawnieniami na hoście (phishing, dropper, skradzione poświadczenia). Publiczny PoC wymaga zamontowania obrazu ISO/VHD jako standardowy użytkownik jako etap przygotowawczy. Autor PoC zaznacza, że na Windows Server ten krok nie działa, ponieważ standardowi użytkownicy nie mogą montować obrazów - wskazuje to jednak na ograniczenie samego PoC, nie na odporność platformy: wg autora wszystkie wersje Windows Server pozostają teoretycznie podatne, exploit wymagałby tylko przeprojektowania tego etapu.
   </div>
 </div>
 
@@ -187,7 +187,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;displ
     <span class="stage-mitre">T1068 · CWE-59</span>
   </div>
   <div class="stage-body">
-    Sedno podatności: silnik Malware Protection Engine wykonuje uprzywilejowaną operację plikową bez odpornego na wyścig sprawdzenia, czy ścieżka nie została przekierowana (np. przez reparse point / junction) pomiędzy momentem weryfikacji a momentem użycia (time-of-check to time-of-use). Eksploatacja jest <strong>probabilistyczna</strong> — zależna od trafienia w wąskie okno czasowe, co tłumaczy zmienną skuteczność obserwowaną zarówno przez autora PoC, jak i w naszych własnych testach lab. Pierwotnie luka umożliwiała zdalny wektor przez spreparowane pliki .vhd(x) na udziałach SMB; działania hardeningowe Microsoftu z maja 2026 zamknęły ten wektor, ograniczając obecny publiczny exploit do lokalnej eskalacji uprawnień.
+    Sedno podatności: silnik Malware Protection Engine wykonuje uprzywilejowaną operację plikową bez odpornego na wyścig sprawdzenia, czy ścieżka nie została przekierowana (np. przez reparse point / junction) pomiędzy momentem weryfikacji a momentem użycia (time-of-check to time-of-use). Eksploatacja jest <strong>probabilistyczna</strong> - zależna od trafienia w wąskie okno czasowe, co tłumaczy zmienną skuteczność obserwowaną zarówno przez autora PoC, jak i we własnych testach w lab. Pierwotnie luka umożliwiała zdalny wektor przez spreparowane pliki .vhd(x) na udziałach SMB; działania hardeningowe Microsoftu z maja 2026 zamknęły ten wektor, ograniczając obecny publiczny exploit do lokalnej eskalacji uprawnień.
   </div>
 </div>
 
@@ -198,7 +198,7 @@ footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;displ
     <span class="stage-mitre">T1059 · T1211</span>
   </div>
   <div class="stage-body">
-    Przy udanym trafieniu w okno wyścigu, silnik Defendera (uruchomiony z wysokimi uprawnieniami) staje się rodzicem nowego procesu powłoki działającego w kontekście SYSTEM. Istotne dla modelowania detekcji: exploit działa <strong>niezależnie od stanu real-time protection</strong> Defendera — wyłączenie lub włączenie agenta nie jest skutecznym obejściem ani środkiem zaradczym.
+    Przy udanym trafieniu w okno wyścigu, silnik Defendera (uruchomiony z wysokimi uprawnieniami) staje się rodzicem nowego procesu powłoki działającego w kontekście SYSTEM. Istotne dla modelowania detekcji: exploit działa <strong>niezależnie od stanu real-time protection</strong> Defendera - wyłączenie lub włączenie agenta nie jest skutecznym obejściem ani środkiem zaradczym.
   </div>
 </div>
 
@@ -217,14 +217,14 @@ footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;displ
   </div>
   <div class="rule-body">
     <div class="rule-desc">
-      Najsilniejszy sygnał w całym zestawie. <code>MsMpEng.exe</code> nigdy w normalnych warunkach operacyjnych nie powinien spawnować interaktywnej powłoki — sam fakt wystąpienia takiej relacji rodzic-dziecko jest wysoce anomalny, <strong>niezależnie od konta, na którym uruchomiony jest proces potomny</strong>. Celowo pominięto filtrowanie po <code>AccountName</code> — sztywny warunek na SYSTEM zawężałby pole widzenia bez realnego zysku i mógłby przeoczyć przypadki, gdzie race condition produkuje proces potomny w trakcie tranzycji uprawnień, zanim token w pełni "dotrze" do SYSTEM.
+      Najsilniejszy sygnał w całym zestawie. <code>MsMpEng.exe</code> nigdy w normalnych warunkach operacyjnych nie powinien spawnować interaktywnej powłoki - sam fakt wystąpienia takiej relacji rodzic-dziecko jest wysoce anomalny, <strong>niezależnie od konta, na którym uruchomiony jest proces potomny</strong>. Celowo pominięto filtrowanie po <code>AccountName</code> - sztywny warunek na SYSTEM zawężałby pole widzenia bez realnego zysku i mógłby przeoczyć przypadki, gdzie race condition produkuje proces potomny w trakcie tranzycji uprawnień, zanim token w pełni "dotrze" do SYSTEM.
     </div>
     <span class="badge r">Wysoka pewność</span>
     <span class="badge c">T1068 · T1211</span>
-<div class="code-block"><span class="cm">// RULE-01: RoguePlanet (CVE-2026-50656) — MsMpEng spawning a shell</span>
+<div class="code-block"><span class="cm">// RULE-01: RoguePlanet (CVE-2026-50656) - MsMpEng spawning a shell</span>
 <span class="cm">// Rationale: MsMpEng.exe never legitimately spawns interactive shells,</span>
 <span class="cm">// regardless of the resulting process's account context. AccountName is</span>
-<span class="cm">// intentionally NOT used as a filter — only retained in output for triage —</span>
+<span class="cm">// intentionally NOT used as a filter - only retained in output for triage -</span>
 <span class="cm">// since the parent-process relationship alone is the strong signal here.</span>
 DeviceProcessEvents
 | <span class="kw">where</span> InitiatingProcessFileName =~ <span class="str">"MsMpEng.exe"</span>
@@ -232,7 +232,7 @@ DeviceProcessEvents
                        <span class="str">"conhost.exe"</span>, <span class="str">"cscript.exe"</span>, <span class="str">"wscript.exe"</span>)
 | <span class="kw">project</span> Timestamp, DeviceName, InitiatingProcessFileName, InitiatingProcessId,
           FileName, ProcessCommandLine, AccountName, InitiatingProcessAccountName
-<span class="cm">// FP considerations: practically none in baseline telemetry — high-confidence</span>
+<span class="cm">// FP considerations: practically none in baseline telemetry - high-confidence</span>
 <span class="cm">// rule regardless of AccountName value. Can be deployed fleet-wide without staged rollout.</span></div>
   </div>
 </div>
@@ -246,14 +246,14 @@ DeviceProcessEvents
   </div>
   <div class="rule-body">
     <div class="rule-desc">
-      Publiczny PoC wymaga zamontowania obrazu jako użytkownik niskouprzywilejowany jako etap przygotowawczy poprzedzający wyzwolenie wyścigu. Reguła pokrywa trzy ścieżki CLI: PowerShell (<code>Mount-DiskImage</code>), <code>mountvol</code> oraz <code>diskpart</code> (<code>select vdisk file</code> / <code>attach vdisk</code>) — diskpart jest oczywistą alternatywą, którą każdy choć trochę doświadczony atakujący weźmie pod uwagę przy automatyzacji pętli prób. Sygnał sam w sobie jest słaby i kontekstowy (legalne montowanie ISO jest powszechne), dlatego threshold wymaga wielokrotnych prób w krótkim czasie — przydatny głównie jako składowa korelacji w RULE-03.
+      Publiczny PoC wymaga zamontowania obrazu jako użytkownik niskouprzywilejowany jako etap przygotowawczy poprzedzający wyzwolenie wyścigu. Reguła pokrywa trzy ścieżki CLI: PowerShell (<code>Mount-DiskImage</code>), <code>mountvol</code> oraz <code>diskpart</code> (<code>select vdisk file</code> / <code>attach vdisk</code>) - diskpart jest oczywistą alternatywą, którą każdy choć trochę doświadczony atakujący weźmie pod uwagę przy automatyzacji pętli prób. Sygnał sam w sobie jest słaby i kontekstowy (legalne montowanie ISO jest powszechne), dlatego threshold wymaga wielokrotnych prób w krótkim czasie - przydatny głównie jako składowa korelacji w RULE-03.
     </div>
     <span class="badge o">Średnia pewność (kontekstowa)</span>
     <span class="badge c">T1204</span>
-<div class="code-block"><span class="cm">// RULE-02: RoguePlanet precursor — local image mount loop (CLI paths)</span>
+<div class="code-block"><span class="cm">// RULE-02: RoguePlanet precursor - local image mount loop (CLI paths)</span>
 <span class="cm">// Rationale: covers PowerShell, mountvol, and diskpart as primary CLI mounting</span>
 <span class="cm">// paths used to stage the exploit prerequisite. Explorer-driven double-click</span>
-<span class="cm">// mounts are NOT captured here — see RULE-02B.</span>
+<span class="cm">// mounts are NOT captured here - see RULE-02B.</span>
 DeviceProcessEvents
 | <span class="kw">where</span> FileName <span class="fn">in~</span> (<span class="str">"powershell.exe"</span>, <span class="str">"pwsh.exe"</span>, <span class="str">"cmd.exe"</span>, <span class="str">"diskpart.exe"</span>)
 | <span class="kw">where</span> ProcessCommandLine <span class="fn">has_any</span> (
@@ -264,7 +264,7 @@ DeviceProcessEvents
     <span class="kw">by</span> DeviceName, AccountName = InitiatingProcessAccountName
 | <span class="kw">where</span> MountAttempts &gt;= <span class="num">5</span>
 <span class="cm">// FP considerations: software deployment teams, ISO-based imaging workflows,</span>
-<span class="cm">// sysadmin use of diskpart for unrelated disk management — expect baseline noise,</span>
+<span class="cm">// sysadmin use of diskpart for unrelated disk management - expect baseline noise,</span>
 <span class="cm">// tune threshold per environment, recommend allowlisting known deployment accounts.</span></div>
   </div>
 </div>
@@ -278,12 +278,12 @@ DeviceProcessEvents
   </div>
   <div class="rule-body">
     <div class="rule-desc">
-      Ślepy punkt RULE-02: dwuklik na pliku <code>.iso</code> w Eksploratorze montuje obraz przez wewnętrzny mechanizm shell32/virtdisk, <strong>bez generowania osobnej linii poleceń</strong> — żaden z warunków RULE-02 tego nie złapie. Reguła pokrywa ten wariant dwoma podejściami: (A) korelacja po <code>explorer.exe</code> jako proces inicjujący i artefaktach plikowych — dostępna od razu, ale sygnał słaby i szumowy; (B) docelowo, dziennik operacyjny <code>Microsoft-Windows-VHDMP-Operational</code> dający bezpośredni sygnał faktycznego zdarzenia attach/mount — wymaga dociągnięcia przez AMA, co nie jest domyślnie zbierane w naszym środowisku. Dodano celowo, by pokryć przypadek innego PoC korzystającego z tej samej luki przez inny wektor uruchomienia.
+      Ślepy punkt RULE-02: dwuklik na pliku <code>.iso</code> w Eksploratorze montuje obraz przez wewnętrzny mechanizm shell32/virtdisk, <strong>bez generowania osobnej linii poleceń</strong> - żaden z warunków RULE-02 tego nie złapie. Reguła pokrywa ten wariant dwoma podejściami: (A) korelacja po <code>explorer.exe</code> jako proces inicjujący i artefaktach plikowych - dostępna od razu, ale sygnał słaby i szumowy; (B) docelowo, dziennik operacyjny <code>Microsoft-Windows-VHDMP-Operational</code> dający bezpośredni sygnał faktycznego zdarzenia attach/mount - wymaga dociągnięcia przez AMA, co nie jest domyślnie zbierane. Dodano celowo, by pokryć przypadek innego PoC korzystającego z tej samej luki przez inny wektor uruchomienia.
     </div>
     <span class="badge y">Niska pewność (Option A) / Średnia (Option B)</span>
     <span class="badge c">T1204</span>
 <div class="code-block"><span class="cm">// RULE-02B: Explorer-driven (double-click) ISO/VHD mount</span>
-<span class="cm">// Rationale: explorer.exe mounts via shell32/virtdisk internally — no CLI command</span>
+<span class="cm">// Rationale: explorer.exe mounts via shell32/virtdisk internally - no CLI command</span>
 <span class="cm">// line is generated, so RULE-02 cannot see this path.</span>
 
 <span class="cm">// --- Option A: DeviceFileEvents correlation (available now, weak signal) ---</span>
@@ -303,7 +303,7 @@ DeviceFileEvents
 <span class="cm">// | where InitiatingProcessAccountName !has "SYSTEM"</span>
 <span class="cm">// | project TimeGenerated, Computer, EventID_d, AccountName_s, FileName_s</span>
 <span class="cm">// FP considerations: legitimate installer/driver-package ISO mounting will also</span>
-<span class="cm">// appear here — baseline normal mount volume per host before alerting.</span></div>
+<span class="cm">// appear here - baseline normal mount volume per host before alerting.</span></div>
   </div>
 </div>
 
@@ -316,11 +316,11 @@ DeviceFileEvents
   </div>
   <div class="rule-body">
     <div class="rule-desc">
-      Łączy słaby sygnał z RULE-02 (pętla montowania) z silniejszym sygnałem zmiany konta: powłoka uruchomiona w oknie 5 minut od ostatniego montowania, działająca na <strong>innym (wyższym) koncie</strong> niż to, które wykonało montowanie. Kluczowa decyzja projektowa: zamiast sztywno filtrować po <code>AccountName == "SYSTEM"</code> (co przeoczyłoby inne formy eskalacji i zakładałoby z góry który dokładnie warunek szukamy), reguła wykrywa samą <strong>zmianę</strong> konta między etapem przygotowawczym a spawnem powłoki — <code>SpawnAccount != AccountName</code>. Z procesu inicjującego usunięto <code>diskpart.exe</code>, by uniknąć self-matchingu: bez tego diskpart użyty do zamontowania obrazu pasowałby do obu nóg joina i generował alert przy każdym pojedynczym użyciu, niezależnie od faktycznej eskalacji.
+      Łączy słaby sygnał z RULE-02 (pętla montowania) z silniejszym sygnałem zmiany konta: powłoka uruchomiona w oknie 5 minut od ostatniego montowania, działająca na <strong>innym (wyższym) koncie</strong> niż to, które wykonało montowanie. Kluczowa decyzja projektowa: zamiast sztywno filtrować po <code>AccountName == "SYSTEM"</code> (co przeoczyłoby inne formy eskalacji i zakładałoby z góry który dokładnie warunek szukamy), reguła wykrywa samą <strong>zmianę</strong> konta między etapem przygotowawczym a spawnem powłoki - <code>SpawnAccount != AccountName</code>. Z procesu inicjującego usunięto <code>diskpart.exe</code>, by uniknąć self-matchingu: bez tego diskpart użyty do zamontowania obrazu pasowałby do obu nóg joina i generował alert przy każdym pojedynczym użyciu, niezależnie od faktycznej eskalacji.
     </div>
     <span class="badge r">Wysoka pewność (po korekcie)</span>
     <span class="badge c">T1068</span>
-<div class="code-block"><span class="cm">// RULE-03: RoguePlanet correlation — mount loop followed by account-escalated shell</span>
+<div class="code-block"><span class="cm">// RULE-03: RoguePlanet correlation - mount loop followed by account-escalated shell</span>
 <span class="cm">// Rationale: combines weak signal (mount loop) with strong signal (shell spawned</span>
 <span class="cm">// under a DIFFERENT account than the one that performed the mount) within a 5-minute</span>
 <span class="cm">// window. diskpart.exe intentionally excluded from SuspiciousSpawns to avoid</span>
@@ -345,7 +345,7 @@ MountLoops
           SpawnTime, InitiatingProcessFileName, FileName, ProcessCommandLine
 <span class="cm">// FP considerations: legitimate account-switch scenarios (RunAs, scheduled tasks</span>
 <span class="cm">// under service accounts, UAC elevation) will still appear here. SpawnAccount !=</span>
-<span class="cm">// AccountName is the core anti-noise filter — same-user mount-then-shell, the</span>
+<span class="cm">// AccountName is the core anti-noise filter - same-user mount-then-shell, the</span>
 <span class="cm">// overwhelming majority of legitimate activity, is excluded entirely.</span></div>
   </div>
 </div>
@@ -370,19 +370,19 @@ MountLoops
       <td>Prereq</td>
       <td>Foothold z niskimi uprawnieniami na hoście</td>
       <td class="td-c">T1078 / T1566 (poza zakresem)</td>
-      <td class="td-c">—</td>
+      <td class="td-c">-</td>
       <td class="td-r">Brak (zależne od istniejącej detekcji initial access)</td>
     </tr>
     <tr>
       <td>Prereq</td>
-      <td>Montowanie obrazu ISO/VHD — ścieżka CLI</td>
+      <td>Montowanie obrazu ISO/VHD - ścieżka CLI</td>
       <td class="td-c">T1204</td>
       <td class="td-g">RULE-02</td>
       <td class="td-y">Częściowe (sygnał słaby/kontekstowy)</td>
     </tr>
     <tr>
       <td>Prereq</td>
-      <td>Montowanie obrazu ISO/VHD — Eksplorator (dwuklik)</td>
+      <td>Montowanie obrazu ISO/VHD - Eksplorator (dwuklik)</td>
       <td class="td-c">T1204</td>
       <td class="td-g">RULE-02B</td>
       <td class="td-y">Częściowe (Option A) / Pełne przy AMA (Option B)</td>
@@ -405,7 +405,7 @@ MountLoops
       <td>Race</td>
       <td>Samo wystąpienie wyścigu TOCTOU w silniku (poziom kernela/sterownika)</td>
       <td class="td-c">CWE-59</td>
-      <td class="td-c">—</td>
+      <td class="td-c">-</td>
       <td class="td-r">Brak (poza zasięgiem telemetrii log-based)</td>
     </tr>
   </tbody>
@@ -417,7 +417,7 @@ MountLoops
 <div class="sl">Mapowanie MITRE ATT&amp;CK</div>
 <div class="mg">
   <div class="mc2"><div class="mid">T1204</div><div class="mname">User Execution</div><div class="mtactic">Preparation - montowanie obrazu ISO/VHD jako prereq exploita</div></div>
-  <div class="mc2"><div class="mid">T1068</div><div class="mname">Exploitation for Privilege Escalation</div><div class="mtactic">Główna technika luki — race condition w MsMpEng</div></div>
+  <div class="mc2"><div class="mid">T1068</div><div class="mname">Exploitation for Privilege Escalation</div><div class="mtactic">Główna technika luki - race condition w MsMpEng</div></div>
   <div class="mc2"><div class="mid">T1211</div><div class="mname">Exploitation for Defense Evasion</div><div class="mtactic">Atak skierowany w komponent bezpieczeństwa (silnik AV)</div></div>
   <div class="mc2"><div class="mid">T1059.001</div><div class="mname">Command and Scripting: PowerShell</div><div class="mtactic">Spawn powłoki jako rezultat udanej eksploatacji</div></div>
   <div class="mc2"><div class="mid">T1059.003</div><div class="mname">Command and Scripting: Windows Command Shell</div><div class="mtactic">cmd.exe jako alternatywny payload powłoki</div></div>
@@ -430,12 +430,12 @@ MountLoops
 <table class="it">
   <thead><tr><th>Źródło</th><th>Odniesienie</th></tr></thead>
   <tbody>
-    <tr><td>Microsoft MSRC</td><td class="td-c">Microsoft Defender Elevation of Privilege Vulnerability — CVE-2026-50656 · 16 czerwca 2026</td></tr>
-    <tr><td>NVD / CVE.org</td><td class="td-c">CVE-2026-50656 Detail — CWE-59, CVSS 3.1: 7.8 (CNA) / 7.0 (NVD)</td></tr>
-    <tr><td>GitHub PoC</td><td class="td-c">github.com/MSNightmare/RoguePlanet — opis race condition i ograniczeń przez autora</td></tr>
+    <tr><td>Microsoft MSRC</td><td class="td-c">Microsoft Defender Elevation of Privilege Vulnerability - CVE-2026-50656 · 16 czerwca 2026</td></tr>
+    <tr><td>NVD / CVE.org</td><td class="td-c">CVE-2026-50656 Detail - CWE-59, CVSS 3.1: 7.8 (CNA) / 7.0 (NVD)</td></tr>
+    <tr><td>GitHub PoC</td><td class="td-c">github.com/MSNightmare/RoguePlanet - opis race condition i ograniczeń przez autora</td></tr>
     <tr><td>MITRE ATT&amp;CK</td><td class="td-c">T1204, T1068, T1211, T1059.001, T1059.003</td></tr>
-    <tr><td>KQL Library</td><td class="td-c">kql-library.html — Detection Rules · Advanced Hunting</td></tr>
-    <tr><td>HUNT-002</td><td class="td-c">Prinz Eugen Ransomware — Detection Engineering · ROOTBOY · Czerwiec 2026</td></tr>
+    <tr><td>KQL Library</td><td class="td-c">kql-library.html - Detection Rules · Advanced Hunting</td></tr>
+    <tr><td>HUNT-002</td><td class="td-c">Prinz Eugen Ransomware - Detection Engineering · ROOTBOY · Czerwiec 2026</td></tr>
   </tbody>
 </table>
 </div>
