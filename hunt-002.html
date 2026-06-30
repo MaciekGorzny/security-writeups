@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HUNT-002 - Prinz Eugen Ransomware · Threat-Informed Detection Engineering · ROOTBOY</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Epilogue:wght@400;500;700;900&display=swap');
+:root{
+  --bg:#070a0f;--surface:#0c1119;--card:#0f1620;--border:#1e2a38;--border2:#243344;
+  --accent:#00d9f5;--accent2:#4dd9f5;
+  --green:#3dff8f;--red:#ff4560;--orange:#ff7b2c;--yellow:#ffd166;--cyan:#00d9f5;
+  --text:#a8c0d6;--muted:#3a5472;--white:#e8f0f8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 60% 40% at 15% 25%,rgba(0,217,245,.04) 0%,transparent 55%),
+  radial-gradient(ellipse 50% 35% at 80% 70%,rgba(0,217,245,.02) 0%,transparent 55%),
+  linear-gradient(rgba(0,217,245,.01) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,217,245,.01) 1px,transparent 1px);
+  background-size:100% 100%,100% 100%,44px 44px,44px 44px;pointer-events:none;z-index:0;}
+.wrap{max-width:960px;margin:0 auto;padding:52px 24px 90px;position:relative;z-index:1;}
+.nav{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:11px;}
+.nav a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--accent2);}
+.nav span{color:var(--border);}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--accent);box-shadow:0 0 6px var(--accent);}
+h1{font-family:'Epilogue',sans-serif;font-size:clamp(20px,4vw,36px);font-weight:900;color:var(--white);line-height:1.08;margin-bottom:20px;}
+h1 span{color:var(--accent2);}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:32px;}
+.mc{background:var(--card);padding:11px 14px;}
+.ml{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.mv{font-size:12px;font-weight:700;color:var(--white);}
+.mv.r{color:var(--red);}.mv.o{color:var(--orange);}.mv.g{color:var(--green);}.mv.c{color:var(--cyan);}.mv.y{color:var(--yellow);}.mv.a{color:var(--accent2);}
+.notice{border-radius:6px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px;font-size:12px;line-height:1.8;}
+.notice.red{background:rgba(255,69,96,.04);border:1px solid rgba(255,69,96,.2);}
+.notice.green{background:rgba(61,255,143,.04);border:1px solid rgba(61,255,143,.2);}
+.notice.grey{background:rgba(136,153,170,.04);border:1px solid rgba(136,153,170,.2);}
+.notice.cyan{background:rgba(0,217,245,.04);border:1px solid rgba(0,217,245,.2);}
+.notice-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.notice-body strong{color:var(--white);}
+.notice.red .notice-body strong{color:var(--red);}
+.notice.green .notice-body strong{color:var(--green);}
+.notice.cyan .notice-body strong{color:var(--cyan);}
+.sec{margin-bottom:36px;}
+.sl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sl.g{color:var(--green);}.sl.r{color:var(--red);}.sl.o{color:var(--orange);}.sl.c{color:var(--cyan);}
+p.pr{font-size:12px;color:var(--text);line-height:1.85;margin-bottom:12px;}
+p.pr strong{color:var(--white);}
+p.pr code{background:rgba(136,153,170,.08);border:1px solid rgba(136,153,170,.2);color:var(--accent2);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
+.stage-header{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.stage-num{font-size:9px;font-weight:700;color:#000;background:var(--cyan);padding:2px 8px;border-radius:2px;letter-spacing:1px;}
+.stage-num.r{background:var(--red);color:var(--white);}
+.stage-num.g{background:var(--green);color:#000;}
+.stage-num.o{background:var(--orange);color:#000;}
+.stage-num.y{background:var(--yellow);color:#000;}
+.stage-title{font-size:12px;font-weight:700;color:var(--white);}
+.stage-mitre{font-size:10px;color:var(--muted);margin-left:auto;}
+.stage-body{padding:14px 18px;font-size:12px;color:var(--text);line-height:1.8;}
+.stage-body code{background:rgba(136,153,170,.08);border:1px solid rgba(136,153,170,.15);color:var(--accent2);padding:1px 6px;border-radius:2px;font-size:11px;}
+.stage-body .hl{color:var(--accent2);font-weight:700;}
+.stage-body .hl-r{color:var(--red);font-weight:700;}
+.stage-body .hl-g{color:var(--green);font-weight:700;}
+.stage-body .hl-c{color:var(--cyan);font-weight:700;}
+.code-block{background:#020508;border:1px solid var(--border);border-radius:4px;padding:16px 18px;font-size:11px;line-height:1.8;overflow-x:auto;color:#a8c0d6;white-space:pre;margin:10px 0;}
+.code-block .kw{color:var(--cyan);}
+.code-block .fn{color:var(--yellow);}
+.code-block .str{color:var(--green);}
+.code-block .cm{color:var(--muted);font-style:italic;}
+.code-block .hl{color:var(--accent2);font-weight:700;}
+.code-block .hl-r{color:var(--red);}
+.code-block .num{color:var(--orange);}
+.it{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+.it th{background:rgba(136,153,170,.06);border:1px solid var(--border);padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);}
+.it td{border:1px solid var(--border);padding:9px 12px;color:var(--text);vertical-align:top;}
+.it tr:hover td{background:rgba(255,255,255,.015);}
+.td-r{color:var(--red);font-weight:700;}
+.td-g{color:var(--green);font-weight:700;}
+.td-c{color:var(--cyan);}
+.td-o{color:var(--orange);}
+.td-y{color:var(--yellow);}
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mc2{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 14px;}
+.mid{font-size:10px;font-weight:700;color:var(--accent2);margin-bottom:4px;}
+.mname{font-size:12px;color:var(--white);margin-bottom:4px;}
+.mtactic{font-size:10px;color:var(--muted);}
+.rule-card{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px;}
+.rule-header{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.rule-id{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--cyan);}
+.rule-title{font-size:13px;font-weight:700;color:var(--white);}
+.rule-mitre{font-size:10px;color:var(--muted);margin-left:auto;}
+.rule-body{padding:14px 18px;}
+.rule-desc{font-size:12px;color:var(--text);line-height:1.8;margin-bottom:12px;}
+.rule-desc code{background:rgba(136,153,170,.08);border:1px solid rgba(136,153,170,.15);color:var(--accent2);padding:1px 6px;border-radius:2px;font-size:11px;}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 8px;border-radius:2px;text-transform:uppercase;margin-right:6px;}
+.badge.c{background:rgba(0,217,245,.08);color:var(--cyan);border:1px solid rgba(0,217,245,.2);}
+.badge.g{background:rgba(61,255,143,.08);color:var(--green);border:1px solid rgba(61,255,143,.2);}
+.badge.r{background:rgba(255,69,96,.08);color:var(--red);border:1px solid rgba(255,69,96,.2);}
+.badge.o{background:rgba(255,123,44,.08);color:var(--orange);border:1px solid rgba(255,123,44,.2);}
+.badge.y{background:rgba(255,209,102,.08);color:var(--yellow);border:1px solid rgba(255,209,102,.2);}
+footer{border-top:1px solid var(--border);padding-top:20px;margin-top:48px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="nav">
+  <a href="index.html">← Portfolio</a>
+  <span>/</span>
+  <a href="kql-library.html">KQL Library</a>
+  <span>/</span>
+  <span style="color:var(--cyan)">HUNT-002</span>
+</nav>
+
+<div class="eyebrow">Detection Engineering · Threat-Informed Defense · Ransomware</div>
+<h1>Prinz Eugen Ransomware -<br><span>Threat-Informed Detection Engineering</span><br>ROOTBOY · Go Encryptor · Brak Ransom Note · Czerwiec 2026</h1>
+
+<div class="meta">
+  <div class="mc"><div class="ml">ID</div><div class="mv a">HUNT-002</div></div>
+  <div class="mc"><div class="ml">Data</div><div class="mv">21 Cze 2026</div></div>
+  <div class="mc"><div class="ml">Typ</div><div class="mv c">Detection Engineering</div></div>
+  <div class="mc"><div class="ml">Źródło TI</div><div class="mv">ThreatDown / Malwarebytes</div></div>
+  <div class="mc"><div class="ml">Aktor</div><div class="mv r">ROOTBOY / GERMANIA</div></div>
+  <div class="mc"><div class="ml">Malware</div><div class="mv r">Prinz Eugen</div></div>
+  <div class="mc"><div class="ml">Język</div><div class="mv">Go</div></div>
+  <div class="mc"><div class="ml">Model</div><div class="mv o">Double Extortion</div></div>
+  <div class="mc"><div class="ml">Reguły KQL</div><div class="mv g">6</div></div>
+  <div class="mc"><div class="ml">MITRE Tactics</div><div class="mv c">5</div></div>
+  <div class="mc"><div class="ml">Status</div><div class="mv g">Wdrożone ✓</div></div>
+</div>
+
+<div class="notice cyan">
+  <div class="notice-icon">🔵</div>
+  <div class="notice-body"><strong>Threat-Informed Detection - nie incydent produkcyjny</strong><br>
+  Niniejszy wpis dokumentuje proaktywne budowanie detekcji na podstawie raportu ThreatDown (Malwarebytes) z 17 czerwca 2026 r. dotyczącego ransomware Prinz Eugen i aktora ROOTBOY. Reguły KQL zostały opracowane i wdrożone w środowisku testowym przed rozszerzeniem na infrastrukturę produkcyjną.</div>
+</div>
+
+<div class="notice grey">
+  <div class="notice-icon">ℹ️</div>
+  <div class="notice-body"><strong>Metodologia</strong><br>
+  Analiza raportu TI → identyfikacja artefaktów detekcyjnych per faza ataku → priorytetyzacja sygnałów behavioral ponad signature-based → budowa reguł KQL → staged rollout → weryfikacja false positive rate → rozszerzenie na wszystkie endpointy.</div>
+</div>
+
+<div class="notice red">
+  <div class="notice-icon">⚠️</div>
+  <div class="notice-body"><strong>Kluczowa obserwacja: brak ransom note jako celowy wybór taktyczny</strong><br>
+  Prinz Eugen nie zapisuje żadnej notatki na dysku ofiary. Komunikacja odbywa się wyłącznie out-of-band (dark web, email, telefon). Klasyczne detekcje bazujące na "dropped ransom note" lub samym rozszerzeniu <code>.prinzeugen</code> będą tu niewystarczające — konieczna jest detekcja behawioralna na wcześniejszych etapach łańcucha ataku.</div>
+</div>
+
+<!-- KONTEKST ZAGROŻENIA -->
+<div class="sec">
+<div class="sl">Kontekst zagrożenia</div>
+<p class="pr">Prinz Eugen to nowa rodzina ransomware, której pierwsza potwierdzona aktywność datuje się na <strong>kwiecień 2026</strong>. Encryptor napisany w <strong>Go</strong>, wdrożony po raz pierwszy przeciwko Standard Bank Group w Południowej Afryce (~1,2 TB / ~154 mln wierszy SQL). Nazwa nawiązuje do niemieckiego ciężkiego krążownika z okresu II wojny światowej — motyw niemiecki przewija się przez całą infrastrukturę aktora.</p>
+<p class="pr">Aktor stojący za kampanią operuje pod pseudonimami <strong>ROOTBOY</strong> i <strong>GERMANIA</strong>. Historia aktywności wskazuje na pre-Prinz Eugen sprzedaż danych od lipca 2025 r. (XSS, Exploit, DarkForums). Bespoke Go encryptor sugeruje zaangażowanie osobnego dewelopera lub zaawansowane umiejętności techniczne samego operatora.</p>
+<p class="pr"><strong>Co wyróżnia Prinz Eugen technicznie:</strong></p>
+<p class="pr">Szyfrowanie <strong>ChaCha20-Poly1305</strong> z 32-bajtowym kluczem master, trójstopniowym KDF (Argon2id → SHA-256 → HKDF-SHA256), chunkowane po 1 MB z weryfikacją integralności SHA-256. Pliki szyfrowane przez tymczasowy plik <code>.tmp</code>, po weryfikacji poprawności oryginał usuwany z dysku. <strong>Priorytetyzacja najnowszych plików</strong> (sorted by mtime desc) maksymalizuje presję na ofiarę. Self-delete przez <code>cmd.exe + ping</code> delay eliminuje binarny z dysku po zakończeniu operacji.</p>
+<p class="pr">Model operacyjny: LOTL (Living off the Land) — dostęp przez RDP, persistence przez legalne narzędzie RMM (RemotePC), ręcznie tworzone konto administratora. Brak notatki na dysku: cała ekstorsja odbywa się przez leak site i kontakt bezpośredni.</p>
+</div>
+
+<!-- ŁAŃCUCH ATAKU -->
+<div class="sec">
+<div class="sl">Łańcuch ataku - fazy</div>
+
+<div class="stage">
+  <div class="stage-header">
+    <span class="stage-num">FAZA 1</span>
+    <span class="stage-title">Initial Access - Skompromitowane Poświadczenia RDP</span>
+    <span class="stage-mitre">T1078.002 · T1133</span>
+  </div>
+  <div class="stage-body">
+    Aktor uzyskuje dostęp przez <strong>RDP z przejętymi poświadczeniami</strong>. Na podstawie analizy incydentu przez ThreatDown podejrzewany initial access via bruteforce lub zakup poświadczeń od IAB. Po uzyskaniu dostępu encryptor (<code>servertool.exe</code>) pobierany ręcznie przez Chrome i umieszczany w folderze <code>C:\Users\&lt;user&gt;\Music\</code> — niecharakterystyczna lokalizacja dla narzędzi administracyjnych, warta monitorowania.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header">
+    <span class="stage-num">FAZA 2</span>
+    <span class="stage-title">Persistence - Konto Backdoor + Abuzowanie RMM</span>
+    <span class="stage-mitre">T1136.001 · T1219</span>
+  </div>
+  <div class="stage-body">
+    Aktor tworzy ręcznie konto administratora poleceniem <code>net user admin germania /add</code>. Hasło <code>germania</code> (łac./wł. "Niemcy") łączy incydent z wcześniejszym aliasem ekstorsyjnym GERMANIA używanym na forach przestępczych. Równolegle wdrażane jest narzędzie RMM <strong>RemotePC (IDrive)</strong> do uruchamiania stagerów PowerShell pobierających dodatkowe payloady z C2 <code>212[.]80[.]7[.]74</code>.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header">
+    <span class="stage-num o">FAZA 3</span>
+    <span class="stage-title">Execution - Uruchomienie Encryptora z Flagą --delete</span>
+    <span class="stage-mitre">T1204.002 · T1059.003</span>
+  </div>
+  <div class="stage-body">
+    Encryptor uruchamiany ręcznie z linii poleceń z listą katalogów docelowych i opcjonalną flagą <code>--delete</code> usuwającą oryginalne pliki po potwierdzeniu poprawności zaszyfrowania. Characteristic command line: <code>servertool --delete C:\Users\...\Downloads</code>. Kolejność: Downloads → OneDrive → cały profil użytkownika → C:\Users → C:\ → zasoby Google Drive. Szyfrowanie wielowątkowe (1 goroutine per CPU), priorytet najnowszych plików.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header">
+    <span class="stage-num r">FAZA 4</span>
+    <span class="stage-title">Impact - Masowe Szyfrowanie Plików + Usuwanie Oryginałów</span>
+    <span class="stage-mitre">T1486 · T1485</span>
+  </div>
+  <div class="stage-body">
+    Każdy plik szyfrowany w trzech etapach: <span class="hl-r">(1)</span> tworzenie pliku tymczasowego <code>.&lt;nazwa&gt;.prinzeugen.tmp</code> → <span class="hl-r">(2)</span> rename do <code>&lt;nazwa&gt;.prinzeugen</code> → <span class="hl-r">(3)</span> przy fladze <code>--delete</code>: weryfikacja zaszyfrowanego pliku przez <code>VerifyEncryptedWithKey</code>, następnie usunięcie oryginału. Magic bytes w nagłówku pliku: <code>CHV1</code>. Brak ransom note na dysku — jedyny artefakt to zmienione rozszerzenie.
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stage-header">
+    <span class="stage-num r">FAZA 5</span>
+    <span class="stage-title">Anti-Forensics - Self-Delete przez Ping Delay + Zerowanie Klucza</span>
+    <span class="stage-mitre">T1070.004 · T1027</span>
+  </div>
+  <div class="stage-body">
+    Po zakończeniu szyfrowania binary zeruje klucz szyfrowania w pamięci i wywołuje garbage collector (klucz nie przetrwa memory dump). Następnie self-delete przez charakterystyczny one-liner: <code>cmd.exe /C ping 127.0.0.1 -n 2 &gt; nul &amp; del /F /Q &lt;ścieżka&gt;\servertool.exe</code>. Delay przez ping daje procesowi rodzicielskiemu czas na zamknięcie przed wykonaniem <code>del</code>. <span class="hl-r">Ten pattern jest detekcyjny i charakterystyczny</span> — ping localhost + immediate file delete jest rzadki w legalnym oprogramowaniu.
+  </div>
+</div>
+
+</div>
+
+<!-- REGUŁY DETEKCYJNE -->
+<div class="sec">
+<div class="sl g">Reguły Detekcyjne KQL</div>
+
+<!-- REGUŁA 1 -->
+<div class="rule-card">
+  <div class="rule-header">
+    <span class="rule-id">RULE-01</span>
+    <span class="rule-title">[Defense Evasion / Anti-Forensics - T1070.004] Self-Delete przez Ping Delay</span>
+    <span class="rule-mitre">DeviceProcessEvents</span>
+  </div>
+  <div class="rule-body">
+    <div class="rule-desc">
+      Wykrywa charakterystyczny pattern self-delete: <code>cmd.exe</code> wywołany z jednoczesnym <code>ping 127.0.0.1</code> i <code>del /F /Q</code> wskazującym na plik wykonywalny (<code>.exe</code>). Technika ta — ping jako delay przed usunięciem binarnego — jest sygnaturą Prinz Eugen, ale rzadką taktyką w ogóle. Delay przez ping wynika z konieczności zamknięcia procesu rodzicielskiego przed wykonaniem <code>del</code>: Windows nie pozwala usunąć pliku aktualnie uruchomionego procesu. Legitymne użycie tego patternu w środowisku produkcyjnym jest wyjątkowo rzadkie, co daje niski false positive rate. Reguła może działać bezpośrednio na wszystkich hostach bez staged rollout.
+    </div>
+    <span class="badge r">Wysoka pewność</span>
+    <span class="badge c">T1070.004</span>
+<div class="code-block"><span class="cm">// RULE-01: Self-delete przez ping delay — artefakt anty-forensic Prinz Eugen</span>
+<span class="cm">// Dlaczego ping? Binary nie może usunąć samego siebie podczas działania.</span>
+<span class="cm">// Ping localhost jako delay daje procesowi czas na exit przed wywołaniem del.</span>
+<span class="cm">// FP rate: bardzo niski — kombinacja ping localhost + del .exe w jednym cmdline</span>
+<span class="cm">// jest charakterystyczna dla malware self-delete, nie dla legalnego oprogramowania.</span>
+DeviceProcessEvents
+| <span class="kw">where</span> FileName =~ <span class="str">"cmd.exe"</span>
+| <span class="kw">where</span> ProcessCommandLine <span class="fn">has</span> <span class="str">"ping"</span>
+    <span class="kw">and</span> ProcessCommandLine <span class="fn">has</span> <span class="str">"127.0.0.1"</span>
+    <span class="kw">and</span> ProcessCommandLine <span class="fn">has</span> <span class="str">"del"</span>
+    <span class="kw">and</span> ProcessCommandLine <span class="fn">has</span> <span class="str">".exe"</span>
+<span class="cm">// Szukamy konkretnego flag del — /F (force) i /Q (quiet) razem</span>
+<span class="cm">// są typowe dla ukrytego usuwania, nie dla interaktywnego użytkownika</span>
+| <span class="kw">where</span> ProcessCommandLine <span class="fn">has_all</span> (<span class="str">"/F"</span>, <span class="str">"/Q"</span>)
+| <span class="kw">project</span> Timestamp, DeviceId, DeviceName, ReportId, AccountName,
+          ProcessCommandLine, InitiatingProcessFileName, InitiatingProcessCommandLine,
+          FolderPath
+| <span class="kw">order by</span> Timestamp <span class="kw">desc</span></div>
+  </div>
+</div>
+
+<!-- REGUŁA 2 -->
+<div class="rule-card">
+  <div class="rule-header">
+    <span class="rule-id">RULE-02</span>
+    <span class="rule-title">[Persistence - T1136.001] Tworzenie Konta z Podejrzaną Nazwą lub Hasłem</span>
+    <span class="rule-mitre">DeviceProcessEvents</span>
+  </div>
+  <div class="rule-body">
+    <div class="rule-desc">
+      Wykrywa ręczne tworzenie lokalnych kont przez <code>net user ... /add</code>. Reguła ma dwie warstwy: wysoką pewność dla hardcoded IoC (<code>germania</code> jako hasło lub nazwa <code>admin</code> tworzony manualnie), oraz szerszy sygnał dla każdego <code>net user /add</code> z pominięciem znanych procesów administracyjnych (SCCM, provisioning tools). Wartość reguły polega na tym, że <strong>manualne tworzenie lokalnych kont przez line-of-business aplikacje jest rzadkie</strong> — dominuje tu AAD/LDAP. Każde trafienie wymaga weryfikacji, czy konto pochodzi z autoryzowanego procesu onboardingowego.
+    </div>
+    <span class="badge r">Wysoka pewność (IoC)</span>
+    <span class="badge o">Średnia (generic /add)</span>
+    <span class="badge c">T1136.001</span>
+<div class="code-block"><span class="cm">// RULE-02: Tworzenie lokalnego konta backdoor</span>
+<span class="cm">// Dwie warstwy detekcji:</span>
+<span class="cm">// (A) Hardcoded IoC — hasło "germania" lub nazwa "admin" → Prinz Eugen / ROOTBOY</span>
+<span class="cm">// (B) Dowolne net user /add z podejrzanego kontekstu procesu</span>
+<span class="cm">// Dlaczego nie filtrujemy tylko po "germania"? Bo aktor może zmienić hasło</span>
+<span class="cm">// w kolejnych kampaniach. Warstwa (B) łapie warianty przy minimalnym FP rate</span>
+<span class="cm">// pod warunkiem wykluczenia znanych procesów provisioningowych.</span>
+<span class="kw">let</span> <span class="hl">known_admin_processes</span> = <span class="fn">dynamic</span>([
+    <span class="str">"sccmexec.exe"</span>, <span class="str">"ccmexec.exe"</span>, <span class="str">"msiexec.exe"</span>,
+    <span class="str">"puppet.exe"</span>, <span class="str">"chef-client.exe"</span>
+]);
+DeviceProcessEvents
+| <span class="kw">where</span> FileName =~ <span class="str">"net.exe"</span> <span class="kw">or</span> FileName =~ <span class="str">"net1.exe"</span>
+| <span class="kw">where</span> ProcessCommandLine <span class="fn">has</span> <span class="str">"user"</span>
+    <span class="kw">and</span> ProcessCommandLine <span class="fn">has</span> <span class="str">"/add"</span>
+| <span class="kw">extend</span> <span class="hl">HighConfidence</span> = ProcessCommandLine <span class="fn">has_any</span> (<span class="str">"germania"</span>, <span class="str">"admin germania"</span>)
+| <span class="kw">where</span> HighConfidence == <span class="kw">true</span>
+    <span class="kw">or</span> InitiatingProcessFileName <span class="fn">!in~</span> (known_admin_processes)
+| <span class="kw">project</span> Timestamp, DeviceId, DeviceName, ReportId, AccountName,
+          ProcessCommandLine, InitiatingProcessFileName, InitiatingProcessCommandLine,
+          HighConfidence
+| <span class="kw">order by</span> HighConfidence <span class="kw">desc</span>, Timestamp <span class="kw">desc</span></div>
+  </div>
+</div>
+
+<!-- REGUŁA 3 -->
+<div class="rule-card">
+  <div class="rule-header">
+    <span class="rule-id">RULE-03</span>
+    <span class="rule-title">[Execution / C2 - T1059.001 · T1219] RMM Tool Spawning PowerShell z Zewnętrznym Downloaderem</span>
+    <span class="rule-mitre">DeviceProcessEvents</span>
+  </div>
+  <div class="rule-body">
+    <div class="rule-desc">
+      Wykrywa sytuację, w której legalne narzędzie RMM (RemotePC i podobne) staje się procesem rodzicielskim dla PowerShell wykonującego download z zewnętrznego adresu. Sama obecność RMM w środowisku nie jest alarmująca — jednak <strong>RMM spawniący PowerShell który pobiera payload z internetu to LOTL w czystej postaci</strong>. Reguła łączy dwa warunki: parent process z listy narzędzi RMM oraz PowerShell z charakterystyką downloadu (IEX, DownloadString, Invoke-WebRequest, WebClient, curl, wget). Staged rollout zalecany: najpierw weryfikacja, które RMM są autoryzowane w środowisku.
+    </div>
+    <span class="badge r">Wysoka pewność</span>
+    <span class="badge c">T1059.001 · T1219</span>
+<div class="code-block"><span class="cm">// RULE-03: RMM jako parent → PowerShell downloader → LOTL</span>
+<span class="cm">// RemotePC (IDrive) użyty przez ROOTBOY do deploymentu stagerów.</span>
+<span class="cm">// Logika: RMM tool ma legitymny biznesowy cel, ale NIGDY nie powinien</span>
+<span class="cm">// spawnować PowerShell pobierającego pliki z zewnętrznych IP.</span>
+<span class="cm">// Lista RMM można rozszerzyć o narzędzia obecne w środowisku (AnyDesk, TeamViewer itd.)</span>
+<span class="kw">let</span> <span class="hl">rmm_tools</span> = <span class="fn">dynamic</span>([
+    <span class="str">"RemotePCService.exe"</span>, <span class="str">"RemotePCDesktop.exe"</span>, <span class="str">"RPCService.exe"</span>,
+    <span class="str">"anydesk.exe"</span>, <span class="str">"teamviewer.exe"</span>, <span class="str">"screenconnect.exe"</span>,
+    <span class="str">"connectwise.exe"</span>, <span class="str">"splashtop.exe"</span>
+]);
+<span class="kw">let</span> <span class="hl">download_indicators</span> = <span class="fn">dynamic</span>([
+    <span class="str">"DownloadString"</span>, <span class="str">"DownloadFile"</span>, <span class="str">"Invoke-WebRequest"</span>,
+    <span class="str">"iwr"</span>, <span class="str">"WebClient"</span>, <span class="str">"IEX"</span>, <span class="str">"Invoke-Expression"</span>,
+    <span class="str">"curl"</span>, <span class="str">"wget"</span>, <span class="str">"Start-BitsTransfer"</span>
+]);
+DeviceProcessEvents
+| <span class="kw">where</span> FileName <span class="fn">in~</span> (<span class="str">"powershell.exe"</span>, <span class="str">"pwsh.exe"</span>)
+| <span class="kw">where</span> InitiatingProcessFileName <span class="fn">in~</span> (rmm_tools)
+| <span class="kw">where</span> ProcessCommandLine <span class="fn">has_any</span> (download_indicators)
+| <span class="kw">project</span> Timestamp, DeviceId, DeviceName, ReportId, AccountName,
+          FileName, ProcessCommandLine,
+          InitiatingProcessFileName, InitiatingProcessCommandLine
+| <span class="kw">order by</span> Timestamp <span class="kw">desc</span></div>
+  </div>
+</div>
+
+<!-- REGUŁA 4 -->
+<div class="rule-card">
+  <div class="rule-header">
+    <span class="rule-id">RULE-04</span>
+    <span class="rule-title">[Impact - T1486] Masowe Operacje Rename na Plikach w Krótkim Oknie</span>
+    <span class="rule-mitre">DeviceFileEvents</span>
+  </div>
+  <div class="rule-body">
+    <div class="rule-desc">
+      Wykrywa masową zmianę nazw plików — finalny etap szyfrowania Prinz Eugen, gdzie każdy tymczasowy plik <code>.tmp</code> zostaje przemianowany na <code>.prinzeugen</code>. Reguła używa threshold: <strong>więcej niż 100 operacji rename przez jeden proces w ciągu 5 minut</strong>. Próg celowo konserwatywny — instalatory i archiwa mogą generować rename, ale rzadko w takiej skali i tak szybko na plikach użytkownika. Kolumna <code>TargetFileHasMalExt</code> flaguje przypadki, gdzie nowe rozszerzenie to <code>.prinzeugen</code> — podnosi priorytet alertu. <strong>Najwyższy staged rollout: uruchom najpierw na stacjach roboczych, zweryfikuj FP, rozszerz na serwery.</strong>
+    </div>
+    <span class="badge o">Wymaga tuningu threshold</span>
+    <span class="badge c">T1486</span>
+<div class="code-block"><span class="cm">// RULE-04: Masowe rename plików — finalny etap szyfrowania</span>
+<span class="cm">// Prinz Eugen: plik_oryginalny → .plik.prinzeugen.tmp → plik.prinzeugen</span>
+<span class="cm">// Threshold 100 rename / 5 min jest punktem startowym — dostosuj do środowiska.</span>
+<span class="cm">// Serwery plików z aktywną synchronizacją (OneDrive, SharePoint, Dropbox agent)</span>
+<span class="cm">// mogą generować FP — wyklucz ich procesy synchronizacyjne z listy inicjatorów.</span>
+<span class="cm">// TargetFileHasMalExt = true jest sygnałem pewności 1:1 dla Prinz Eugen IoC.</span>
+<span class="kw">let</span> <span class="hl">sync_processes</span> = <span class="fn">dynamic</span>([
+    <span class="str">"onedrive.exe"</span>, <span class="str">"dropbox.exe"</span>, <span class="str">"googledrivesync.exe"</span>,
+    <span class="str">"msiexec.exe"</span>, <span class="str">"setup.exe"</span>, <span class="str">"installer.exe"</span>
+]);
+<span class="kw">let</span> <span class="hl">time_window</span> = <span class="num">5m</span>;
+<span class="kw">let</span> <span class="hl">rename_threshold</span> = <span class="num">100</span>;
+DeviceFileEvents
+| <span class="kw">where</span> ActionType == <span class="str">"FileRenamed"</span>
+| <span class="kw">where</span> <span class="fn">not</span> (InitiatingProcessFileName <span class="fn">in~</span> (sync_processes))
+| <span class="kw">extend</span> <span class="hl">TargetFileHasMalExt</span> = FileName <span class="fn">endswith</span> <span class="str">".prinzeugen"</span>
+| <span class="kw">summarize</span>
+    <span class="hl">RenameCount</span> = <span class="fn">count</span>(),
+    <span class="hl">MalExtCount</span> = <span class="fn">countif</span>(TargetFileHasMalExt),
+    <span class="hl">UniqueFiles</span> = <span class="fn">dcount</span>(FileName),
+    <span class="hl">SampleFiles</span> = <span class="fn">make_set</span>(FileName, <span class="num">5</span>)
+    <span class="kw">by</span> DeviceId, DeviceName, InitiatingProcessFileName,
+       InitiatingProcessId, <span class="fn">bin</span>(Timestamp, time_window)
+| <span class="kw">where</span> RenameCount &gt; rename_threshold
+| <span class="kw">order by</span> MalExtCount <span class="kw">desc</span>, RenameCount <span class="kw">desc</span></div>
+  </div>
+</div>
+
+<!-- REGUŁA 5 -->
+<div class="rule-card">
+  <div class="rule-header">
+    <span class="rule-id">RULE-05</span>
+    <span class="rule-title">[C2 / Execution - T1071.001] Komunikacja z Podejrzanym IP przez PowerShell lub Przeglądarkę</span>
+    <span class="rule-mitre">DeviceNetworkEvents</span>
+  </div>
+  <div class="rule-body">
+    <div class="rule-desc">
+      Wykrywa połączenia sieciowe do znanych IoC infrastrukturalnych Prinz Eugen: adres IP C2 <code>212.80.7.74</code> oraz domeny powiązane z infrastrukturą aktora. Reguła ma dwa tryby: <strong>wysoka pewność</strong> dla hardcoded IoC (natychmiastowy alert, zero FP możliwych), oraz <strong>szerszy sygnał</strong> dla PowerShell nawiązującego outbound connections do publicznych IP — pattern charakterystyczny dla statera ROOTBOY. Dla hardcoded IoC staged rollout jest zbędny — <strong>każde trafienie to potencjalny incydent.</strong>
+    </div>
+    <span class="badge r">Natychmiastowy alert (IoC)</span>
+    <span class="badge o">Staged rollout (generic PS outbound)</span>
+    <span class="badge c">T1071.001</span>
+<div class="code-block"><span class="cm">// RULE-05: Połączenia do C2 Prinz Eugen / infrastruktura ROOTBOY</span>
+<span class="cm">// Warstwa (A): Hardcoded IoC — każde trafienie = natychmiastowa eskalacja</span>
+<span class="cm">// Warstwa (B): PowerShell outbound do publicznych IP (non-RFC1918)</span>
+<span class="cm">// — nie każde jest malware, ale PS nie powinien inicjować połączeń HTTP</span>
+<span class="cm">// do publicznych IP bez autoryzowanego kontekstu (np. Windows Update proxy).</span>
+<span class="cm">// Lista known_good_destinations powinna zawierać autoryzowane endpointy w środowisku.</span>
+<span class="kw">let</span> <span class="hl">prinzeugen_c2</span> = <span class="fn">dynamic</span>([<span class="str">"212.80.7.74"</span>]);
+<span class="kw">let</span> <span class="hl">prinzeugen_domains</span> = <span class="fn">dynamic</span>([
+    <span class="str">"stndrdbnk.cc"</span>, <span class="str">"g-captchafestung.sbs"</span>, <span class="str">"festung-e.duckdns.org"</span>
+]);
+<span class="kw">let</span> <span class="hl">known_good_destinations</span> = <span class="fn">dynamic</span>([
+    <span class="str">"windowsupdate.com"</span>, <span class="str">"microsoft.com"</span>, <span class="str">"office.com"</span>
+]);
+DeviceNetworkEvents
+| <span class="kw">where</span> ActionType == <span class="str">"ConnectionSuccess"</span>
+<span class="cm">// Warstwa A: bezpośrednie trafienie w IoC</span>
+| <span class="kw">extend</span> <span class="hl">IsPrinzEugenIoC</span> = RemoteIP <span class="fn">in</span> (prinzeugen_c2)
+    <span class="kw">or</span> RemoteUrl <span class="fn">has_any</span> (prinzeugen_domains)
+<span class="cm">// Warstwa B: PowerShell do publicznych IP (wykluczamy RFC1918 i znane dobre)</span>
+| <span class="kw">extend</span> <span class="hl">IsSuspiciousPSOutbound</span> =
+    InitiatingProcessFileName <span class="fn">in~</span> (<span class="str">"powershell.exe"</span>, <span class="str">"pwsh.exe"</span>)
+    <span class="kw">and</span> <span class="fn">not</span> (RemoteIP <span class="fn">startswith</span> <span class="str">"10."</span>
+             <span class="kw">or</span> RemoteIP <span class="fn">startswith</span> <span class="str">"192.168."</span>
+             <span class="kw">or</span> RemoteIP <span class="fn">startswith</span> <span class="str">"172."</span>)
+    <span class="kw">and</span> <span class="fn">not</span> (RemoteUrl <span class="fn">has_any</span> (known_good_destinations))
+| <span class="kw">where</span> IsPrinzEugenIoC <span class="kw">or</span> IsSuspiciousPSOutbound
+| <span class="kw">project</span> Timestamp, DeviceId, DeviceName, ReportId, AccountName,
+          InitiatingProcessFileName, InitiatingProcessCommandLine,
+          RemoteIP, RemoteUrl, RemotePort,
+          IsPrinzEugenIoC, IsSuspiciousPSOutbound
+| <span class="kw">order by</span> IsPrinzEugenIoC <span class="kw">desc</span>, Timestamp <span class="kw">desc</span></div>
+  </div>
+</div>
+
+<!-- REGUŁA 6 -->
+<div class="rule-card">
+  <div class="rule-header">
+    <span class="rule-id">RULE-06</span>
+    <span class="rule-title">[Execution / Impact - T1204.002] Encryptor Uruchomiony z Niecharakterystycznej Lokalizacji</span>
+    <span class="rule-mitre">DeviceProcessEvents</span>
+  </div>
+  <div class="rule-body">
+    <div class="rule-desc">
+      Wykrywa uruchomienie pliku wykonywalnego z lokalizacji niecharakterystycznych dla autoryzowanego oprogramowania: <code>Music</code>, <code>Downloads</code>, <code>Desktop</code>, <code>Temp</code>, <code>AppData</code> z parametrami wskazującymi na operację masowego szyfrowania. Prinz Eugen uruchomiony z <code>C:\Users\...\Music\servertool.exe</code> — ścieżka celowo nieoczekiwana. Reguła kombinuje: <strong>ścieżka staging + argument będący katalogiem systemowym</strong> (np. <code>C:\</code>, <code>C:\Users</code>). Sama ścieżka staging bez masowego targetu generowałaby za dużo FP (użytkownicy uruchamiają exe z Downloads). Kombinacja jest dużo silniejszym sygnałem.
+    </div>
+    <span class="badge o">Średnia pewność</span>
+    <span class="badge c">T1204.002</span>
+<div class="code-block"><span class="cm">// RULE-06: Plik exe z folderu użytkownika + argument wskazujący na masową operację</span>
+<span class="cm">// Dlaczego nie filtrujemy po "servertool.exe"? Nazwa jest trywialna do zmiany.</span>
+<span class="cm">// Połączenie: lokalizacja staging (Music/Downloads/Desktop) + argument C:\ lub C:\Users</span>
+<span class="cm">// wskazuje na intention masowej operacji na danych. Reguła jest rodzajowa —</span>
+<span class="cm">// łapie Prinz Eugen i inne encryptory uruchamiane z profilu użytkownika.</span>
+<span class="cm">// Wyklucz znane instalatory ze środowiska (dostosuj listę known_installers).</span>
+<span class="kw">let</span> <span class="hl">staging_paths</span> = <span class="fn">dynamic</span>([
+    <span class="str">"\\Music\\"</span>, <span class="str">"\\Downloads\\"</span>, <span class="str">"\\Desktop\\"</span>,
+    <span class="str">"\\AppData\\Local\\Temp\\"</span>, <span class="str">"\\AppData\\Roaming\\"</span>
+]);
+<span class="kw">let</span> <span class="hl">mass_target_args</span> = <span class="fn">dynamic</span>([
+    <span class="str">"C:\\"</span>, <span class="str">"C:\\Users"</span>, <span class="str">"C:\\Users\\"</span>,
+    <span class="str">"D:\\"</span>, <span class="str">"G:\\"</span>, <span class="str">"--delete"</span>
+]);
+DeviceProcessEvents
+| <span class="kw">where</span> FolderPath <span class="fn">has_any</span> (staging_paths)
+| <span class="kw">where</span> ProcessCommandLine <span class="fn">has_any</span> (mass_target_args)
+<span class="cm">// Wykluczamy znane procesy systemowe które mogą mieć zbieżne ścieżki</span>
+| <span class="kw">where</span> <span class="fn">not</span> (FileName <span class="fn">in~</span> (<span class="str">"explorer.exe"</span>, <span class="str">"svchost.exe"</span>,
+                          <span class="str">"dism.exe"</span>, <span class="str">"robocopy.exe"</span>))
+| <span class="kw">project</span> Timestamp, DeviceId, DeviceName, ReportId, AccountName,
+          FileName, FolderPath, ProcessCommandLine,
+          InitiatingProcessFileName, InitiatingProcessCommandLine,
+          SHA256
+| <span class="kw">order by</span> Timestamp <span class="kw">desc</span></div>
+  </div>
+</div>
+</div>
+
+<!-- COVERAGE MAP -->
+<div class="sec">
+<div class="sl c">Mapa Pokrycia Detekcyjnego</div>
+<table class="it">
+  <thead>
+    <tr>
+      <th>Faza</th>
+      <th>Opis</th>
+      <th>MITRE</th>
+      <th>Reguła</th>
+      <th>Pokrycie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Initial Access - RDP z przejętymi poświadczeniami</td>
+      <td class="td-c">T1078.002 · T1133</td>
+      <td class="td-c">—</td>
+      <td class="td-y">Częściowe (anomalia logowania)</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Backdoor konto <code>net user admin germania /add</code></td>
+      <td class="td-c">T1136.001</td>
+      <td class="td-g">RULE-02</td>
+      <td class="td-g">Pełne ✓</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>RemotePC RMM → PowerShell stager → download z C2</td>
+      <td class="td-c">T1219 · T1059.001</td>
+      <td class="td-g">RULE-03 · RULE-05</td>
+      <td class="td-g">Pełne ✓</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Uruchomienie encryptora z <code>Music\</code> z flagą <code>--delete</code></td>
+      <td class="td-c">T1204.002</td>
+      <td class="td-g">RULE-06</td>
+      <td class="td-g">Pełne ✓</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Masowe rename plików → <code>.prinzeugen</code></td>
+      <td class="td-c">T1486</td>
+      <td class="td-g">RULE-04</td>
+      <td class="td-g">Pełne ✓</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Usuwanie oryginałów po weryfikacji zaszyfrowania</td>
+      <td class="td-c">T1485</td>
+      <td class="td-y">RULE-04 (pośrednio)</td>
+      <td class="td-y">Częściowe</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>Self-delete encryptora: <code>cmd.exe + ping + del /F /Q</code></td>
+      <td class="td-c">T1070.004</td>
+      <td class="td-g">RULE-01</td>
+      <td class="td-g">Pełne ✓</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>Zerowanie klucza w pamięci (GC trigger)</td>
+      <td class="td-c">T1027</td>
+      <td class="td-c">—</td>
+      <td class="td-r">Brak (memory-only)</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- MITRE -->
+<div class="sec">
+<div class="sl">Mapowanie MITRE ATT&amp;CK</div>
+<div class="mg">
+  <div class="mc2"><div class="mid">T1078.002</div><div class="mname">Valid Accounts: Domain Accounts</div><div class="mtactic">Initial Access - przejęte poświadczenia RDP</div></div>
+  <div class="mc2"><div class="mid">T1136.001</div><div class="mname">Create Account: Local Account</div><div class="mtactic">Persistence - net user admin germania /add</div></div>
+  <div class="mc2"><div class="mid">T1219</div><div class="mname">Remote Access Software</div><div class="mtactic">C2 / Persistence - RemotePC (IDrive) jako RMM</div></div>
+  <div class="mc2"><div class="mid">T1059.001</div><div class="mname">Command and Scripting: PowerShell</div><div class="mtactic">Execution - PS stager pobierający payloady z C2</div></div>
+  <div class="mc2"><div class="mid">T1204.002</div><div class="mname">User Execution: Malicious File</div><div class="mtactic">Execution - ręczne uruchomienie servertool.exe</div></div>
+  <div class="mc2"><div class="mid">T1486</div><div class="mname">Data Encrypted for Impact</div><div class="mtactic">Impact - ChaCha20-Poly1305, KDF Argon2id, priorytet mtime</div></div>
+  <div class="mc2"><div class="mid">T1485</div><div class="mname">Data Destruction</div><div class="mtactic">Impact - usuwanie oryginałów po weryfikacji (--delete)</div></div>
+  <div class="mc2"><div class="mid">T1070.004</div><div class="mname">Indicator Removal: File Deletion</div><div class="mtactic">Defense Evasion - self-delete przez cmd + ping delay</div></div>
+  <div class="mc2"><div class="mid">T1071.001</div><div class="mname">Application Layer Protocol: Web</div><div class="mtactic">C2 - download payloadów z 212.80.7.74</div></div>
+  <div class="mc2"><div class="mid">T1027</div><div class="mname">Obfuscated Files or Information</div><div class="mtactic">Defense Evasion - zerowanie klucza w pamięci + GC</div></div>
+</div>
+</div>
+
+<!-- REKOMENDACJE -->
+<div class="sec">
+<div class="sl g">Rekomendacje</div>
+<p class="pr"><strong>1. Staged rollout reguł:</strong> RULE-01 (self-delete ping pattern) i RULE-02 (IoC layer) można wdrożyć bezpośrednio na wszystkich hostach — ryzyko FP jest minimalne. RULE-04 (masowe rename) wymaga tuningu threshold per środowisko: zweryfikuj na wybranych stacjach roboczych przed rozszerzeniem na serwery plików z aktywną synchronizacją.</p>
+<p class="pr"><strong>2. Autoryzacja narzędzi RMM:</strong> RULE-03 zakłada inwentaryzację autoryzowanych narzędzi RMM w środowisku. Nieznane procesy RMM powinny być traktowane jako podejrzane z definicji — aktor może zmienić narzędzie z RemotePC na inne. Rozszerz listę <code>rmm_tools</code> o narzędzia charakterystyczne dla Twojego środowiska.</p>
+<p class="pr"><strong>3. Luki w pokryciu:</strong> Zerowanie klucza w pamięci (anty-forensics) jest poza zasięgiem detekcji opartej na logach — wymaga monitorowania na poziomie EDR behavioral (anomalia wywołań GC + alokacja/dealokacja dużego bloku pamięci). Faza initial access przez RDP jest wykrywana pośrednio przez anomalie logowania, nie bezpośrednio przez te reguły.</p>
+<p class="pr"><strong>4. IoC lifecycle:</strong> Infrastruktura ROOTBOY była aktywnie czyszczona po ekspozycji (C2 stripped, DNS pulled). Hardcoded IoC w RULE-05 mają ograniczony czas użyteczności — traktuj je jako wskaźnik historyczny, a behavioral layers (RULE-01 do RULE-04) jako długoterminowe detekcje odporne na rotację infrastruktury.</p>
+</div>
+
+<!-- IoC -->
+<div class="sec">
+<div class="sl r">Indicators of Compromise</div>
+<table class="it">
+  <thead><tr><th>Typ</th><th>Wartość</th><th>Kontekst</th></tr></thead>
+  <tbody>
+    <tr><td>IP</td><td class="td-r">212[.]80[.]7[.]74</td><td>C2 / panel / payload host — AS215439, Play2go International, Frankfurt DE</td></tr>
+    <tr><td>Domena</td><td class="td-r">stndrdbnk[.]cc</td><td>Standard Bank typosquat — rozwiązywał na C2 IP</td></tr>
+    <tr><td>Domena</td><td class="td-r">g-captchafestung[.]sbs</td><td>Fake-CAPTCHA / możliwy ClickFix lure</td></tr>
+    <tr><td>Domena</td><td class="td-r">festung-e.duckdns[.]org</td><td>Dynamic-DNS host obserwowany 23–30 maja 2026</td></tr>
+    <tr><td>Plik</td><td class="td-r">servertool.exe</td><td>Nazwa encryptora — trywialna do zmiany w kolejnych kampaniach</td></tr>
+    <tr><td>Rozszerzenie</td><td class="td-r">.prinzeugen</td><td>Extension dodawane do zaszyfrowanych plików</td></tr>
+    <tr><td>SHA-256</td><td class="td-r">686213cc11d36af764de824801bced9366dfca3823fe0d51b752f74149bcf1f4</td><td>Hash encryptora</td></tr>
+    <tr><td>Go package</td><td class="td-c">scorched-earth-ausfc</td><td>Nazwa pakietu Go zawierającego logikę szyfrowania</td></tr>
+    <tr><td>Magic bytes</td><td class="td-c">CHV1</td><td>Nagłówek zaszyfrowanych plików</td></tr>
+    <tr><td>Konto</td><td class="td-r">admin / germania</td><td>Backdoor account tworzony ręcznie przez aktora</td></tr>
+    <tr><td>Handle</td><td class="td-c">ROOTBOY, avtokz, GERMANIA</td><td>Aliasy aktora na forach cyberprzestępczych</td></tr>
+    <tr><td>BTC</td><td class="td-c">bc1q2ztpcvqdaptej6uu2ywt9mrlatx6envu34rf0v</td><td>Portfel Bitcoin powiązany z kampanią</td></tr>
+    <tr><td>Email</td><td class="td-c">prinzeugen@mail2tor.co</td><td>Kontakt ekstorsyjny aktora</td></tr>
+    <tr><td>URL</td><td class="td-r">https://212[.]80[.]7[.]74/serverscan.ps1</td><td>PowerShell stager</td></tr>
+    <tr><td>URL</td><td class="td-r">https://212[.]80[.]7[.]74/stager/mini</td><td>Payload endpoint</td></tr>
+    <tr><td>URL</td><td class="td-r">https://212[.]80[.]7[.]74/stager/ps1</td><td>Payload endpoint</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- REFERENCJE -->
+<div class="sec">
+<div class="sl">Referencje</div>
+<table class="it">
+  <thead><tr><th>Źródło</th><th>Odniesienie</th></tr></thead>
+  <tbody>
+    <tr><td>ThreatDown / Malwarebytes</td><td class="td-c">Prinz Eugen ransomware: a deep dive into a new Go-based encryptor · 17 czerwca 2026</td></tr>
+    <tr><td>MITRE ATT&amp;CK</td><td class="td-c">T1078.002, T1136.001, T1219, T1059.001, T1204.002, T1486, T1485, T1070.004, T1071.001, T1027</td></tr>
+    <tr><td>KQL Library</td><td class="td-c">kql-library.html — Detection Rules · Advanced Hunting</td></tr>
+    <tr><td>HUNT-001</td><td class="td-c">The Gentlemen Ransomware — Detection Engineering · Storm-2697 · Czerwiec 2026</td></tr>
+  </tbody>
+</table>
+</div>
+
+<footer>
+  <span>// HUNT-002 · Prinz Eugen Ransomware · Detection Engineering · ROOTBOY · 21 Cze 2026</span>
+  <span>KQL · Defender XDR · Sentinel · MITRE ATT&CK · Threat-Informed Defense</span>
+</footer>
+
+</div>
+</body>
+</html>
