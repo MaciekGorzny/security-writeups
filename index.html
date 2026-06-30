@@ -98,7 +98,11 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
 .ccard-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
 .ccard-id{font-size:10px;font-weight:700;letter-spacing:2px;}
 .ccard-date{font-size:10px;color:var(--muted);}
-.ccard-title{font-family:'Epilogue',sans-serif;font-size:15px;font-weight:800;color:var(--white);line-height:1.25;}
+.ccard-title{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:400;color:var(--white);line-height:1.4;}
+
+.ccards{display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:56px;}
+.ccards .ccard{border-radius:0;border:none;}
+.ccards .ccard:hover{background:#121b28;}
 </style>
 </head>
 <body>
@@ -169,7 +173,31 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
 </div>
 
 <div data-section="hunt">
-  <div style="margin-bottom:40px;">
+  <div class="ccards">
+    <a href="hunt-003.html" class="ccard">
+      <div class="ccard-inner">
+        <div class="ccard-bar" style="background:var(--cyan);"></div>
+        <div class="ccard-content">
+          <div class="ccard-top">
+            <span class="ccard-id" style="color:var(--cyan);">HUNT-003</span>
+            <span class="ccard-date">4 reguły KQL · CVE-2026-50656 · 30 cze 2026</span>
+          </div>
+          <div class="ccard-title">RoguePlanet - Threat-Informed Detection Engineering · Microsoft Defender LPE</div>
+        </div>
+      </div>
+    </a>
+    <a href="hunt-002.html" class="ccard">
+      <div class="ccard-inner">
+        <div class="ccard-bar" style="background:var(--cyan);"></div>
+        <div class="ccard-content">
+          <div class="ccard-top">
+            <span class="ccard-id" style="color:var(--cyan);">HUNT-002</span>
+            <span class="ccard-date">6 reguł KQL · 10 technik MITRE · 21 cze 2026</span>
+          </div>
+          <div class="ccard-title">Prinz Eugen Ransomware - Threat-Informed Detection Engineering · ROOTBOY</div>
+        </div>
+      </div>
+    </a>
     <a href="hunt-001.html" class="ccard">
       <div class="ccard-inner">
         <div class="ccard-bar" style="background:var(--cyan);"></div>
@@ -183,37 +211,6 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
       </div>
     </a>
   </div>
-
-  <div style="margin-bottom:40px;">
-    <a href="hunt-002.html" class="ccard">
-      <div class="ccard-inner">
-        <div class="ccard-bar" style="background:var(--cyan);"></div>
-        <div class="ccard-content">
-          <div class="ccard-top">
-            <span class="ccard-id" style="color:var(--cyan);">HUNT-002</span>
-            <span class="ccard-date">6 reguł KQL · 10 technik MITRE · 21 cze 2026</span>
-          </div>
-          <div class="ccard-title">Prinz Eugen Ransomware - Threat-Informed Detection Engineering · ROOTBOY</div>
-        </div>
-      </div>
-    </a>
-  </div>
-
-  <div style="margin-bottom:40px;">
-    <a href="hunt-003.html" class="ccard">
-      <div class="ccard-inner">
-        <div class="ccard-bar" style="background:var(--cyan);"></div>
-        <div class="ccard-content">
-          <div class="ccard-top">
-            <span class="ccard-id" style="color:var(--cyan);">HUNT-003</span>
-            <span class="ccard-date">5 reguł KQL · CVE-2026-50656 · 30 cze 2026</span>
-          </div>
-          <div class="ccard-title">RoguePlanet - Threat-Informed Detection Engineering · Microsoft Defender LPE</div>
-        </div>
-      </div>
-    </a>
-  </div>
-
 </div>
 
 <div data-section="project">
