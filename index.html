@@ -74,6 +74,31 @@ h1 .hl{color:var(--cyan);}
 .about-body{font-size:12px;color:var(--text);line-height:1.85;}
 .about-body strong{color:var(--white);}
 footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--muted);}
+
+.tabs{display:flex;gap:6px;margin-bottom:28px;border-bottom:1px solid var(--border);padding-bottom:16px;flex-wrap:wrap;}
+.tabbtn{background:transparent;color:var(--text);border:1px solid var(--border2);font-size:10px;letter-spacing:1px;padding:6px 14px;border-radius:3px;text-transform:uppercase;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .15s;}
+.tabbtn:hover{border-color:var(--cyan);color:var(--cyan);}
+.tabbtn.active{background:rgba(0,217,245,.1);color:var(--cyan);border-color:rgba(0,217,245,.35);}
+.tabbtn .cnt{opacity:.55;margin-left:5px;}
+.trows{display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:56px;}
+.trow{display:flex;align-items:center;gap:14px;background:var(--card);padding:11px 18px;text-decoration:none;border-left:3px solid var(--border);transition:background .15s;}
+.trow:hover{background:#121b28;}
+.trow-id{font-size:10px;font-weight:700;min-width:86px;letter-spacing:.5px;}
+.trow-title{font-size:11.5px;color:var(--white);flex:1;line-height:1.4;}
+.trow-status{font-size:9px;letter-spacing:.5px;padding:2px 8px;border-radius:2px;white-space:nowrap;border:1px solid var(--border2);color:var(--muted);}
+.trow-status.ok{color:var(--green);border-color:rgba(61,255,143,.25);}
+.trow-date{font-size:9px;color:var(--muted);min-width:60px;text-align:right;white-space:nowrap;}
+@media (max-width:640px){.trow{flex-wrap:wrap;}.trow-date{order:5;width:100%;text-align:left;}}
+
+.ccard{display:block;text-decoration:none;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s;}
+.ccard:hover{border-color:var(--cyan);}
+.ccard-inner{display:grid;grid-template-columns:4px 1fr;}
+.ccard-bar{min-height:100%;}
+.ccard-content{padding:14px 20px;}
+.ccard-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+.ccard-id{font-size:10px;font-weight:700;letter-spacing:2px;}
+.ccard-date{font-size:10px;color:var(--muted);}
+.ccard-title{font-family:'Epilogue',sans-serif;font-size:15px;font-weight:800;color:var(--white);line-height:1.25;}
 </style>
 </head>
 <body>
@@ -108,408 +133,264 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
 
   <div class="sh">Stats</div>
   <div class="stats">
-    <div class="stat"><div class="stat-val">24</div><div class="stat-label">Writeups</div></div>
-    <div class="stat"><div class="stat-val g">20</div><div class="stat-label">KQL Rules</div></div>
+    <div class="stat"><div class="stat-val">25</div><div class="stat-label">Writeups</div></div>
+    <div class="stat"><div class="stat-val g">26</div><div class="stat-label">KQL Rules</div></div>
     <div class="stat"><div class="stat-val o">15</div><div class="stat-label">Phishing cases</div></div>
     <div class="stat"><div class="stat-val p">TA569</div><div class="stat-label">Threat Actor</div></div>
     <div class="stat"><div class="stat-val r">0</div><div class="stat-label">Payload executions</div></div>
     <div class="stat"><div class="stat-val y">15/15</div><div class="stat-label">User reported</div></div>
   </div>
 
+  <div class="tabs" id="tabs">
+    <button class="tabbtn active" data-cat="all">Wszystko <span class="cnt">30</span></button>
+    <button class="tabbtn" data-cat="threat">Incydenty <span class="cnt">25</span></button>
+    <button class="tabbtn" data-cat="hunt">Hunt <span class="cnt">3</span></button>
+    <button class="tabbtn" data-cat="kql">KQL Lib <span class="cnt">1</span></button>
+    <button class="tabbtn" data-cat="project">Projekty <span class="cnt">1</span></button>
+  </div>
+
+<div data-section="kql">
   <!-- KQL LIBRARY CARD -->
   <div class="sh">KQL Detection Library</div>
   <div style="margin-bottom:40px;">
-    <a href="kql-library.html" class="wcard kql">
-      <div class="wcard-inner">
-        <div class="wcard-bar"></div>
-        <div class="wcard-content">
-          <div class="kql-badge">⚡ Detection Engineering</div>
-          <div class="wcard-top">
-            <span class="wcard-id">KQL LIBRARY</span>
-            <span class="wcard-date">16 queries · 5 tactics</span>
+    <a href="kql-library.html" class="ccard">
+      <div class="ccard-inner">
+        <div class="ccard-bar" style="background:linear-gradient(to bottom,var(--cyan),var(--green));"></div>
+        <div class="ccard-content">
+          <div class="ccard-top">
+            <span class="ccard-id" style="color:var(--green);">KQL LIBRARY</span>
+            <span class="ccard-date">16 queries · 5 tactics</span>
           </div>
-          <div class="wcard-title">Microsoft Defender Advanced Hunting - Custom Detection Rules</div>
-          <div class="wcard-desc">Kolekcja reguł detekcji i zapytań Advanced Hunting używanych w Microsoft Defender XDR i Microsoft Sentinel. Pokrywa kluczowe taktyki MITRE ATT&CK: Credential Access, Lateral Movement, Execution, Persistence, Discovery. Każde zapytanie dostosowane do eliminacji false positives na podstawie realnych środowisk produkcyjnych.</div>
-          <div class="wcard-tags">
-            <span class="tag g">14 Detection Rules</span>
-            <span class="tag c">Advanced Hunting</span>
-            <span class="tag c">Defender XDR · Sentinel</span>
-            <span class="tag r">Credential Access</span>
-            <span class="tag o">Lateral Movement</span>
-            <span class="tag p">Execution · LOLBin</span>
-            <span class="tag y">Persistence</span>
-            <span class="tag b">IoC Hunt Template</span>
-          </div>
+          <div class="ccard-title">Microsoft Defender Advanced Hunting - Custom Detection Rules</div>
         </div>
       </div>
     </a>
   </div>
+</div>
+
+<div data-section="hunt">
   <div style="margin-bottom:40px;">
-    <a href="hunt-001.html" class="wcard cyan">
-      <div class="wcard-inner">
-        <div class="wcard-bar"></div>
-        <div class="wcard-content">
-          <div class="wcard-top">
-            <span class="wcard-id">HUNT-001</span>
-            <span class="wcard-date">6 reguł KQL · 10 technik MITRE · 17 cze 2026</span>
+    <a href="hunt-001.html" class="ccard">
+      <div class="ccard-inner">
+        <div class="ccard-bar" style="background:var(--cyan);"></div>
+        <div class="ccard-content">
+          <div class="ccard-top">
+            <span class="ccard-id" style="color:var(--cyan);">HUNT-001</span>
+            <span class="ccard-date">6 reguł KQL · 10 technik MITRE · 17 cze 2026</span>
           </div>
-          <div class="wcard-title">The Gentlemen Ransomware - Threat-Informed Detection Engineering · Storm-2697</div>
-          <div class="wcard-desc">Proaktywne budowanie detekcji na podstawie raportu Microsoft Threat Intelligence (Storm-2697). RaaS napisany w Go z self-propagation przez 21 równoległych technik lateral movement per host. Zestaw 6 reguł KQL pokrywających pełny łańcuch ataku: privilege escalation, defense evasion, VSS deletion, service/task creation, WMI remote execution. Wdrożone w środowisku produkcyjnym po staged rollout.</div>
-          <div class="wcard-tags">
-            <span class="tag c">6 Detection Rules</span>
-            <span class="tag c">Defender XDR · Sentinel</span>
-            <span class="tag r">Ransomware · RaaS</span>
-            <span class="tag r">Storm-2697</span>
-            <span class="tag o">Lateral Movement</span>
-            <span class="tag y">Persistence · PrivEsc</span>
-            <span class="tag g">Wdrożone ✓</span>
-            <span class="tag b">MITRE ATT&amp;CK</span>
-          </div>
+          <div class="ccard-title">The Gentlemen Ransomware - Threat-Informed Detection Engineering · Storm-2697</div>
         </div>
       </div>
     </a>
   </div>
 
+  <div style="margin-bottom:40px;">
+    <a href="hunt-002.html" class="ccard">
+      <div class="ccard-inner">
+        <div class="ccard-bar" style="background:var(--cyan);"></div>
+        <div class="ccard-content">
+          <div class="ccard-top">
+            <span class="ccard-id" style="color:var(--cyan);">HUNT-002</span>
+            <span class="ccard-date">6 reguł KQL · 10 technik MITRE · 21 cze 2026</span>
+          </div>
+          <div class="ccard-title">Prinz Eugen Ransomware - Threat-Informed Detection Engineering · ROOTBOY</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div style="margin-bottom:40px;">
+    <a href="hunt-003.html" class="ccard">
+      <div class="ccard-inner">
+        <div class="ccard-bar" style="background:var(--cyan);"></div>
+        <div class="ccard-content">
+          <div class="ccard-top">
+            <span class="ccard-id" style="color:var(--cyan);">HUNT-003</span>
+            <span class="ccard-date">5 reguł KQL · CVE-2026-50656 · 30 cze 2026</span>
+          </div>
+          <div class="ccard-title">RoguePlanet - Threat-Informed Detection Engineering · Microsoft Defender LPE</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+</div>
+
+<div data-section="project">
   <!-- PROJECTS -->
   <div class="sh">Projects</div>
   <div style="margin-bottom:40px;">
-    <a href="project-mcp.html" class="wcard orange">
-      <div class="wcard-inner">
-        <div class="wcard-bar"></div>
-        <div class="wcard-content">
-          <div class="wcard-top">
-            <span class="wcard-id">MCP BLUE TEAM</span>
-            <span class="wcard-date">26-27 maj 2026</span>
+    <a href="project-mcp.html" class="ccard">
+      <div class="ccard-inner">
+        <div class="ccard-bar" style="background:var(--orange);"></div>
+        <div class="ccard-content">
+          <div class="ccard-top">
+            <span class="ccard-id" style="color:var(--orange);">MCP BLUE TEAM</span>
+            <span class="ccard-date">26-27 maj 2026</span>
           </div>
-          <div class="wcard-title">MCP Blue Team Server · Agent AI do obrony w czasie rzeczywistym</div>
-          <div class="wcard-desc">Serwer MCP zbudowany na Claude Code do automatyzacji obrony w formacie attack-defence CTF. 24 narzędzia pokrywające pełny cykl blue team: rekonesans, audyt, hardening, monitoring, generowanie exploitów. Przetestowany bojowo na finałach Operation Cyber Flag 2026 (OCF) - zawodów organizowanych przez Dowództwo Komponentu Wojsk Obrony Cyberprzestrzeni.</div>
-          <div class="wcard-tags">
-            <span class="tag o">Claude Code · MCP</span>
-            <span class="tag c">SSH · Parrot OS</span>
-            <span class="tag g">Blue Team · Hardening</span>
-            <span class="tag r">Attack-Defence CTF</span>
-            <span class="tag y">OCF 2026 · 24 narzędzia</span>
-            <span class="tag p">LLM Orchestration</span>
-          </div>
+          <div class="ccard-title">MCP Blue Team Server · Agent AI do obrony w czasie rzeczywistym</div>
         </div>
       </div>
     </a>
   </div>
 
-  <!-- WRITEUPS - newest first -->
+</div>
+
+<div data-section="threat">
   <div class="sh">Incident Writeups</div>
-  <div class="cards">
-
-  <a href="threat-025.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#ff4560'" onmouseout="this.style.borderColor='var(--border)'">
-  <div class="wcard-inner">
-    <div class="wcard-bar" style="background:#ff4560;"></div>
-    <div class="wcard-content">
-      <div class="wcard-top"><span class="wcard-id" style="color:#ff4560;">THREAT-025</span><span class="wcard-date">22 cze 2026</span></div>
-      <div class="wcard-title">Real Madrid Brand Impersonation · ClickFix → Multi-Stage PowerShell → ScreenConnect RAT</div>
-      <div class="wcard-desc">Kampania ClickFix dostarczana przez e-mail podszywający się pod Real Madrid C.F. (nadawca: donotreply@updox[.]com, infrastruktura platformy komunikacji medycznej). Lure: bezpłatny cyfrowy token kolekcjonerski "Madridista Platinum". Czterostopniowy łańcuch: zakodowana B64 komenda PowerShell w schowku (IEX+IRM) → obfuskowany loader 2.txt/1.txt z XOR decryption (klucz "write" z nazwy cmdletu) → dropper your.cmd (UAC bypass, Defender exclusion, Supabase CDN) → python.msi (ScreenConnect RAT, C2: erooslaa[.]com). VT 9/60 w chwili analizy. Defender for Endpoint wykrył i zablokował na Stage 1 jako Trojan:Win32/ClickFix.Q!ml.</div>
-      <div class="wcard-tags">
-        <span class="tag r">ClickFix</span>
-        <span class="tag r">ScreenConnect RAT</span>
-        <span class="tag o">Multi-Stage PS</span>
-        <span class="tag o">XOR Obfuscation</span>
-        <span class="tag o">UAC Bypass</span>
-        <span class="tag c">Supabase CDN</span>
-        <span class="tag y">Brand Impersonation</span>
-        <span class="tag g">Blocked ✓</span>
-      </div>
-    </div>
-  </div>
-</a>
-    
-  <a href="threat-024.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#00c2d4'" onmouseout="this.style.borderColor='var(--border)'">
-  <div class="wcard-inner">
-    <div class="wcard-bar" style="background:#00c2d4;"></div>
-    <div class="wcard-content">
-      <div class="wcard-top"><span class="wcard-id" style="color:#00c2d4;">THREAT-024</span><span class="wcard-date">12 cze 2026</span></div>
-      <div class="wcard-title">ERGO Hestia Brand Impersonation - Multi-Stage Card Skimmer · tryverif[.]com</div>
-      <div class="wcard-desc">Kampania masowego phishingu finansowego wysłana z przejętego konta edukacyjnego (atouati@cps.edu) do listy kilkudziesięciu odbiorców. Lure: "nadpłata 279,79 PLN" od ERGO Hestia. Trójwarstwowy łańcuch przekierowań: AWS S3 bucket (kamufluje link w mailu) → węgierska domena pośrednicząca (302) → backend tryverif[.]com. Pixel-perfect klon portalu ubezpieczyciela z operator-controlled JS state machine (loadi.php) umożliwiającą sterowanie przebiegiem ataku w czasie rzeczywistym. Dane karty przesyłane POST do ura.php z zaciemnionymi nazwami pól.</div>
-      <div class="wcard-tags"><span class="tag r">Card Skimmer</span><span class="tag r">Phishing Finansowy</span><span class="tag o">Operator Control</span><span class="tag o">3-Stage Redirect</span><span class="tag c">HAR Analysis</span><span class="tag b">AWS S3 Lure</span></div>
-    </div>
-  </div>
-</a>  
-    
-  <a href="threat-023.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#1877f2'" onmouseout="this.style.borderColor='var(--border)'">
-  <div class="wcard-inner">
-    <div class="wcard-bar" style="background:#1877f2;"></div>
-    <div class="wcard-content">
-      <div class="wcard-top"><span class="wcard-id" style="color:#1877f2;">THREAT-023</span><span class="wcard-date">10 cze 2026</span></div>
-      <div class="wcard-title">Facebook/Meta Phishing · Credential & 2FA Harvesting · Telegram Bot Exfil · Dual-Bot Redundancy</div>
-      <div class="wcard-desc">Kampania phishingowa podszywająca się pod Meta Copyright Team (nadawca: raisnagar.org) z pretekstem naruszenia praw do znaku towarowego. Dwuetapowy staging: beacons.ai jako bufor o dobrej reputacji → kit phishingowy na Netlify imitujący Meta Business Help Center. Formularz zbiera dane logowania i kody 2FA w trybie real-time relay przez dwa redundantne boty Telegram. W HAR zarejestrowano 18 wywołań sendMessage. Token bota i chat_id osadzone w kodzie JS z pseudoobfuscacją btoa/atob. Komentarze w kodzie w języku wietnamskim.</div>
-      <div class="wcard-tags">
-        <span class="tag r">Phishing Email</span>
-        <span class="tag r">2FA Harvesting</span>
-        <span class="tag fb">Meta Impersonation</span>
-        <span class="tag o">Telegram Bot C2</span>
-        <span class="tag c">HAR Analysis</span>
-        <span class="tag y">Netlify · beacons.ai</span>
-        <span class="tag g">User Reported ✓</span>
-      </div>
-    </div>
-  </div>
-</a>
-    
-  <a href="threat-022.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#ff4560'" onmouseout="this.style.borderColor='var(--border)'">
-  <div class="wcard-inner">
-    <div class="wcard-bar" style="background:#ff4560;"></div>
-    <div class="wcard-content">
-      <div class="wcard-top"><span class="wcard-id" style="color:#ff4560;">THREAT-022</span><span class="wcard-date">09 cze 2026</span></div>
-      <div class="wcard-title">Formbook Stealer - Dystrybucja przez TAR · NSIS Self-Extracting EXE · Skompromitowana polska domena C2</div>
-      <div class="wcard-desc">Malware z rodziny Formbook/XLoader dostarczony jako archiwum TAR zawierające 32-bitowy plik wykonywalny NSIS SFX. Plik opatrzony unieważnionym podpisem cyfrowym, wykryty przez Microsoft Defender for Endpoint (alert 'Suschil' malware was prevented) przed wykonaniem. Dynamiczna analiza w ANY.RUN wykazała process injection do relog.exe (legalny plik systemowy Windows) jako technikę ukrycia. C2 osadzony w podkatalogu skompromitowanego hostingu polskiej fundacji - serwer NETARTGROUP, 403 Forbidden na root, brak TLS.</div>
-      <div class="wcard-tags">
-        <span class="tag r">Formbook · XLoader</span>
-        <span class="tag r">Process Injection</span>
-        <span class="tag o">NSIS SFX</span>
-        <span class="tag o">TAR Container</span>
-        <span class="tag y">Skompromitowany C2 PL</span>
-        <span class="tag g">Contained ✓</span>
-      </div>
-    </div>
-  </div>
-</a>
-  <a href="threat-021.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#8899aa'" onmouseout="this.style.borderColor='var(--border)'">
-  <div class="wcard-inner">
-    <div class="wcard-bar" style="background:#8899aa;"></div>
-    <div class="wcard-content">
-      <div class="wcard-top"><span class="wcard-id" style="color:#8899aa;">THREAT-021</span><span class="wcard-date">02 cze 2026</span></div>
-      <div class="wcard-title">Device Code Phishing - Lure DocuSign NDA · Cloudflare Workers Proxy Polling · Staging Jimdo</div>
-      <div class="wcard-desc">Kampania phishingowa wykorzystująca OAuth 2.0 Device Authorization Grant (RFC 8628) do kradzieży tokenów Microsoft 365 z pominięciem MFA. Kluczowa różnica względem poprzednich kampanii: Cloudflare Worker pełni rolę proxy OAuth polling - przeglądarka ofiary nie komunikuje się bezpośrednio z Microsoft. Kod urządzenia wstępnie wygenerowany i statycznie osadzony w HTML. Strona pośrednicząca na darmowym hostingu Jimdo imituje portal DocuSign. Atak powstrzymany - przeglądarka oznaczyła domenę jako niebezpieczną.</div>
-      <div class="wcard-tags"><span class="tag r">OAuth Phishing</span><span class="tag r">Bypass MFA</span><span class="tag o">Cloudflare Workers</span><span class="tag o">Device Code</span><span class="tag y">DocuSign Lure</span><span class="tag g">Contained ✓</span></div>
-    </div>
-  </div>
-</a>
-
-  <a href="threat-020.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#c084fc'" onmouseout="this.style.borderColor='var(--border)'">
-  <div class="wcard-inner">
-    <div class="wcard-bar" style="background:#c084fc;"></div>
-    <div class="wcard-content">
-      <div class="wcard-top"><span class="wcard-id" style="color:#c084fc;">THREAT-020</span><span class="wcard-date">20 maj 2026</span></div>
-      <div class="wcard-title">Dotloop Lure · AiTM Credential Harvesting · Browser Fingerprinting Stage · WebSocket C2 · vexloreo[.]com</div>
-      <div class="wcard-desc">Kampania phishingowa imitująca powiadomienie platformy Dotloop (podpisywanie dokumentów nieruchomości) dostarczona przez Mandrill. Trzyetapowy łańcuch przekierowań: Mandrill tracking → dedykowany fingerprinting layer (yupak[.]pe zbierający browser fingerprint przed kit) → AiTM phishing kit na vexloreo[.]com. Kit wykonuje live walidację konta w Azure AD (IfExistsResult, HasPassword), a operator monitoruje sesje w czasie rzeczywistym przez WebSocket Socket.io na manlivep[.]org. Adres e-mail ofiary przekazywany przez cały łańcuch zakodowany w Base64.</div>
-      <div class="wcard-tags">
-        <span class="tag r">AiTM</span>
-        <span class="tag r">Microsoft 365</span>
-        <span class="tag p">WebSocket C2</span>
-        <span class="tag p">Browser Fingerprinting</span>
-        <span class="tag c">HAR Analysis</span>
-        <span class="tag b">Mandrill Delivery</span>
-        <span class="tag o">Azure AD Live Lookup</span>
-      </div>
-    </div>
-  </div>
-</a>
-
-  <a href="threat-019.html" class="wcard orange">
-    <div class="wcard-inner">
-      <div class="wcard-bar"></div>
-      <div class="wcard-content">
-        <div class="wcard-top"><span class="wcard-id">THREAT-019</span><span class="wcard-date">13 maj 2026</span></div>
-        <div class="wcard-title">Multi-Stage Phishing · Impersonacja Firmy Nadawcy · Behavioral Bot Detection · Fake Microsoft Login</div>
-        <div class="wcard-desc">4-etapowa kampania phishingowa wysłana z przejętego konta Microsoft 365 (potwierdzone przez właściciela). Łańcuch: legit. tenant M365 → fałszywa strona Jimdo → skompromitowana legalna domena DE z własnym CAPTCHA (behavioral bot detection: honeypot + mouse variance analysis + time gate) → replika logowania Microsoft. Evasion skutecznie ukrywał stronę phishingową przed automatycznymi skanerami URL.</div>
-        <div class="wcard-tags">
-          <span class="tag r">Phishing · True Positive</span>
-          <span class="tag r">Przejęte konto M365</span>
-          <span class="tag o">Behavioral Bot Detection</span>
-          <span class="tag o">4-Stage Chain</span>
-          <span class="tag c">Skompromitowana domena DE</span>
-          <span class="tag g">User Reported ✓</span>
-        </div>
-      </div>
-    </div>
+  <div class="trows">
+  <a href="threat-025.html" class="trow" style="border-left-color:#ff4560">
+    <span class="trow-id" style="color:#ff4560">THREAT-025</span>
+    <span class="trow-title">Real Madrid Brand Impersonation · ClickFix → Multi-Stage PowerShell → ScreenConnect RAT</span>
+    <span class="trow-status ok">Blocked ✓</span>
+    <span class="trow-date">22 cze 2026</span>
   </a>
-
-
-  <a href="threat-018.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#c084fc'" onmouseout="this.style.borderColor='var(--border)'">
-    <div class="wcard-inner">
-      <div class="wcard-bar" style="background:#c084fc;"></div>
-      <div class="wcard-content">
-        <div class="wcard-top"><span class="wcard-id" style="color:#c084fc;">THREAT-018</span><span class="wcard-date">14 maj 2026</span></div>
-        <div class="wcard-title">Fragnesia CVE-2026-46300 - Linux Kernel LPE · XFRM ESP-in-TCP Page Cache Corruption · Dirty Frag Family</div>
-        <div class="wcard-desc">Analiza laboratoryjna trzeciej podatności z rodziny Dirty Frag. Błąd w skb_try_coalesce() powoduje utratę znacznika SKBFL_SHARED_FRAG, co pozwala na in-place AES-GCM decrypt na stronach page cache /usr/bin/su przez nieuprzywilejowanego użytkownika. Exploit deterministyczny (brak race condition), publiczny PoC V12 Security. Ubuntu 24.04 podatny po wyłączeniu AppArmor userns restrict. Debian 13 (kernel 6.12.74) strukturalnie odporny - CONFIG_INET_ESPINTCP not set. Zwalidowane reguły auditd na obu dystrybucjach.</div>
-        <div class="wcard-tags"><span class="tag r">LPE · CVSS 7.2</span><span class="tag r">Publiczny PoC</span><span class="tag p">XFRM ESP-in-TCP</span><span class="tag p">Dirty Frag Family</span><span class="tag c">Lab Confirmed ✓</span><span class="tag g">auditd Detection ✓</span></div>
-      </div>
-    </div>
+  <a href="threat-024.html" class="trow" style="border-left-color:#00c2d4">
+    <span class="trow-id" style="color:#00c2d4">THREAT-024</span>
+    <span class="trow-title">ERGO Hestia Brand Impersonation - Multi-Stage Card Skimmer · tryverif[.]com</span>
+    <span class="trow-status">Card Skimmer</span>
+    <span class="trow-date">12 cze 2026</span>
   </a>
-
-  <a href="threat-017.html" class="wcard" style="border-color:var(--border);" onmouseover="this.style.borderColor='#e8732a'" onmouseout="this.style.borderColor='var(--border)'">
-    <div class="wcard-inner">
-      <div class="wcard-bar" style="background:#e8732a;"></div>
-      <div class="wcard-content">
-        <div class="wcard-top"><span class="wcard-id" style="color:#e8732a;">THREAT-017</span><span class="wcard-date">09 maj 2026</span></div>
-        <div class="wcard-title">Dirty Frag - Linux Kernel LPE · xfrm-ESP + RxRPC Page-Cache Write· CVE Pending</div>
-        <div class="wcard-desc">Analiza laboratoryjna podatności Dirty Frag &mdash; eskalacja do roota na dowolnym Linuxie od 2017 roku przez nadpisanie page cache pliku /usr/bin/su. Exploit łączy dwa wektory: błąd w ścieżce deszyfrowania IPsec ESP oraz moduł RxRPC. Exploit publiczny (GitHub), brak patcha. Potwierdzono na Ubuntu 24.04 (kernel 6.8.0-110-generic) i Debianie 13 (kernel 6.12.74+deb13+1-amd64). Logi auditd z obu środowisk.</div>
-        <div class="wcard-tags"><span class="tag r">LPE · Brak patcha</span><span class="tag r">Publiczny PoC</span><span class="tag o">xfrm-ESP · RxRPC</span><span class="tag o">Page-Cache Write</span><span class="tag c">Lab Confirmed ✓</span><span class="tag g">auditd · Ubuntu · Debian</span></div>
-      </div>
-    </div>
+  <a href="threat-023.html" class="trow" style="border-left-color:#1877f2">
+    <span class="trow-id" style="color:#1877f2">THREAT-023</span>
+    <span class="trow-title">Facebook/Meta Phishing · Credential & 2FA Harvesting · Telegram Bot Exfil · Dual-Bot Redundancy</span>
+    <span class="trow-status ok">User Reported ✓</span>
+    <span class="trow-date">10 cze 2026</span>
   </a>
-
-  <a href="threat-016.html" class="wcard blue">
-    <div class="wcard-inner"><div class="wcard-bar"></div>
-    <div class="wcard-content">
-      <div class="wcard-top"><span class="wcard-id">THREAT-016</span><span class="wcard-date">08 maj 2026</span></div>
-      <div class="wcard-title">Erste Bank Polska Phishing - Credential Harvesting Kit · Real-Time Panel C2 · argut[.]net</div>
-      <div class="wcard-desc">Kampania phishingowa podszywająca się pod Erste Bank Polska z pixel-perfect klonem systemu logowania. Dwuetapowy credential harvest (login + hasło) przez endpoint send.php z real-time panel C2 (fetch.php polling co kilka sekund). Operator steruje przebiegiem ataku w czasie rzeczywistym. Warstwa email: domena toonz[.]co, MTA w strefie IST (UTC+5:30), DMARC p=none. Pełna analiza HAR (276 requestów).</div>
-      <div class="wcard-tags"><span class="tag r">Phishing Kit</span><span class="tag r">Credential Harvest</span><span class="tag b">Real-Time Panel C2</span><span class="tag o">argut[.]net · toonz[.]co</span><span class="tag c">HAR Analysis</span><span class="tag g">User Reported ✓</span></div>
-    </div></div>
+  <a href="threat-022.html" class="trow" style="border-left-color:#ff4560">
+    <span class="trow-id" style="color:#ff4560">THREAT-022</span>
+    <span class="trow-title">Formbook Stealer - Dystrybucja przez TAR · NSIS Self-Extracting EXE · Skompromitowana polska domena C2</span>
+    <span class="trow-status ok">Contained ✓</span>
+    <span class="trow-date">09 cze 2026</span>
   </a>
-
-  <a href="threat-015.html" class="wcard yellow">
-    <div class="wcard-inner"><div class="wcard-bar"></div>
-    <div class="wcard-content">
-      <div class="wcard-top"><span class="wcard-id">THREAT-015</span><span class="wcard-date">30 Apr 2026</span></div>
-      <div class="wcard-title">CVE-2026-31431 "Copy Fail" - Linux Kernel LPE · algif_aead · CVSS 7.8 · Linux ≥4.14</div>
-      <div class="wcard-desc">Analiza laboratoryjna podatności 0-day w module algif_aead podsystemu kryptograficznego kernela Linux. Publiczny exploit (731 bajtów Python) umożliwia eskalację do root na praktycznie każdym systemie Linux od 2017 roku. Exploit potwierdzony na Debian 12 (kernel 6.12.69) i Ubuntu 24.04 LTS. Wdrożony workaround (install /bin/false) + reguła detekcyjna MDE. Brak oficjalnego patcha Debian/Ubuntu.</div>
-      <div class="wcard-tags"><span class="tag r">LPE · CVSS 7.8</span><span class="tag r">Publiczny PoC</span><span class="tag y">algif_aead · AF_ALG</span><span class="tag y">Linux ≥4.14</span><span class="tag c">Lab Confirmed ✓</span><span class="tag g">Workaround ✓</span></div>
-    </div></div>
+  <a href="threat-021.html" class="trow" style="border-left-color:#8899aa">
+    <span class="trow-id" style="color:#8899aa">THREAT-021</span>
+    <span class="trow-title">Device Code Phishing - Lure DocuSign NDA · Cloudflare Workers Proxy Polling · Staging Jimdo</span>
+    <span class="trow-status ok">Contained ✓</span>
+    <span class="trow-date">02 cze 2026</span>
   </a>
-
-  <a href="threat-014.html" class="wcard" style="--accent-local:#2ecc71;border-color:var(--border);" onmouseover="this.style.borderColor='#2ecc71'" onmouseout="this.style.borderColor='var(--border)'">
-  <div class="wcard-inner">
-    <div class="wcard-bar" style="background:#2ecc71;"></div>
-    <div class="wcard-content">
-      <div class="wcard-top"><span class="wcard-id" style="color:#2ecc71;">THREAT-014</span><span class="wcard-date">29 Apr 2026</span></div>
-      <div class="wcard-title">Intuit QuickBooks Phishing - Multi-Stage Identity Theft · Custom PoW Bot Filter · wrenixo[.]cfd</div>
-      <div class="wcard-desc">Multi-stage phishing kit impersonating Intuit QuickBooks featuring a custom SHA-256 Proof-of-Work bot filter visually mimicking Cloudflare Turnstile. Attack chain: compromised academic account (spup.edu.ph) → Postmark redirect chain → custom PoW challenge → cloned Intuit interface → credential harvest (email + password) → extended data harvest (account number, routing number, SSN/EIN, date of birth) → government ID document upload → exit redirect to legitimate accounts.intuit.com with error message to mask the theft. Each victim receives unique per-session URLs that expire after use. Source analysis revealed HTML steganography - hidden tracking tokens embedded in page footers using transparent-font technique.</div>
-      <div class="wcard-tags"><span class="tag r">Identity Theft</span><span class="tag r">SSN · Banking Data · ID Upload</span><span class="tag o">Custom PoW Kit</span><span class="tag o">wrenixo[.]cfd</span><span class="tag c">HTML Steganography</span><span class="tag g">User Reported ✓</span></div>
-    </div>
+  <a href="threat-020.html" class="trow" style="border-left-color:#c084fc">
+    <span class="trow-id" style="color:#c084fc">THREAT-020</span>
+    <span class="trow-title">Dotloop Lure · AiTM Credential Harvesting · Browser Fingerprinting Stage · WebSocket C2 · vexloreo[.]com</span>
+    <span class="trow-status">AiTM</span>
+    <span class="trow-date">20 maj 2026</span>
+  </a>
+  <a href="threat-019.html" class="trow" style="border-left-color:#ff7b2c">
+    <span class="trow-id" style="color:#ff7b2c">THREAT-019</span>
+    <span class="trow-title">Multi-Stage Phishing · Impersonacja Firmy Nadawcy · Behavioral Bot Detection · Fake Microsoft Login</span>
+    <span class="trow-status ok">User Reported ✓</span>
+    <span class="trow-date">13 maj 2026</span>
+  </a>
+  <a href="threat-018.html" class="trow" style="border-left-color:#c084fc">
+    <span class="trow-id" style="color:#c084fc">THREAT-018</span>
+    <span class="trow-title">Fragnesia CVE-2026-46300 - Linux Kernel LPE · XFRM ESP-in-TCP Page Cache Corruption · Dirty Frag Family</span>
+    <span class="trow-status ok">auditd Detection ✓</span>
+    <span class="trow-date">14 maj 2026</span>
+  </a>
+  <a href="threat-017.html" class="trow" style="border-left-color:#e8732a">
+    <span class="trow-id" style="color:#e8732a">THREAT-017</span>
+    <span class="trow-title">Dirty Frag - Linux Kernel LPE · xfrm-ESP + RxRPC Page-Cache Write· CVE Pending</span>
+    <span class="trow-status ok">Lab Confirmed ✓</span>
+    <span class="trow-date">09 maj 2026</span>
+  </a>
+  <a href="threat-016.html" class="trow" style="border-left-color:#4da6ff">
+    <span class="trow-id" style="color:#4da6ff">THREAT-016</span>
+    <span class="trow-title">Erste Bank Polska Phishing - Credential Harvesting Kit · Real-Time Panel C2 · argut[.]net</span>
+    <span class="trow-status ok">User Reported ✓</span>
+    <span class="trow-date">08 maj 2026</span>
+  </a>
+  <a href="threat-015.html" class="trow" style="border-left-color:#ffd166">
+    <span class="trow-id" style="color:#ffd166">THREAT-015</span>
+    <span class="trow-title">CVE-2026-31431 "Copy Fail" - Linux Kernel LPE · algif_aead · CVSS 7.8 · Linux ≥4.14</span>
+    <span class="trow-status ok">Workaround ✓</span>
+    <span class="trow-date">30 Apr 2026</span>
+  </a>
+  <a href="threat-014.html" class="trow" style="border-left-color:#2ecc71">
+    <span class="trow-id" style="color:#2ecc71">THREAT-014</span>
+    <span class="trow-title">Intuit QuickBooks Phishing - Multi-Stage Identity Theft · Custom PoW Bot Filter · wrenixo[.]cfd</span>
+    <span class="trow-status ok">User Reported ✓</span>
+    <span class="trow-date">29 Apr 2026</span>
+  </a>
+  <a href="threat-013.html" class="trow" style="border-left-color:#0078D4">
+    <span class="trow-id" style="color:#0078D4">THREAT-013</span>
+    <span class="trow-title">Device Code Phishing - JPMorgan + Adobe Acrobat Sign Lure · ACH Payment · Microsoft 365 Token Theft</span>
+    <span class="trow-status ok">User Reported ✓</span>
+    <span class="trow-date">27 Apr 2026</span>
+  </a>
+  <a href="threat-012.html" class="trow" style="border-left-color:#0078D4">
+    <span class="trow-id" style="color:#0078D4">THREAT-012</span>
+    <span class="trow-title">OAuth Device Code Phishing - Microsoft 365 Token Theft · Cloudflare Workers · SendGrid Abuse</span>
+    <span class="trow-status ok">User Reported ✓</span>
+    <span class="trow-date">21 Apr 2026</span>
+  </a>
+  <a href="threat-011.html" class="trow" style="border-left-color:#ff7b2c">
+    <span class="trow-id" style="color:#ff7b2c">THREAT-011</span>
+    <span class="trow-title">RedSun - Windows Defender LPE 0-day · Cloud File Rollback Exploitation · CVE candidate April 2026</span>
+    <span class="trow-status ok">Detection Rule ✓</span>
+    <span class="trow-date">17 Apr 2026</span>
+  </a>
+  <a href="threat-010.html" class="trow" style="border-left-color:#4da6ff">
+    <span class="trow-id" style="color:#4da6ff">THREAT-010</span>
+    <span class="trow-title">AiTM Phishing - Session Cookie Hijack via Fake Microsoft 365 Portal · BEC Sender · VirusTotal Evasion</span>
+    <span class="trow-status ok">Contained ✓</span>
+    <span class="trow-date">14 Apr 2026</span>
+  </a>
+  <a href="threat-009.html" class="trow" style="border-left-color:#c084fc">
+    <span class="trow-id" style="color:#c084fc">THREAT-009</span>
+    <span class="trow-title">iCloud Scareware Campaign - Affiliate Tracking · Multi-Lure · Card Harvesting · impawnunsung[.]motorcycles</span>
+    <span class="trow-status">Scareware · CPA Affiliate</span>
+    <span class="trow-date">10 Mar - 4 Apr 2026</span>
+  </a>
+  <a href="threat-008.html" class="trow" style="border-left-color:#ff4560">
+    <span class="trow-id" style="color:#ff4560">THREAT-008</span>
+    <span class="trow-title">PGE eBOK Phishing Card Harvesting · Credential Theft · IP Blocking Panel</span>
+    <span class="trow-status ok">User Reported ✓</span>
+    <span class="trow-date">30 Mar 2026</span>
+  </a>
+  <a href="threat-007.html" class="trow" style="border-left-color:#1877f2">
+    <span class="trow-id" style="color:#1877f2">THREAT-007</span>
+    <span class="trow-title">Meta Blue Badge Phishing - Real-time MFA Harvesting · Facebook + Google Forms + Vercel · LoTS × 3</span>
+    <span class="trow-status ok">User Reported ✓</span>
+    <span class="trow-date">12 Jan 2026</span>
+  </a>
+  <a href="threat-006.html" class="trow" style="border-left-color:#4da6ff">
+    <span class="trow-id" style="color:#4da6ff">THREAT-006</span>
+    <span class="trow-title">Microsoft Sway Phishing - Credential Harvesting via Trusted M365 Infrastructure · LoTS</span>
+    <span class="trow-status ok">User Reported ✓</span>
+    <span class="trow-date">13 Jun 2025</span>
+  </a>
+  <a href="threat-005.html" class="trow" style="border-left-color:#ffd166">
+    <span class="trow-id" style="color:#ffd166">THREAT-005</span>
+    <span class="trow-title">Fake PDF + DLL Sideloading - hpreader.exe (3/68) · oledlg.dll (30/70) · MediaFire</span>
+    <span class="trow-status">DLL Sideloading</span>
+    <span class="trow-date">29 May 2025</span>
+  </a>
+  <a href="threat-004.html" class="trow" style="border-left-color:#ff4560">
+    <span class="trow-id" style="color:#ff4560">THREAT-004</span>
+    <span class="trow-title">PayU Payment Phishing - Fake dPanel.pl Card Harvesting · nes-srl[.]com</span>
+    <span class="trow-status ok">User Reported ✓</span>
+    <span class="trow-date">25 Apr 2025</span>
+  </a>
+  <a href="threat-003.html" class="trow" style="border-left-color:#c084fc">
+    <span class="trow-id" style="color:#c084fc">THREAT-003</span>
+    <span class="trow-title">Malvertising ClickFix - Fake reCAPTCHA → HTA Loader → theatercraft[.]buzz</span>
+    <span class="trow-status">Threat Research</span>
+    <span class="trow-date">4 Mar 2025</span>
+  </a>
+  <a href="inc-7987.html" class="trow" style="border-left-color:#ff7b2c">
+    <span class="trow-id" style="color:#ff7b2c">INC-7987</span>
+    <span class="trow-title">ClickFix Attack Chain - LummaC2 Infostealer via mshta → VBScript → PowerShell Dropper</span>
+    <span class="trow-status">Malware Confirmed</span>
+    <span class="trow-date">30 Jan 2025</span>
+  </a>
+  <a href="inc-7936.html" class="trow" style="border-left-color:#00d9f5">
+    <span class="trow-id" style="color:#00d9f5">INC-7936</span>
+    <span class="trow-title">Drive-by C2 via Compromised Polish E-commerce Sites - TA569</span>
+    <span class="trow-status">True Positive</span>
+    <span class="trow-date">14 Jan 2025</span>
+  </a>
   </div>
-  </a>
-  <a href="threat-013.html" class="wcard" style="--accent-local:#0078D4;border-color:var(--border);" onmouseover="this.style.borderColor='#0078D4'" onmouseout="this.style.borderColor='var(--border)'">
-  <div class="wcard-inner">
-    <div class="wcard-bar" style="background:#0078D4;"></div>
-    <div class="wcard-content">
-      <div class="wcard-top"><span class="wcard-id" style="color:#0078D4;">THREAT-013</span><span class="wcard-date">27 Apr 2026</span></div>
-      <div class="wcard-title">Device Code Phishing - JPMorgan + Adobe Acrobat Sign Lure · ACH Payment · Microsoft 365 Token Theft</div>
-      <div class="wcard-desc">OAuth Device Code Phishing campaign impersonating JPMorgan Chase (Virtru encrypted email lure) redirecting via Base64-encoded email tracker (servidoraweb[.]net) to a fake Adobe Acrobat Sign portal. Decoy document: ACH_Payment-ISO 201202.pdf. Custom backend at brentbritton[.]com polls Microsoft's device authorization endpoint every 3 seconds. On token capture, victim is silently redirected to a legitimate JPMorgan Wire Transfer PDF as a cover story. Microsoft Authentication Broker app impersonation. Related to THREAT-012 (same Device Code vector, different lure).</div>
-      <div class="wcard-tags"><span class="tag r">OAuth Phishing</span><span class="tag r">MFA Bypass</span><span class="tag b">Device Code Flow</span><span class="tag o">JPMorgan + Adobe Lure</span><span class="tag y">ACH Payment Lure</span><span class="tag g">User Reported ✓</span></div>
-    </div>
-  </div>
-</a>
-    <a href="threat-012.html" class="wcard" style="--accent-local:#0078D4;border-color:var(--border);" onmouseover="this.style.borderColor='#0078D4'" onmouseout="this.style.borderColor='var(--border)'">
-  <div class="wcard-inner">
-    <div class="wcard-bar" style="background:#0078D4;"></div>
-    <div class="wcard-content">
-      <div class="wcard-top"><span class="wcard-id" style="color:#0078D4;">THREAT-012</span><span class="wcard-date">21 Apr 2026</span></div>
-      <div class="wcard-title">OAuth Device Code Phishing - Microsoft 365 Token Theft · Cloudflare Workers · SendGrid Abuse</div>
-      <div class="wcard-desc">Phishing attack abusing OAuth Device Code Flow (RFC 8628) to steal Microsoft 365 tokens while bypassing MFA. Chain: compromised SendGrid account (arterexmedical[.]com, DKIM/DMARC PASS) → fake Teams notification → redirect via compromised domain leoch[.]sg → fake Teams interface on Cloudflare Workers → device code → legitimate Microsoft OAuth portal. Victim authorizes the attacker's application on the real Microsoft portal. Access token (1h) + refresh token (90 days) - survives a password reset.</div>
-      <div class="wcard-tags"><span class="tag r">OAuth Phishing</span><span class="tag r">MFA Bypass</span><span class="tag b">Device Code Flow</span><span class="tag b">M365 · Azure AD</span><span class="tag o">Cloudflare Workers</span><span class="tag g">User Reported ✓</span></div>
-    </div>
-  </div>
-</a>
-
-    <a href="threat-011.html" class="wcard orange">
-  <div class="wcard-inner"><div class="wcard-bar"></div>
-  <div class="wcard-content">
-    <div class="wcard-top"><span class="wcard-id">THREAT-011</span><span class="wcard-date">17 Apr 2026</span></div>
-    <div class="wcard-title">RedSun - Windows Defender LPE 0-day · Cloud File Rollback Exploitation · CVE candidate April 2026</div>
-    <div class="wcard-desc">0-day Local Privilege Escalation in Windows Defender disclosed on April 16, 2026 by Chaotic Eclipse. Exploit abuses a logic flaw in the cloud file rollback mechanism - Defender rewrites a detected file tagged for cloud rollback to its original location without path validation, enabling system file overwrite and escalation to SYSTEM. Analysis conducted in lab environment (Windows 11 + Wazuh/Sysmon + Process Monitor). Partial exploit execution confirmed - EICAR detected in TieringEngineService.exe, RS-{GUID} mechanism blocked by behavioral signatures 1.449.154.0. Detection rule deployed in Sentinel and Wazuh.</div>
-    <div class="wcard-tags"><span class="tag r">0-day · LPE</span><span class="tag o">No Patch</span><span class="tag o">Cloud Files API</span><span class="tag y">MsMpEng.exe</span><span class="tag c">Wazuh · Sysmon</span><span class="tag g">Detection Rule ✓</span></div>
-  </div></div>
-</a>
-    <a href="threat-010.html" class="wcard blue">
-        <div class="wcard-inner"><div class="wcard-bar"></div>
-        <div class="wcard-content">
-          <div class="wcard-top"><span class="wcard-id">THREAT-010</span><span class="wcard-date">14 Apr 2026</span></div>
-          <div class="wcard-title">AiTM Phishing - Session Cookie Hijack via Fake Microsoft 365 Portal · BEC Sender · VirusTotal Evasion</div>
-          <div class="wcard-desc">Production incident: user received phishing email from a trusted external client (potential BEC). Multi-hop redirect chain (Adobe Portfolio → AiTM proxy ssppgkokmsioonline[.]online) bypassed VirusTotal detection. Fake M365 login portal harvested credentials and session cookie, bypassing MFA. One successful login to Office Home confirmed in Azure AD. Effective containment via session revoke + password reset before any mailbox/file access. Post-containment: 3 failed re-entry attempts (2× credentials, 1× cookie reuse) - all blocked.</div>
-          <div class="wcard-tags"><span class="tag b">AiTM · Cookie Hijack</span><span class="tag r">MFA Bypass</span><span class="tag o">BEC Sender</span><span class="tag y">VT Evasion</span><span class="tag c">Azure AD · Purview</span><span class="tag g">Contained ✓</span></div>
-        </div></div>
-      </a>
-    <a href="threat-009.html" class="wcard purple">
-  <div class="wcard-inner"><div class="wcard-bar"></div>
-  <div class="wcard-content">
-    <div class="wcard-top"><span class="wcard-id">THREAT-009</span><span class="wcard-date">10 Mar - 4 Apr 2026</span></div>
-    <div class="wcard-title">iCloud Scareware Campaign - Affiliate Tracking · Multi-Lure · Card Harvesting · impawnunsung[.]motorcycles</div>
-    <div class="wcard-desc">24-day campaign (10 Mar - 3 Apr 2026) delivering scareware and fake cloud storage lures via 13+ auto-generated sender addresses across three distinct infrastructure patterns (*.us, *.org.uk, Yandex/outliers). Two variants identified: Variant A impersonates iCloud/generic "Cloud" with "TRWA PRZEJĘCIE KONTA" scareware overlay; Variant B impersonates Google Cloud with fake system scanner and PLN geotargeting (7 zł vs 19€). Source code analysis revealed full CPA affiliate architecture - sub1-sub5 tracking params, twointj.com redirect broker, trk-brevinate.com and trk.further-choose-fat-addition.run conversion trackers, two distinct anti-back-button implementations (hash-trap #!/hst and ii-counter), browser push notification persistence, IP passed openly in URL (&ip=), and view-source blocking via JS. Intermediate domains rotate across .motorcycles/.autos/.lat TLDs; shared relay infrastructure confirmed (allergywinter.org.uk ×2, ran1.* ×2). Final payload: card harvesting forms on secure.totaldrive.com / secure.totaladblock.com / secure.totalav.com / burmap.com (19€ → 99€/yr auto-renewal); merchant domain dynamically injected via &domain= parameter.</div>
-    <div class="wcard-tags"><span class="tag p">Scareware · CPA Affiliate</span><span class="tag r">Card Harvesting</span><span class="tag o">Multi-lure</span><span class="tag y">5 Sender Domains</span><span class="tag p">Source Analysis</span><span class="tag c">trk-brevinate.com</span></div>
-  </div></div>
-</a>
-
-    <a href="threat-008.html" class="wcard red">
-      <div class="wcard-inner"><div class="wcard-bar"></div>
-      <div class="wcard-content">
-        <div class="wcard-top"><span class="wcard-id">THREAT-008</span><span class="wcard-date">30 Mar 2026</span></div>
-        <div class="wcard-title">PGE eBOK Phishing Card Harvesting · Credential Theft · IP Blocking Panel</div>
-        <div class="wcard-desc">Advanced phishing campaign impersonating PGE (Polska Grupa Energetyczna). The attack leveraged a two-stage harvesting technique - first stealing login credentials, then payment card data and employed IP blocking along with real-time user tracking to evade detection and monitor victims.</div>
-        <div class="wcard-tags"><span class="tag r">Phishing Email</span><span class="tag r">Credential Theft + Card Harvesting</span><span class="tag o">IP Blocking Panel</span><span class="tag g">User Reported ✓</span></div>
-      </div></div>
-    </a>
-
-    <a href="threat-007.html" class="wcard fb">
-      <div class="wcard-inner"><div class="wcard-bar"></div>
-      <div class="wcard-content">
-        <div class="wcard-top"><span class="wcard-id">THREAT-007</span><span class="wcard-date">12 Jan 2026</span></div>
-        <div class="wcard-title">Meta Blue Badge Phishing - Real-time MFA Harvesting · Facebook + Google Forms + Vercel · LoTS × 3</div>
-        <div class="wcard-desc">Advanced 7-stage campaign abusing three legitimate platforms simultaneously. Facebook group email → Google Forms lure → Vercel phishing site → PII form → fake FB login (double-entry password trick) → real-time 2FA code relay bypassing TOTP MFA. Classic SMS/TOTP 2FA does not protect against this attack - only FIDO2 hardware keys do.</div>
-        <div class="wcard-tags"><span class="tag r">MFA Harvesting · AiTM</span><span class="tag fb">LoTS × 3</span><span class="tag fb">FB · Google · Vercel</span><span class="tag o">Blue Badge Lure</span><span class="tag p">PII Harvesting</span><span class="tag g">User Reported ✓</span></div>
-      </div></div>
-    </a>
-
-    <a href="threat-006.html" class="wcard blue">
-      <div class="wcard-inner"><div class="wcard-bar"></div>
-      <div class="wcard-content">
-        <div class="wcard-top"><span class="wcard-id">THREAT-006</span><span class="wcard-date">13 Jun 2025</span></div>
-        <div class="wcard-title">Microsoft Sway Phishing - Credential Harvesting via Trusted M365 Infrastructure · LoTS</div>
-        <div class="wcard-desc">Phishing exploiting Microsoft Sway as trusted landing page (LoTS). OneDrive file share email → Sway page with fake "2 PDF files" → redirect to nistriseup[.]com for Microsoft credential harvesting. Attacker CDN neu-wway-cdn[.]com identified via DevTools as typosquatting Microsoft CDN.</div>
-        <div class="wcard-tags"><span class="tag b">LoTS · Sway</span><span class="tag r">Credential Harvest</span><span class="tag o">OneDrive Lure</span><span class="tag b">M365 Abuse</span><span class="tag c">DevTools Analysis</span><span class="tag g">User Reported ✓</span></div>
-      </div></div>
-    </a>
-
-    <a href="threat-005.html" class="wcard yellow">
-      <div class="wcard-inner"><div class="wcard-bar"></div>
-      <div class="wcard-content">
-        <div class="wcard-top"><span class="wcard-id">THREAT-005</span><span class="wcard-date">29 May 2025</span></div>
-        <div class="wcard-title">Fake PDF + DLL Sideloading - hpreader.exe (3/68) · oledlg.dll (30/70) · MediaFire</div>
-        <div class="wcard-desc">Phishing ZIP (301 MB) via MediaFire - PE32 EXE masquerading as PDF (internal: hpreader.exe, VT 3/68) paired with malicious oledlg.dll (VT 30/70) for DLL search order hijacking. Static analysis on REMnux using file(1) - low EXE detection confirms clean-loader design.</div>
-        <div class="wcard-tags"><span class="tag r">DLL Sideloading</span><span class="tag r">Fake PDF (EXE)</span><span class="tag o">MediaFire Abuse</span><span class="tag y">hpreader.exe 3/68</span><span class="tag y">oledlg.dll 30/70</span><span class="tag p">REMnux · file(1)</span></div>
-      </div></div>
-    </a>
-
-    <a href="threat-004.html" class="wcard red">
-      <div class="wcard-inner"><div class="wcard-bar"></div>
-      <div class="wcard-content">
-        <div class="wcard-top"><span class="wcard-id">THREAT-004</span><span class="wcard-date">25 Apr 2025</span></div>
-        <div class="wcard-title">PayU Payment Phishing - Fake dPanel.pl Card Harvesting · nes-srl[.]com</div>
-        <div class="wcard-desc">Production incident reported by user. Two-stage card harvesting impersonating PayU - fake loading redirect (loading.php) followed by card dump form (cd.php) collecting PAN, expiry and CVV. Hosted on compromised Italian SRL domain with tracking appIdKey parameter.</div>
-        <div class="wcard-tags"><span class="tag r">Phishing Email</span><span class="tag r">Card Harvesting</span><span class="tag o">PayU Impersonation</span><span class="tag y">dPanel.pl Lure</span><span class="tag c">Windows Sandbox</span><span class="tag g">User Reported ✓</span></div>
-      </div></div>
-    </a>
-
-    <a href="threat-003.html" class="wcard purple">
-      <div class="wcard-inner"><div class="wcard-bar"></div>
-      <div class="wcard-content">
-        <div class="wcard-top"><span class="wcard-id">THREAT-003</span><span class="wcard-date">4 Mar 2025</span></div>
-        <div class="wcard-title">Malvertising ClickFix - Fake reCAPTCHA → HTA Loader → theatercraft[.]buzz</div>
-        <div class="wcard-desc">Proactive research of active malvertising campaign targeting Gmail users. Campaign evolved from EXE (Defender blocked) to 7z archive bypass with hex-obfuscated HTA loader. Sysinternals Strings + CyberChef hex decode → DGA-style stage-2 subdomain identified.</div>
-        <div class="wcard-tags"><span class="tag p">Threat Research</span><span class="tag r">Malvertising</span><span class="tag p">HTA · Hex Obfusc.</span><span class="tag o">7z Defender Bypass</span><span class="tag y">Sysinternals</span><span class="tag c">DGA Subdomain</span></div>
-      </div></div>
-    </a>
-
-    <a href="inc-7987.html" class="wcard orange">
-      <div class="wcard-inner"><div class="wcard-bar"></div>
-      <div class="wcard-content">
-        <div class="wcard-top"><span class="wcard-id">INC-7987</span><span class="wcard-date">30 Jan 2025</span></div>
-        <div class="wcard-title">ClickFix Attack Chain - LummaC2 Infostealer via mshta → VBScript → PowerShell Dropper</div>
-        <div class="wcard-desc">Static analysis of a full 5-stage ClickFix loader. Fake reCAPTCHA overlay → clipboard mshta execution → Base64 VBScript → PowerShell dropper with geofencing check → LummaC2 infostealer. Full reconstruction in Windows Sandbox.</div>
-        <div class="wcard-tags"><span class="tag r">Malware Confirmed</span><span class="tag o">ClickFix · LOTL</span><span class="tag o">LummaC2</span><span class="tag y">Base64 · CyberChef</span><span class="tag c">Windows Sandbox</span><span class="tag p">Geofencing</span></div>
-      </div></div>
-    </a>
-
-    <a href="inc-7936.html" class="wcard cyan">
-      <div class="wcard-inner"><div class="wcard-bar"></div>
-      <div class="wcard-content">
-        <div class="wcard-top"><span class="wcard-id">INC-7936</span><span class="wcard-date">14 Jan 2025</span></div>
-        <div class="wcard-title">Drive-by C2 via Compromised Polish E-commerce Sites - TA569</div>
-        <div class="wcard-desc">Multi-host incident - C2 beaconing from two workstations through compromised WordPress sites. Full IR cycle: alert triage → ANY.RUN sandbox → org-wide KQL hunt → discovery of second host that evaded detection due to upstream Barracuda filtering.</div>
-        <div class="wcard-tags"><span class="tag r">True Positive</span><span class="tag o">TA569</span><span class="tag c">Advanced Hunting KQL</span><span class="tag c">Defender XDR</span><span class="tag g">C2 Blocked</span><span class="tag y">ANY.RUN · VT</span></div>
-      </div></div>
-    </a>
-
-  </div>
+</div>
 
   <div class="sh">About</div>
   <div class="about">
@@ -528,5 +409,22 @@ footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-
   </footer>
 
 </div>
+
+<script>
+(function(){
+  var tabs = document.querySelectorAll('.tabbtn');
+  var sections = document.querySelectorAll('[data-section]');
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){
+      tabs.forEach(function(x){ x.classList.remove('active'); });
+      t.classList.add('active');
+      var cat = t.getAttribute('data-cat');
+      sections.forEach(function(s){
+        s.style.display = (cat === 'all' || s.getAttribute('data-section') === cat) ? '' : 'none';
+      });
+    });
+  });
+})();
+</script>
 </body>
 </html>
