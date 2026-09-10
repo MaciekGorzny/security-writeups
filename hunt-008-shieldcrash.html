@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>HUNT-008 - ShieldCrash.exe: ELAM Bypass przez NTFS Reparse Point</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"]{
+    --bg: #14161B;
+    --bg2: #1B1E24;
+    --bg3: #21242B;
+    --border: #2B2E34;
+    --border2: #3D4048;
+    --ink: #E7E9ED;
+    --ink-dim: #A6ABB5;
+    --ink-faint: #6F7580;
+    --red: #DE6A5C;
+    --red-bg: rgba(222,106,92,0.09);
+    --red-border: rgba(222,106,92,0.35);
+    --green: #6FB98A;
+    --green-bg: rgba(111,185,138,0.09);
+    --green-border: rgba(111,185,138,0.35);
+    --amber: #D6A24E;
+    --amber-bg: rgba(214,162,78,0.09);
+    --amber-border: rgba(214,162,78,0.35);
+    --steel: #8FA3C7;
+    --steel-bg: rgba(143,163,199,0.09);
+    --steel-border: rgba(143,163,199,0.35);
+    --identity: #E8934F;
+  }
+  :root[data-theme="light"]{
+    --bg: #F5F6F8;
+    --bg2: #FFFFFF;
+    --bg3: #EBEDF1;
+    --border: #DADDE3;
+    --border2: #B7BCC6;
+    --ink: #191B1F;
+    --ink-dim: #54585F;
+    --ink-faint: #7C8798;
+    --red: #A6192E;
+    --red-bg: rgba(166,25,46,0.06);
+    --red-border: rgba(166,25,46,0.3);
+    --green: #2F7A4C;
+    --green-bg: rgba(47,122,76,0.07);
+    --green-border: rgba(47,122,76,0.3);
+    --amber: #9A6A17;
+    --amber-bg: rgba(154,106,23,0.08);
+    --amber-border: rgba(154,106,23,0.3);
+    --steel: #2B3A55;
+    --steel-bg: rgba(43,58,85,0.07);
+    --steel-border: rgba(43,58,85,0.3);
+    --identity: #B5560F;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans',-apple-system,sans-serif;
+    font-size:15px;
+    line-height:1.65;
+    transition:background .15s,color .15s;
+  }
+  code,.mono,pre,table{font-family:'IBM Plex Mono','SF Mono',monospace;}
+
+  .tlp-bar{
+    background:var(--red);
+    color:#fff;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.03em;
+    text-align:center;
+    padding:7px 0;
+  }
+  .theme-toggle{
+    position:fixed;top:18px;right:18px;display:flex;gap:6px;
+    background:var(--bg2);border:1px solid var(--border2);padding:4px;border-radius:20px;z-index:10;
+  }
+  .theme-toggle button{
+    font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;border:none;
+    background:transparent;color:var(--ink-dim);padding:6px 14px;border-radius:16px;cursor:pointer;
+  }
+  .theme-toggle button.active{background:var(--ink);color:var(--bg);}
+
+  .wrap{max-width:880px;margin:0 auto;padding:56px 28px 120px;}
+
+  .doc-id{font-size:12px;color:var(--ink-faint);letter-spacing:.02em;margin-bottom:12px;}
+  h1{font-size:32px;font-weight:700;line-height:1.2;letter-spacing:-.01em;margin:0 0 12px;color:var(--ink);}
+  h1 em{color:var(--identity);font-style:normal;}
+  .dek{color:var(--ink-dim);font-size:16px;max-width:66ch;margin:0 0 26px;line-height:1.6;}
+
+  .byline{
+    display:flex;gap:28px;flex-wrap:wrap;font-size:13px;color:var(--ink-faint);
+    padding-top:18px;padding-bottom:26px;border-top:1px solid var(--border);margin-bottom:8px;
+  }
+  .byline b{color:var(--ink-dim);font-weight:500;}
+
+  .exec-summary{background:var(--red-bg);border-left:3px solid var(--red);padding:20px 24px;margin:32px 0 12px;}
+  .exec-summary .label{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;color:var(--red);margin-bottom:8px;}
+  .exec-summary p{margin:0 0 8px;font-size:15px;color:var(--ink);max-width:68ch;}
+  .exec-summary p:last-child{margin-bottom:0;}
+  .exec-summary code{font-size:.9em;color:var(--red);}
+
+  section{margin:56px 0;}
+  h2{
+    font-size:12px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.1em;
+    border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:24px;
+    display:flex;gap:10px;align-items:baseline;font-weight:600;
+  }
+  h2 .n{color:var(--steel);font-family:'IBM Plex Mono',monospace;}
+  h3{font-size:15.5px;color:var(--ink);font-weight:600;margin:26px 0 10px;letter-spacing:-.005em;}
+  p{margin:0 0 14px;font-size:14px;color:var(--ink-dim);max-width:68ch;}
+  strong{color:var(--ink);font-weight:600;}
+  code{font-size:.9em;background:var(--bg3);padding:1px 5px;border-radius:3px;color:var(--steel);}
+  a{color:var(--steel);}
+
+  .notice{border-left:3px solid var(--steel);background:var(--bg2);padding:16px 20px;margin:20px 0;border-radius:0 6px 6px 0;}
+  .notice.amber{border-color:var(--amber);}
+  .notice.red{border-color:var(--red);}
+  .notice.green{border-color:var(--green);}
+  .notice .label{
+    display:inline-block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--steel);border:1px solid var(--steel-border);padding:2px 8px;border-radius:3px;margin-bottom:10px;
+  }
+  .notice.amber .label{color:var(--amber);border-color:var(--amber-border);}
+  .notice.red .label{color:var(--red);border-color:var(--red-border);}
+  .notice.green .label{color:var(--green);border-color:var(--green-border);}
+  .notice p{margin:0;font-size:13.5px;}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:20px 0;}
+  .compare-col{background:var(--bg2);border:1px solid var(--border);padding:18px 20px;border-radius:6px;}
+  .compare-col h4{margin:0 0 12px;font-size:13px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.04em;}
+  .compare-col ul{margin:0;padding-left:18px;font-size:13px;}
+  .compare-col li{margin-bottom:8px;color:var(--ink-dim);}
+  .compare-col.old li::marker{color:var(--ink-faint);}
+  .compare-col.new li::marker{color:var(--green);}
+  @media(max-width:640px){.compare{grid-template-columns:1fr;}}
+
+  .step{display:grid;grid-template-columns:30px 1fr;gap:18px;margin-bottom:26px;}
+  .step .num{
+    font-size:13px;font-weight:600;color:var(--steel);padding-top:3px;font-family:'IBM Plex Mono',monospace;
+  }
+  .step h3{margin:0 0 6px;}
+  .step .tag{
+    display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:.05em;
+    color:var(--amber);border:1px solid var(--amber-border);padding:1px 7px;border-radius:3px;margin-left:8px;vertical-align:middle;
+  }
+  .evidence{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-dim);background:var(--bg2);
+    border:1px solid var(--border);border-left:2px solid var(--steel-border);padding:10px 14px;
+    white-space:pre-wrap;line-height:1.6;margin-top:8px;
+  }
+  .evidence .val{color:var(--steel);}
+
+  .timeline{border-left:2px solid var(--border2);margin:20px 0 20px 6px;padding-left:22px;}
+  .tl-item{position:relative;margin-bottom:16px;}
+  .tl-item::before{
+    content:"";position:absolute;left:-27.5px;top:5px;width:9px;height:9px;border-radius:50%;
+    background:var(--bg);border:2px solid var(--border2);
+  }
+  .tl-item.red::before{border-color:var(--red);}
+  .tl-item.green::before{border-color:var(--green);}
+  .tl-item.steel::before{border-color:var(--steel);}
+  .tl-t{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-faint);margin-right:8px;}
+  .tl-item p{margin:2px 0 0;font-size:13px;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0;}
+  th{
+    text-align:left;color:var(--ink-faint);font-weight:600;font-size:10.5px;text-transform:uppercase;
+    letter-spacing:.05em;padding:0 12px 10px 0;border-bottom:2px solid var(--ink);
+  }
+  td{padding:12px 12px 12px 0;border-bottom:1px solid var(--border);color:var(--ink-dim);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td.strong{color:var(--ink);font-weight:500;}
+  td.mono{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--steel);white-space:nowrap;}
+  .ok{color:var(--green);} .bad{color:var(--red);} .warn{color:var(--amber);}
+  .tag-pill{font-size:10.5px;padding:2px 8px;border-radius:3px;font-weight:500;white-space:nowrap;}
+  .tag-pill.high{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+  .tag-pill.med{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);}
+  .tag-pill.low{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
+
+  .ioc-row{display:grid;grid-template-columns:150px 1fr;gap:16px;padding:11px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .ioc-row:last-child{border-bottom:none;}
+  .ioc-row .type{color:var(--ink-faint);}
+  .ioc-row .val{font-family:'IBM Plex Mono',monospace;color:var(--ink);word-break:break-all;font-size:12px;}
+
+  pre.code{
+    background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:16px 18px;
+    overflow-x:auto;font-size:11.5px;color:var(--ink-dim);line-height:1.7;margin:14px 0;
+  }
+  pre.code .c{color:var(--ink-faint);}
+  pre.code .hl{color:var(--steel);}
+
+  .kql-block{margin:32px 0;}
+  .kql-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px;}
+  .kql-head strong{font-size:14px;}
+  .kql-meta{font-size:11.5px;color:var(--ink-faint);}
+
+  ul,ol{margin:0 0 16px;padding-left:20px;font-size:14px;color:var(--ink-dim);}
+  li{margin-bottom:7px;}
+
+  .footer{margin-top:70px;padding-top:24px;border-top:1px solid var(--border);font-size:12px;color:var(--ink-faint);}
+</style>
+</head>
+<body>
+
+<div class="tlp-bar">TLP:CLEAR - DFIR LAB, UŻYTEK PORTFOLIO</div>
+<div class="theme-toggle">
+  <button id="btn-dark" class="active" onclick="setTheme('dark')">Ciemny</button>
+  <button id="btn-light" onclick="setTheme('light')">Jasny</button>
+</div>
+
+<div class="wrap">
+
+  <div class="doc-id">HUNT-008 · DFIR LAB, WINDOWS 11 (ZAKTUALIZOWANY) · 2026-09-10 · PRZEBIEG 2 Z 2</div>
+  <h1>Shield<em>Crash.exe</em> - ELAM Bypass przez NTFS Reparse Point</h1>
+  <p class="dek">Nieudokumentowany FSCTL konwertuje plik roboczy w reparse point wskazujący na hive ELAM, po czym <code>SetRenameInformationFile</code> fizycznie wynosi hive poza katalog systemowy. Podatność potwierdzona jako nadal działająca po aktualizacjach Windows z 9 września 2026.</p>
+
+  <div class="byline">
+    <span>Host: <b>DESKTOP-4JEER86</b></span>
+    <span>Windows 11, zaktualizowany <b>2026-09-09</b></span>
+    <span>Integrity: <b>Medium, bez UAC</b></span>
+    <span>Persistence: <b>brak</b></span>
+    <span>SHA-256: <b>identyczny P1/P2</b></span>
+  </div>
+
+  <div class="exec-summary">
+    <div class="label">Streszczenie kierownicze</div>
+    <p>ShieldCrash.exe, uruchomiony jako zwykły użytkownik, fizycznie przenosi hive <code>ELAM</code> z <code>System32\config</code> do <code>%TEMP%</code> przez łańcuch: staging payloadu w ADS → timestomping → nieudokumentowany <code>FSCTL 0x903BC</code> (konwersja pliku roboczego w reparse point) → <code>SetRenameInformationFile</code>. Efekt jest odroczony: sterowniki AV/EDR zarejestrowane w ELAM nie załadują się we wczesnej fazie startu po najbliższym restarcie.</p>
+    <p>Przebieg 2 (pełna analiza 1 131 zdarzeń Procmon, wobec 200 w przebiegu 1 przez timeout narzędzia) ujawnił rzeczywisty mechanizm bypassa - wcześniejsza hipoteza oparta na samych importach statycznych (Cloud Files API, TOCTOU) nie została potwierdzona dynamicznie i została zastąpiona przez zweryfikowany łańcuch reparse point + rename.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">01</span> Przebieg 1 vs Przebieg 2</h2>
+    <div class="compare">
+      <div class="compare-col old">
+        <h4>Przebieg 1 · 2026-09-08</h4>
+        <ul>
+          <li>Procmon: timeout narzędzia przy filtracji 285 MB CSV - odczytane tylko pierwsze 200 zdarzeń (init procesu, bez łańcucha exploita)</li>
+          <li>Mechanizm zakładany na podstawie importów statycznych (<code>cldapi.dll</code>) - niezweryfikowany dynamicznie</li>
+          <li>Timestomping, FSCTL, walidacja nagłówka PE: niewidoczne</li>
+          <li>System PID 4 zapisuje ADS 2 ms po wyjściu procesu - potwierdzone</li>
+        </ul>
+      </div>
+      <div class="compare-col new">
+        <h4>Przebieg 2 · 2026-09-10</h4>
+        <ul>
+          <li>Procmon odczytany w pełni - 1 131 zdarzeń ShieldCrash.exe z 1 985 376 wierszy</li>
+          <li>FSCTL 0x903BC potwierdzone: konwersja pliku roboczego w reparse point (<code>FileAttributes: RP</code>)</li>
+          <li><code>SetRenameInformationFile</code> - hive ELAM fizycznie przeniesiony do <code>%TEMP%</code>; najsilniejszy sygnał behawioralny w całym łańcuchu</li>
+          <li>Rozmiar payloadu ADS zmienił się (2 517 928 B → 2 522 080 B) - exploit dynamicznie kopiuje bieżącą wersję <code>ntdll.dll</code>, brak zahardkodowanego payloadu</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">02</span> Łańcuch ataku</h2>
+
+    <div class="step">
+      <div class="num">01</div>
+      <div>
+        <h3>Tworzenie ukrytego katalogu staging</h3>
+        <p>Katalog z losowym GUID w korzeniu <code>C:\</code>, atrybut <code>Hidden</code>, zarejestrowany jako TxF resource manager (plik <code>.blf</code>).</p>
+        <div class="evidence">Procmon: CreateFile <span class="val">C:\ShieldCrash_{GUID}\</span> Attributes: H
+Sysmon: brak reguły na atrybuty katalogów</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">02</div>
+      <div>
+        <h3>Staging ładunku PE w ADS <code>BERN:stream</code></h3>
+        <p>Kopia bieżącej wersji <code>ntdll.dll</code> z systemu do strumienia ADS na placeholderze. Rozmiar dostosowuje się do zainstalowanej wersji ntdll.dll - brak zahardkodowanego payloadu.</p>
+        <div class="evidence">Sysmon: ads_write BERN:stream (EID 15)
+Procmon: SetEndOfFileInformationFile = <span class="val">2 522 080</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">03</div>
+      <div>
+        <h3>Timestomping ADS <span class="tag">TP z P2</span></h3>
+        <p><code>SetBasicInformationFile</code> ustawia fałszywy <code>LastWriteTime</code>/<code>ChangeTime</code>. <code>CreationTime</code> pozostaje FILETIME=0 (bez zmian) - celowo, bo Sysmon EID2 monitoruje wyłącznie zmiany CreationTime i nie wygeneruje alertu dla tej operacji.</p>
+        <div class="evidence">Procmon: SetBasicInformationFile BERN:stream <span class="val">07:41:23.21</span>
+CreationTime: FILETIME=0 (niezmieniony) → Sysmon EID2: brak</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">04</div>
+      <div>
+        <h3>FSCTL 0x903BC - konwersja BERN do reparse pointa <span class="tag">TP z P2</span></h3>
+        <p>Nieudokumentowana funkcja NTFS: <code>CTL_CODE(DeviceType=9, Fn=239, Method=0)</code>. Przekształca placeholder BERN w reparse point wskazujący na <code>C:\Windows\System32\config\ELAM</code>. Wykonywane po stagingu i timestampingu - dlatego zapisany wcześniej ADS staje się przez to ADS na samym hive.</p>
+        <div class="evidence">Procmon: DeviceIoControl 0x903BC <span class="val">07:41:23.2326928</span>
+Weryfikacja: QueryBasicInformationFile → <span class="val">FileAttributes: RP</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">05</div>
+      <div>
+        <h3>Walidacja nagłówka PE ładunku <span class="tag">TP z P2</span></h3>
+        <p>Trzy precyzyjne odczyty ze strumienia ADS (teraz przez reparse point - de facto ADS na hive ELAM): sygnatura MZ, <code>e_lfanew</code>, <code>OptionalHeader.Magic</code>. Exploit weryfikuje integralność payloadu przed próbą mapowania.</p>
+        <div class="evidence">Procmon: ReadFile BERN:stream offset=<span class="val">0 / 60 / 224</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">06</div>
+      <div>
+        <h3><code>CreateFileMapping</code> → FILE LOCKED WITH WRITERS <span class="tag">TP z P2</span></h3>
+        <p>Próba bezpośredniego mapowania hive ELAM kończy się błędem - jądro utrzymuje write-lock na aktywnym hive. Exploit nie opiera się na tej operacji; blokada jest oczekiwana. Właściwy mechanizm bypassa to rename (krok 08).</p>
+        <div class="evidence">Procmon: CreateFileMapping BERN → <span class="val">FILE LOCKED WITH WRITERS</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">07</div>
+      <div>
+        <h3>Przerwa ~32 sekundy</h3>
+        <p>Między próbą mapowania (07:41:23) a operacją rename (07:41:55). Aktywność Cloud Files API (<code>cldapi.dll</code> z importów statycznych) może mieścić się w tym oknie - <strong>niezweryfikowana dynamicznie</strong>, pełna sekwencja zdarzeń w tym oknie nie była analizowana.</p>
+        <div class="evidence">Procmon: okno <span class="val">07:41:23 – 07:41:55</span> - treść niepotwierdzona</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">08</div>
+      <div>
+        <h3><code>SetRenameInformationFile</code> - hive ELAM fizycznie przeniesiony <span class="tag">kluczowe</span></h3>
+        <p>Jądro podąża za reparse pointem i fizycznie przenosi hive z <code>System32\config</code> do <code>%TEMP%</code>. ADS z payloadem przenosi się razem z plikiem. Sysmon EID11 nie rejestruje tej operacji (fires tylko na <code>NtCreateFile</code>, nie na <code>NtSetInformationFile</code>/FileRenameInformation) - widoczne wyłącznie w MDE <code>DeviceFileEvents</code>.</p>
+        <div class="evidence">Procmon: SetRenameInformationFile BERN <span class="val">07:41:55.7664074</span> → %TEMP%\ShieldCrash_{GUID}.BERN2
+Sysmon: niewidoczne | MDE DeviceFileEvents: FileRenamed</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">09</div>
+      <div>
+        <h3>System PID 4 zapisuje ADS 2 ms po wyjściu procesu</h3>
+        <p>Jądro (NT AUTHORITY\SYSTEM) zapisuje nowy stan ELAM w drugim katalogu staging. Efekt odroczony - aktywuje się dopiero przy kolejnym restarcie.</p>
+        <div class="evidence">Sysmon: ads_write System PID 4 → BERN.{hash}:stream, <span class="val">+2 ms</span> po process_terminate</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">03</span> Oś czasu</h2>
+    <div class="timeline">
+      <div class="tl-item steel"><span class="tl-t">05:41:22</span><p>ShieldCrash.exe uruchomiony. Parent: powershell.exe, IL: Medium.</p></div>
+      <div class="tl-item steel"><span class="tl-t">+80 ms</span><p>Tworzenie katalogu staging z atrybutem Hidden.</p></div>
+      <div class="tl-item steel"><span class="tl-t">07:41:23.21</span><p>Staging ADS + timestomping (CreationTime niezmieniony).</p></div>
+      <div class="tl-item amber"><span class="tl-t">07:41:23.23</span><p>FSCTL 0x903BC - BERN staje się reparse pointem na ELAM.</p></div>
+      <div class="tl-item steel"><span class="tl-t">+250 ms</span><p>Walidacja nagłówka PE + CreateFileMapping → FILE LOCKED.</p></div>
+      <div class="tl-item amber"><span class="tl-t">07:41:23 – 07:41:55</span><p>Przerwa ~32 s, niewyjaśniona aktywność.</p></div>
+      <div class="tl-item red"><span class="tl-t">07:41:55.77</span><p>SetRenameInformationFile - hive ELAM przeniesiony do %TEMP%.</p></div>
+      <div class="tl-item steel"><span class="tl-t">+35 s</span><p>ShieldCrash.exe kończy działanie.</p></div>
+      <div class="tl-item red"><span class="tl-t">+35 s +2 ms</span><p>System PID 4 zapisuje nowy stan ELAM. Efekt odroczony do restartu.</p></div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">04</span> Pokrycie telemetryczne</h2>
+    <table>
+      <tr><th>Artefakt</th><th>Lab (Sysmon)</th><th>Produkcja (MDE / Sentinel)</th></tr>
+      <tr><td class="strong">ADS write BERN:stream</td><td class="ok">EID 15</td><td class="ok">DeviceFileEvents</td></tr>
+      <tr><td class="strong">System PID 4 ADS write</td><td class="ok">EID 15</td><td class="ok">DeviceFileEvents</td></tr>
+      <tr><td class="strong">FSCTL 0x903BC</td><td class="bad">brak</td><td class="bad">brak (brak ActionType dla surowych IOCTL)</td></tr>
+      <tr><td class="strong">Timestomp LastWriteTime/ChangeTime</td><td class="bad">brak - EID2 tylko CreationTime</td><td class="warn">brak dedykowanego ActionType</td></tr>
+      <tr><td class="strong">PE header reads</td><td class="bad">brak</td><td class="bad">brak</td></tr>
+      <tr><td class="strong">SetRenameInformationFile (hive → %TEMP%)</td><td class="bad">brak - EID11 nie łapie rename</td><td class="ok">DeviceFileEvents, ActionType=FileRenamed</td></tr>
+    </table>
+    <div class="notice amber">
+      <span class="label">Uwaga</span>
+      <p>Cztery z sześciu kluczowych artefaktów łańcucha są widoczne wyłącznie w Procmon i nie mają odpowiednika w produkcyjnej telemetrii. Detekcja musi opierać się na dwóch pozostałych: zapisie ADS i rename.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">05</span> Mapowanie ATT&CK</h2>
+    <table>
+      <tr><th>Technika</th><th>ID</th><th>Dowód</th></tr>
+      <tr>
+        <td>Exploitation for Defense Evasion</td>
+        <td class="mono">T1211</td>
+        <td>FSCTL 0x903BC konwertuje BERN do reparse pointa na ELAM; SetRenameInformationFile podąża za nim i fizycznie przemieszcza hive.</td>
+      </tr>
+      <tr>
+        <td>Indicator Removal: Timestomp</td>
+        <td class="mono">T1070.006</td>
+        <td>SetBasicInformationFile fałszuje LastWriteTime/ChangeTime; CreationTime celowo niezmieniony (FILETIME=0), więc Sysmon EID2 nie odpali.</td>
+      </tr>
+      <tr>
+        <td>Hide Artifacts: NTFS File Attributes (ADS)</td>
+        <td class="mono">T1564.004</td>
+        <td>Payload PE jako ADS na placeholderze, później na samym hive. System PID 4 zapisuje kolejny ADS po wyjściu procesu.</td>
+      </tr>
+      <tr>
+        <td>Masquerading</td>
+        <td class="mono">T1036</td>
+        <td>Podpisana przez Microsoft kopia ntdll.dll jako ładunek przynęty; rozmiar dostosowany do bieżącej wersji systemowej.</td>
+      </tr>
+      <tr>
+        <td>Access Token Manipulation: Token Impersonation/Theft</td>
+        <td class="mono">T1134.001</td>
+        <td>Warden.dll: DuplicateTokenEx + GetNamedPipeServerSessionId z \\?\pipe\SHIELDBREAK. Wymaga wcześniejszego uruchomienia ShieldBreak.exe (HUNT-007).</td>
+      </tr>
+      <tr>
+        <td>Command and Scripting Interpreter: PowerShell</td>
+        <td class="mono">T1059.001</td>
+        <td>Parent process: powershell.exe, oba przebiegi.</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">06</span> Wskaźniki</h2>
+    <div class="ioc-row"><div class="type">SHA-256</div><div class="val">0637bd3aab4ba57e2310a3b7c5a48b8772b25099f8c28fb3ab58907abde8cfec</div></div>
+    <div class="ioc-row"><div class="type">Katalog staging</div><div class="val">C:\ShieldCrash_{GUID}\ (Hidden, zawiera .blf)</div></div>
+    <div class="ioc-row"><div class="type">ADS payload</div><div class="val">C:\ShieldCrash_{GUID}\BERN:stream</div></div>
+    <div class="ioc-row"><div class="type">FSCTL</div><div class="val">0x903BC (FILE_DEVICE_FILE_SYSTEM, Fn=239)</div></div>
+    <div class="ioc-row"><div class="type">Plik przeniesiony</div><div class="val">%TEMP%\ShieldCrash_{GUID}.BERN2</div></div>
+    <div class="ioc-row"><div class="type">ADS kernel</div><div class="val">C:\ShieldCrash_{GUID}_2\BERN.{hash}:stream - System PID 4, +2 ms po wyjściu</div></div>
+    <div class="ioc-row"><div class="type">Named pipe</div><div class="val">\\?\pipe\SHIELDBREAK</div></div>
+    <div class="ioc-row"><div class="type">PDB path</div><div class="val">C:\Users\admin\source\repos\ShellDll\x64\Release\ShellDll.pdb</div></div>
+    <div class="notice amber">
+      <span class="label">zakres IOC</span>
+      <p>Hash i wzorzec nazwy katalogu są trywialne do zmiany przy przekompilowaniu. Trwały sygnał behawioralny: rename pliku z <code>System32\config</code> poza katalog systemowy, niezależnie od nazwy narzędzia.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">07</span> Detekcja</h2>
+    <p>Reguły uszeregowane według confidence (zdolność do alertowania w produkcji bez dużego FP) i coverage (który etap łańcucha łapią). <strong>Żadna reguła nie została uruchomiona w silniku KQL</strong> - logika zweryfikowana ręcznie na znanych punktach danych z przebiegu 2. Przed wdrożeniem jako alert wymagane: uruchomienie na Sentinel/Log Analytics i przegląd wolumenu FP.</p>
+
+    <table>
+      <tr><th>Reguła</th><th>Źródło</th><th>Confidence</th><th>Etap</th></tr>
+      <tr>
+        <td class="strong">KQL-1</td>
+        <td>MDE / Defender XDR</td>
+        <td><span class="tag-pill high">wysoka</span></td>
+        <td>Rename hive ELAM poza System32 - behawioralne</td>
+      </tr>
+      <tr>
+        <td class="strong">KQL-2</td>
+        <td>Sentinel / Sysmon</td>
+        <td><span class="tag-pill med">średnia</span></td>
+        <td>ADS write w katalogu {GUID} - generyczny wzorzec</td>
+      </tr>
+      <tr>
+        <td class="strong">KQL-3</td>
+        <td>Sentinel / Sysmon</td>
+        <td><span class="tag-pill med">średnia</span></td>
+        <td>System ADS write &lt;100ms po zakończeniu procesu user-space</td>
+      </tr>
+      <tr>
+        <td class="strong">KQL-4</td>
+        <td>Defender XDR</td>
+        <td><span class="tag-pill low">niska (fallback)</span></td>
+        <td>SHA-256 / nazwa - hunt only, nie alerting</td>
+      </tr>
+    </table>
+
+    <div class="kql-block">
+      <div class="kql-head"><strong>KQL-1 · Fizyczne przemieszczenie hive ELAM</strong><span class="kql-meta">MDE · behawioralne</span></div>
+      <pre class="code"><span class="c">// SetRenameInformationFile na config\ELAM → ścieżka poza System32
+// Sysmon EID11 NIE rejestruje rename - wyłącznie MDE DeviceFileEvents
+// Exclusions: procesy serwisowania OS</span>
+DeviceFileEvents
+| where ActionType == "FileRenamed"
+| where PreviousFolderPath has @"\Windows\System32\config"
+| where FolderPath <span class="hl">!has</span> @"\Windows\System32"
+| where InitiatingProcessFileName <span class="hl">!in~</span> ("wusa.exe", "dism.exe",
+    "TrustedInstaller.exe", "TiWorker.exe", "poqexec.exe", "msiexec.exe")
+| project Timestamp, DeviceName, InitiatingProcessAccountName,
+    InitiatingProcessFileName, PreviousFolderPath, FolderPath, FileName, SHA256</pre>
+    </div>
+
+    <div class="kql-block">
+      <div class="kql-head"><strong>KQL-2 · ADS write w katalogu z GUID</strong><span class="kql-meta">Sentinel / Sysmon EID 15</span></div>
+      <pre class="code"><span class="c">// Generyczny wzorzec katalogu {GUID} w korzeniu dysku, bez nazwy narzędzia</span>
+Event
+| where Source == "Microsoft-Windows-Sysmon" and EventID == 15
+| extend Target = extract(@"TargetFilename: ([^\r\n]+)", 1, RenderedDescription)
+| extend StreamHash = extract(@"Hash: SHA256=([0-9A-Fa-f]+)", 1, RenderedDescription)
+| where Target has ":"
+    and Target matches regex @"^[A-Za-z]:\\[A-Za-z0-9_]+_\{"
+| project TimeGenerated, Computer, Target, StreamHash</pre>
+    </div>
+
+    <div class="kql-block">
+      <div class="kql-head"><strong>KQL-3 · System ADS write po zakończeniu procesu</strong><span class="kql-meta">Sentinel / Sysmon · behawioralne</span></div>
+      <pre class="code"><span class="c">// Dowolny proces user-space kończy się → System PID 4 pisze ADS
+// w katalogu {GUID} w ciągu 100 ms. Bez sygnatur nazwy narzędzia.</span>
+let KernelADS = Event
+    | where Source == "Microsoft-Windows-Sysmon" and EventID == 15
+    | extend Target = extract(@"TargetFilename: ([^\r\n]+)", 1, RenderedDescription)
+    | extend ADSProc = extract(@"Image: ([^\r\n]+)", 1, RenderedDescription)
+    | where Target has ":"
+        and Target matches regex @"^[A-Za-z]:\\[A-Za-z0-9_]+_\{"
+        and ADSProc has "System"
+    | project-away RenderedDescription, EventID, Source;
+let Terminates = Event
+    | where Source == "Microsoft-Windows-Sysmon" and EventID == 5
+    | extend Img = extract(@"Image: ([^\r\n]+)", 1, RenderedDescription)
+    | where Img <span class="hl">!has</span> @"\Windows\System32\"
+        and Img <span class="hl">!has</span> @"\Windows\SysWOW64\"
+    | project-away RenderedDescription, EventID, Source;
+Terminates
+| join kind=inner KernelADS on Computer
+| where datetime_diff('millisecond', TimeGenerated1, TimeGenerated) between (0 .. 100)
+| project TerminateTime=TimeGenerated, KernelADSTime=TimeGenerated1,
+    Computer, Img, StagingTarget=Target</pre>
+    </div>
+
+    <div class="kql-block">
+      <div class="kql-head"><strong>KQL-4 · Sygnaturowy fallback</strong><span class="kql-meta">Defender XDR · hunt only</span></div>
+      <pre class="code"><span class="c">// Wyłącznie sygnaturowe - trivial evasion przez zmianę nazwy lub rebuild
+// Threat hunting po incydencie, nie reguła alertowania produkcyjnego</span>
+DeviceProcessEvents
+| where FileName =~ "ShieldCrash.exe"
+    or ProcessCommandLine has "config\\ELAM"
+    or SHA256 =~ "0637bd3aab4ba57e2310a3b7c5a48b8772b25099f8c28fb3ab58907abde8cfec"
+| project Timestamp, DeviceName, AccountName,
+    ProcessCommandLine, InitiatingProcessFileName, SHA256</pre>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">08</span> Otwarte wątki</h2>
+    <ul>
+      <li>Przerwa ~32 s między <code>CreateFileMapping</code> a rename (krok 07) - treść okna niezweryfikowana, hipoteza o aktywności Cloud Files API nie potwierdzona.</li>
+      <li>Widoczność <code>SetRenameInformationFile</code> w Sysmonie nie zweryfikowana bezpośrednio - założenie że EID11 nie łapie rename oparte na dokumentacji zachowania, nie na próbie w labie.</li>
+      <li>Żadna z czterech reguł KQL nie przeszła przez faktyczny silnik (Sentinel/Log Analytics) ani test wolumenu FP na realnym środowisku.</li>
+      <li>Twierdzenie o braku łatki Microsoft oparte na teście przed/po aktualizacji, nie na release notes czy CVE.</li>
+      <li>Katalogi staging z obu przebiegów wciąż na dysku - brak self-cleanup, artefakty .blf jako trwałe wskaźniki kryminalistyczne.</li>
+    </ul>
+  </section>
+
+  <div class="footer">
+    HUNT-008 · 2026-09-10 · telemetria: Sysmon + Procmon (913 MB PML, 1 985 376 wierszy) + Pktmon (599 KB pcapng) · werdykt oparty wyłącznie na potwierdzonych artefaktach
+  </div>
+
+</div>
+
+<script>
+  function setTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('btn-dark').classList.toggle('active', t === 'dark');
+    document.getElementById('btn-light').classList.toggle('active', t === 'light');
+  }
+</script>
+</body>
+</html>
