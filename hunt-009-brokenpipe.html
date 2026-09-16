@@ -125,23 +125,18 @@
 
   <div class="exec-summary">
     <div class="label">Streszczenie kierownicze</div>
-    <p>BrokenPipe.exe, uruchomiony jako zwykły zalogowany użytkownik (Medium Integrity, bez UAC, bez wcześniejszego dostępu administracyjnego), doprowadził w laboratorium do pełnej eskalacji uprawnień do NT AUTHORITY\SYSTEM w niecałe 30 sekund. Wektorem jest legalny, lokalny kanał IPC usługi <strong>Steam Client Service</strong> (<code>steamservice.exe</code>, firma trzecia - Valve, działa stale jako SYSTEM na maszynach z zainstalowanym klientem Steam). Usługa przyjmuje pewien wariant manifestu instalacyjnego bez pełnej weryfikacji jego pochodzenia, co pozwala uruchomić dowolny binarny komponent operatora jako SYSTEM.</p>
+    <p>BrokenPipe.exe, uruchomiony jako zwykły zalogowany użytkownik (bez UAC, bez wcześniejszego dostępu administracyjnego), doprowadził w laboratorium do pełnej eskalacji uprawnień do NT AUTHORITY\SYSTEM w niecałe 30 sekund. Wektorem jest lokalny kanał IPC usługi <strong>Steam Client Service</strong>. Usługa przyjmuje pewien wariant manifestu instalacyjnego bez pełnej weryfikacji jego pochodzenia, co pozwala uruchomić dowolny binarny komponent operatora jako SYSTEM.</p>
     <p>Ten dokument opisuje efekt i sposób wykrycia ataku. <strong>Świadomie pomija dokładny mechanizm bypassu</strong> (strukturę ramek protokołu IPC, wartości selektorów metod, offsety) - te szczegóły stanowiłyby gotową instrukcję odtworzenia ataku na realnych, produkcyjnych instalacjach Steama, a status łatki po stronie Valve nie jest potwierdzony.</p>
   </div>
 
-  <div class="notice red">
-    <span class="label">Pochodzenie próbki - do wyjaśnienia</span>
-    <p>Plik pochodzi z publicznego repozytorium <code>github.com/KillaBoi/BrokenPipe</code>. Dołączony do próbki ekran powitalny zawiera nietypowe jak na zgłoszenie bug bounty elementy - podziękowania dla konkretnych pseudonimów, prywatne odniesienia niezwiązane z treścią techniczną. Sam artefakt binarny deklaruje w README, że jest "wizualną kontynuacją" wcześniejszego zgłoszenia do HackerOne o nazwie <code>identity-sentinel</code> - to jednak deklaracja własna narzędzia, niezweryfikowana zewnętrznie. Przed jakąkolwiek dalszą dystrybucją lub publikacją pełnych szczegółów technicznych warto: (1) potwierdzić, czy podatność została faktycznie zgłoszona Valve i czy ma przydzielony status, (2) nie uruchamiać kolejnych, nieznanych binarek z tego samego źródła poza izolowanym labem.</p>
-  </div>
-
-  <!-- ============================================================ -->
+    <!-- ============================================================ -->
   <section>
     <h2><span class="n">01</span> Klasa podatności</h2>
     <p>Steam Client Service wystawia lokalny interfejs IPC do zarządzania "install scripts" gier - mechanizm, którym normalnie posługuje się sam klient Steam do instalowania i weryfikowania gier. Interfejs ten obsługuje więcej niż jeden format manifestu opisującego taki skrypt. Jeden z formatów wymaga poprawnego podpisu kryptograficznego (potwierdzone: usługa odwołuje się do biblioteki OpenSSL przy jego przetwarzaniu). Drugi - przeznaczony najprawdopodobniej do wewnętrznych/testowych scenariuszy Valve - nie wymaga takiego podpisu, a usługa nie wymusza wystarczająco silnej kontroli tego, z jakiej lokalizacji na dysku taki manifest pochodzi.</p>
     <p>Efekt: proces działający z uprawnieniami zwykłego użytkownika może skłonić usługę SYSTEM do uruchomienia własnego pliku wykonywalnego, umieszczonego w katalogu w pełni zapisywalnym przez tego użytkownika (poza domyślną lokalizacją instalacyjną Steama).</p>
     <div class="notice amber">
       <span class="label">Klasyfikacja</span>
-      <p>Trust control bypass w usłudze firmy trzeciej działającej jako SYSTEM - nie luka pamięciowa, nie przepełnienie bufora. Rdzeniem problemu jest brak powiązania odebranego żądania z legalnym, zainstalowanym przez Steama katalogiem gry.</p>
+      <p>Trust control bypass w usłudze firmy trzeciej działającej jako SYSTEM. Rdzeniem problemu jest brak powiązania odebranego żądania z zainstalowanym przez Steama katalogiem gry.</p>
     </div>
   </section>
 
@@ -296,73 +291,9 @@
   <!-- ============================================================ -->
   <section>
     <h2><span class="n">07</span> Detekcja</h2>
-    <p>Reguła oparta wyłącznie na artefaktach widocznych w produkcyjnej telemetrii (Sysmon EID 1 / Defender XDR DeviceProcessEvents), bez potrzeby znajomości wewnętrznego protokołu IPC usługi.</p>
+    <p>Reguły KQL w przygotowaniu</p>
 
-    <table>
-      <tr><th>Reguła</th><th>Źródło</th><th>Confidence</th><th>Etap</th></tr>
-      <tr>
-        <td class="strong">KQL-1</td>
-        <td>Sentinel / Sysmon EID 1</td>
-        <td><span class="tag-pill high">wysoka</span></td>
-        <td>Proces potomny steamservice.exe niepodpisany przez Valve lub poza katalogiem instalacyjnym - behawioralne</td>
-      </tr>
-      <tr>
-        <td class="strong">KQL-2</td>
-        <td>Defender XDR</td>
-        <td><span class="tag-pill med">średnia</span></td>
-        <td>Proces potomny steamservice.exe z linią poleceń zawierającą flagi trybu interaktywnego</td>
-      </tr>
-      <tr>
-        <td class="strong">KQL-3</td>
-        <td>Sentinel / Sysmon</td>
-        <td><span class="tag-pill low">niska (fallback)</span></td>
-        <td>SHA-256 znanych próbek - hunt only, trywialne do obejścia rekompilacją</td>
-      </tr>
-    </table>
-
-    <div class="kql-block">
-      <div class="kql-head"><strong>KQL-1 · Nieoczekiwany proces potomny steamservice.exe</strong><span class="kql-meta">Sentinel / Sysmon EID 1 · behawioralne</span></div>
-      <pre class="code"><span class="c">// steamservice.exe uruchamia proces potomny spoza katalogu instalacji Steama
-// lub niepodpisany przez Valve. Legalne install scripts uruchamiają binarki
-// z wnętrza katalogu gry pod Steam\steamapps\common.</span>
-Event
-| where Source == "Microsoft-Windows-Sysmon" and EventID == 1
-| extend ParentImage = extract(@"ParentImage: ([^\r\n]+)", 1, RenderedDescription)
-| extend Image = extract(@"Image: ([^\r\n]+)", 1, RenderedDescription)
-| extend IntegrityLevel = extract(@"IntegrityLevel: ([^\r\n]+)", 1, RenderedDescription)
-| where ParentImage has_cs @"\steamservice.exe"
-| where IntegrityLevel =~ "System"
-| where Image <span class="hl">!has</span> @"\Steam\steamapps\common\"
-    and Image <span class="hl">!has</span> @"\Steam\bin\"
-| project TimeGenerated, Computer, ParentImage, Image, IntegrityLevel</pre>
-    </div>
-
-    <div class="kql-block">
-      <div class="kql-head"><strong>KQL-2 · Podpis wydawcy procesu potomnego</strong><span class="kql-meta">Defender XDR</span></div>
-      <pre class="code"><span class="c">// Uzupełnienie KQL-1 o weryfikację podpisu - proces potomny
-// steamservice.exe działający jako SYSTEM, niepodpisany przez Valve Corporation</span>
-DeviceProcessEvents
-| where InitiatingProcessFileName =~ "steamservice.exe"
-| where AccountName has "SYSTEM"
-| where InitiatingProcessSignerType != "OSPlatformSigner"
-| where FileSignatureStatus != "Valid" or SignerType != "CompanySigner"
-    or Signer <span class="hl">!has</span> "Valve"
-| project Timestamp, DeviceName, InitiatingProcessFileName,
-    FileName, FolderPath, SHA256, Signer</pre>
-    </div>
-
-    <div class="kql-block">
-      <div class="kql-head"><strong>KQL-3 · Sygnaturowy fallback</strong><span class="kql-meta">Defender XDR · hunt only</span></div>
-      <pre class="code"><span class="c">// Wyłącznie sygnaturowe - trivial evasion przez rebuild
-// Threat hunting po incydencie, nie reguła alertowania produkcyjnego</span>
-DeviceProcessEvents
-| where SHA256 in~ (
-    "AB2DA9365021F79756EB464341D2F99128B8F23FB0DB2AB3F8CEFB171D88F100",
-    "DF0CAFD4B99BFBB4C3DCA44CF198B2E78E54B50FFA389AC21BC0B5D53AFA8EE8"
-  )
-| project Timestamp, DeviceName, AccountName,
-    ProcessCommandLine, InitiatingProcessFileName, SHA256</pre>
-    </div>
+    
   </section>
 
   <!-- ============================================================ -->
@@ -370,14 +301,14 @@ DeviceProcessEvents
     <h2><span class="n">08</span> Otwarte wątki</h2>
     <ul>
       <li>Status zgłoszenia podatności po stronie Valve nieznany - deklaracja "already confirmed identity-sentinel PoC" pochodzi wyłącznie z własnej dokumentacji narzędzia, brak zewnętrznego potwierdzenia (CVE, advisory). Wykrywanie próbki przez Defendera nie jest tożsame z załataniem luki w steamservice.exe.</li>
-      <li>Prawdziwość i intencje autora repozytorium (github.com/KillaBoi/BrokenPipe) nie zostały zweryfikowane poza analizą samego artefaktu binarnego.</li>
+      <li>Prawdziwość i intencje autora repozytorium nie zostały zweryfikowane poza analizą samego artefaktu binarnego.</li>
       <li>Żadna z reguł KQL nie została uruchomiona na realnym silniku Sentinel/Log Analytics - wymagany test wolumenu false-positive przed wdrożeniem produkcyjnym.</li>
       <li>Zaobserwowane w labie zachowanie (brak persystencji, samo-czyszczenie artefaktów) dotyczy tego konkretnego, ograniczonego wariantu narzędzia - nic nie gwarantuje, że każda kompilacja tego samego mechanizmu zachowa te same ograniczenia.</li>
     </ul>
   </section>
 
   <div class="footer">
-    THREAT-027 · 2026-09-16 · telemetria: Sysmon + Procmon · próbka: github.com/KillaBoi/BrokenPipe (pochodzenie niezweryfikowane) · szczegóły mechanizmu eksploatacji celowo pominięte
+    HUNT-009 · 2026-09-16 · telemetria: Sysmon + Procmon · szczegóły mechanizmu eksploatacji celowo pominięte
   </div>
 
 </div>
