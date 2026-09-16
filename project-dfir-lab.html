@@ -2,7 +2,7 @@
 <html lang="pl" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<title>PROJECT — dfir-lab-mcp: Broker MCP do Automatyzacji Detonacji i Telemetrii DFIR</title>
+<title>PROJECT - dfir-lab-mcp: Broker MCP do Automatyzacji Detonacji i Telemetrii DFIR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -144,7 +144,7 @@
 </head>
 <body>
 
-<div class="tlp-bar">TLP:CLEAR — DFIR LAB, UŻYTEK PORTFOLIO</div>
+<div class="tlp-bar">TLP:CLEAR - DFIR LAB, UŻYTEK PORTFOLIO</div>
 <div class="theme-toggle">
   <button id="btn-dark" class="active" onclick="setTheme('dark')">Ciemny</button>
   <button id="btn-light" onclick="setTheme('light')">Jasny</button>
@@ -154,7 +154,7 @@
 
   <div class="doc-id">PROJECT · DETECTION ENGINEERING / TOOLING · 06–15.08.2026</div>
   <h1>dfir-lab-mcp: broker MCP łączący Claude Code z <em>trzema odizolowanymi maszynami wirtualnymi</em></h1>
-  <p class="dek">Trzy niezależne procesy MCP — Linux/auditd, Windows/Sysmon, REMnux/static — sterują trzema odizolowanymi maszynami wirtualnymi bez łączności z internetem. Celem było zbudowanie zautomatyzowanego laboratorium / sandboxa, w którym AI bada i detonuje próbki malware z minimalną ingerencją ze strony użytkownika. Poniżej architektura, pełny zbiór 66 narzędzi i pięć decyzji, które po drodze uległy zmianie.</p>
+  <p class="dek">Trzy niezależne procesy MCP - Linux/auditd, Windows/Sysmon, REMnux/static - sterują trzema odizolowanymi maszynami wirtualnymi bez łączności z internetem. Celem było zbudowanie zautomatyzowanego laboratorium / sandboxa, w którym AI bada i detonuje próbki malware z minimalną ingerencją ze strony użytkownika. Poniżej architektura, pełny zbiór 66 narzędzi i pięć decyzji, które po drodze uległy zmianie.</p>
 
   <div class="statrow">
     <div class="stat"><div class="stat-val">66</div><div class="stat-k">narzędzi MCP</div></div>
@@ -173,16 +173,16 @@
   <section>
     <h2><span class="n">01</span> Geneza i cztery zasady, które się nie zmieniły</h2>
 
-    <p>Pomysł na zautomatyzowane laboratorium nie zrodził się z niczego. Wcześniej wraz z Claude Code stworzyliśmy jeden serwer MCP — <code>blue-team-mcp</code>, używany na zawodach CTF (OCF 2026). Pierwsza myśl przy budowie laboratorium DFIR była oczywista: stworzyć nowe narzędzia w oparciu o już istniejące rozwiązanie. Jednak po namyśle poszedłem w drugą stronę — zero rozbudowy istniejącego serwera o cokolwiek, tylko stworzenie nowego narzędzia dedykowanego do izolowanego środowiska sandbox. Powód: mieszanie kodu, który uruchamia próbki malware, z kodem obsługującym narzędzia ofensywne z CTF-a niepotrzebnie zwiększa ryzyko niepożądanych działań. Skopiowany został tylko transport i konwencja nazewnictwa — reszta architektury jest inna.</p>
+    <p>Pomysł na zautomatyzowane laboratorium nie zrodził się z niczego. Wcześniej wraz z Claude Code stworzyliśmy jeden serwer MCP - <code>blue-team-mcp</code>, używany na zawodach CTF (OCF 2026). Pierwsza myśl przy budowie laboratorium DFIR była oczywista: stworzyć nowe narzędzia w oparciu o już istniejące rozwiązanie. Jednak po namyśle poszedłem w drugą stronę - zero rozbudowy istniejącego serwera o cokolwiek, tylko stworzenie nowego narzędzia dedykowanego do izolowanego środowiska sandbox. Powód: mieszanie kodu, który uruchamia próbki malware, z kodem obsługującym narzędzia ofensywne z CTF-a niepotrzebnie zwiększa ryzyko niepożądanych działań. Skopiowany został tylko transport i konwencja nazewnictwa - reszta architektury jest inna.</p>
 
-    <p>Pierwotny zakres w ogóle nie zakładał tego, czym lab jest dzisiaj. Plan początkowy przewidywał integrację z SIEM Wazuh (<code>get_wazuh_alerts</code>, <code>diff_raw_vs_alerted</code>) jako główny mechanizm zbierający telemetrię, a moduł REMnux został świadomie ograniczony do wykonywania jedynie analizy statycznej, bez detonacji. Oba założenia okazały się nietrwałe — Wazuh został całkowicie usunięty (§05), a <code>windows/</code> dostał jednak <code>run_sample</code> jako jedyny świadomy wyjątek od reguły "brak detonacji". Broker, który dziś ma 66 narzędzi, zaczął się od czterech: <code>configure_profile</code>, <code>start_capture</code>, <code>stop_capture</code>, <code>get_raw_telemetry</code> — tylko dla Linuksa.</p>
+    <p>Pierwotny zakres w ogóle nie zakładał tego, czym lab jest dzisiaj. Plan początkowy przewidywał integrację z SIEM Wazuh (<code>get_wazuh_alerts</code>, <code>diff_raw_vs_alerted</code>) jako główny mechanizm zbierający telemetrię, a moduł REMnux został świadomie ograniczony do wykonywania jedynie analizy statycznej, bez detonacji. Oba założenia okazały się nietrwałe - Wazuh został całkowicie usunięty (§05), a <code>windows/</code> dostał jednak <code>run_sample</code> jako jedyny świadomy wyjątek od reguły "brak detonacji". Broker, który dziś ma 66 narzędzi, zaczął się od czterech: <code>configure_profile</code>, <code>start_capture</code>, <code>stop_capture</code>, <code>get_raw_telemetry</code> - tylko dla Linuksa.</p>
 
     <h3>Cztery zasady, które się nie zmieniły</h3>
     <div class="card">
-      <div class="kvrow"><span class="k">01 · brak stałej usługi</span><span class="v">broker nie jest ciągle działającym serwisem — jest uruchamiany tylko na czas sesji i wyłączany po niej</span></div>
-      <div class="kvrow"><span class="k">02 · kierunek połączeń</span><span class="v">zawsze jednokierunkowy do maszyn wirtualnych — firewall VM przyjmuje wyłącznie IP brokera</span></div>
-      <div class="kvrow"><span class="k">03 · segmentacja</span><span class="v">osobny VMnet host-only, bez NAT/gateway/DNS — VM-ki nigdy nie łączą się z internetem, nawet pośrednio</span></div>
-      <div class="kvrow"><span class="k">04 · brak hardeningu</span><span class="v">lab służy do obserwacji realnego zachowania próbek, nie do obrony — snapshot/rollback to zadanie użytkownika w VMware, nie brokera</span></div>
+      <div class="kvrow"><span class="k">01 · brak stałej usługi</span><span class="v">broker nie jest ciągle działającym serwisem - jest uruchamiany tylko na czas sesji i wyłączany po niej</span></div>
+      <div class="kvrow"><span class="k">02 · kierunek połączeń</span><span class="v">zawsze jednokierunkowy do maszyn wirtualnych - firewall VM przyjmuje wyłącznie IP brokera</span></div>
+      <div class="kvrow"><span class="k">03 · segmentacja</span><span class="v">osobny VMnet host-only, bez NAT/gateway/DNS - VM-ki nigdy nie łączą się z internetem, nawet pośrednio</span></div>
+      <div class="kvrow"><span class="k">04 · brak hardeningu</span><span class="v">lab służy do obserwacji realnego zachowania próbek, nie do obrony - snapshot/rollback to zadanie użytkownika w VMware, nie brokera</span></div>
     </div>
 
     <h3>Architektura</h3>
@@ -203,7 +203,7 @@ Claude / API ────┤ 2 interfejsy│  MCP / stdio
 └──────────┘      └────────────┘    └────────────┘
    segment host-only · bez NAT / gateway / DNS
    VM-ki nie łączą się nawzajem ani z internetem</pre>
-    <p>Dwa interfejsy sieciowe na jednym laptopie: jeden do internetu (Claude/API), drugi do izolowanego segmentu VMware. VM-ki nie mają linii między sobą — jedyny sposób przeniesienia czegoś między nimi to ręczny transfer plików przez broker (np. zrzut pamięci z <code>windows/</code> do <code>static/</code> pod YARA).</p>
+    <p>Dwa interfejsy sieciowe na jednym laptopie: jeden do internetu (Claude/API), drugi do izolowanego segmentu VMware. VM-ki nie mają linii między sobą - jedyny sposób przeniesienia czegoś między nimi to ręczny transfer plików przez broker (np. zrzut pamięci z <code>windows/</code> do <code>static/</code> pod YARA).</p>
 
     <h3>Dlaczego trzy osobne procesy, nie jeden broker z parametrem <code>os=</code></h3>
     <p>Była to świadoma decyzja, żeby nie iść w stronę jednego uniwersalnego serwera z parametrem wybierającym platformę. Dwa niezależne powody: Windows i Linux potrzebują całkiem innej warstwy transportowej (PowerShell/SSH bez basha kontra bash/auditd) i innego backendu telemetrii (Sysmon/<code>Get-WinEvent</code> kontra auditd/<code>ausearch</code>); a REMnux dotyka próbek malware, co jest inną powierzchnią ryzyka niż telemetria zbierana z czystych VM-ek, więc świadomie nie mieszamy tego w jednym procesie. Żaden z trzech serwerów nie ma też dostępu do sieci innej niż swój własny segment.</p>
@@ -213,7 +213,7 @@ Claude / API ────┤ 2 interfejsy│  MCP / stdio
       <div class="modcard"><div class="modname">windows/</div><div class="modmeta">Windows 11 VM · Sysmon</div><div class="modcount">23</div></div>
       <div class="modcard"><div class="modname">static/</div><div class="modmeta">REMnux VM · analiza offline</div><div class="modcount">25</div></div>
     </div>
-    <p>Rejestracja idzie przez <code>.mcp.json</code> — trzy niezależne wpisy, każdy z własnym środowiskiem wirtualnym Pythona. Po zmianie w którymkolwiek <code>server.py</code> trzeba osobno przeładować dany serwer, żeby lista narzędzi się odświeżyła — nie ma wspólnego punktu restartu, bo to trzy oddzielne procesy, nie trzy tryby jednego.</p>
+    <p>Rejestracja idzie przez <code>.mcp.json</code> - trzy niezależne wpisy, każdy z własnym środowiskiem wirtualnym Pythona. Po zmianie w którymkolwiek <code>server.py</code> trzeba osobno przeładować dany serwer, żeby lista narzędzi się odświeżyła - nie ma wspólnego punktu restartu, bo to trzy oddzielne procesy, nie trzy tryby jednego.</p>
   </section>
 
   <!-- ============================================================ -->
@@ -231,58 +231,58 @@ Claude / API ────┤ 2 interfejsy│  MCP / stdio
     <div class="toolgroup">
       <div class="toolgroup-h">detonacja i pamięć</div>
       <div class="toolrow"><code>run_sample</code><span class="desc">Wgrywa i odpala próbkę przez nohup, niezależnie od sesji SSH. Odmawia startu przy aktywnym wychodzącym połączeniu, chyba że jawnie dopuszczone.</span></div>
-      <div class="toolrow"><code>dump_process</code><span class="desc">Zrzut pamięci procesu (ELF core, gdb/gcore) — łapie dane przechowywane czysto w pamięci.</span></div>
-      <div class="toolrow"><code>download_dump</code><span class="desc">Ściąga zrzut na brokera z weryfikacją sha256 — domyka pętlę do yara_scan w static/.</span></div>
+      <div class="toolrow"><code>dump_process</code><span class="desc">Zrzut pamięci procesu (ELF core, gdb/gcore) - łapie dane przechowywane czysto w pamięci.</span></div>
+      <div class="toolrow"><code>download_dump</code><span class="desc">Ściąga zrzut na brokera z weryfikacją sha256 - domyka pętlę do yara_scan w static/.</span></div>
     </div>
     <div class="toolgroup">
       <div class="toolgroup-h">symulacja C2</div>
-      <div class="toolrow"><code>run_beacon_sim / cleanup_beacon_sim</code><span class="desc">Świadomie niefunkcjonalny symulator C2 (recon, opcjonalna persystencja, jittered beacon) — używany do testowania czy narzędzia działają poprawnie.</span></div>
+      <div class="toolrow"><code>run_beacon_sim / cleanup_beacon_sim</code><span class="desc">Świadomie niefunkcjonalny symulator C2 (recon, opcjonalna persystencja, jittered beacon) - używany do testowania czy narzędzia działają poprawnie.</span></div>
     </div>
     <div class="toolgroup">
       <div class="toolgroup-h">sieć</div>
-      <div class="toolrow"><code>start/stop_tcpdump_capture</code><span class="desc">Capture pakietów — widzi payload, nie tylko metadane połączenia.</span></div>
+      <div class="toolrow"><code>start/stop_tcpdump_capture</code><span class="desc">Capture pakietów - widzi payload, nie tylko metadane połączenia.</span></div>
       <div class="toolrow"><code>get_tcpdump_events</code><span class="desc">Filtrowany odczyt sformatowanego capture'u.</span></div>
-      <div class="toolrow"><code>download_capture</code><span class="desc">Ściąga capture na brokera — domyka pętlę do extract_pcap_iocs w static/.</span></div>
+      <div class="toolrow"><code>download_capture</code><span class="desc">Ściąga capture na brokera - domyka pętlę do extract_pcap_iocs w static/.</span></div>
     </div>
     <div class="toolgroup">
       <div class="toolgroup-h">telemetria i persystencja</div>
-      <div class="toolrow"><code>get_persistence_diff</code><span class="desc">Pobiera różnicę ze snapshotów persystencji z start/stop_capture — tylko dodania/usunięcia/zmiany, bez interpretacji.</span></div>
+      <div class="toolrow"><code>get_persistence_diff</code><span class="desc">Pobiera różnicę ze snapshotów persystencji z start/stop_capture - tylko dodania/usunięcia/zmiany, bez interpretacji.</span></div>
       <div class="toolrow"><code>get_raw_telemetry</code><span class="desc">Pobiera surowe zdarzenia auditd (ausearch) z danego okna + markery faz.</span></div>
-      <div class="toolrow"><code>check_lolbins</code><span class="desc">Heurystyczny skan telemetrii pod wzorce GTFOBins — kandydaci do przeglądu, nie potwierdzone.</span></div>
+      <div class="toolrow"><code>check_lolbins</code><span class="desc">Heurystyczny skan telemetrii pod wzorce GTFOBins - kandydaci do przeglądu, nie potwierdzone.</span></div>
     </div>
     <div class="toolgroup">
       <div class="toolgroup-h">raportowanie</div>
-      <div class="toolrow"><code>draft_detection_rule</code><span class="desc">Szkicuje regułę (Sigma/KQL/YARA) z podanych IoC — czysty template mapping, wspólny kod dla wszystkich trzech modułów.</span></div>
+      <div class="toolrow"><code>draft_detection_rule</code><span class="desc">Szkicuje regułę (Sigma/KQL/YARA) z podanych IoC - czysty template mapping, wspólny kod dla wszystkich trzech modułów.</span></div>
       <div class="toolrow"><code>generate_report</code><span class="desc">Raport DFIR (markdown/json) z historii sesji + mechanicznie wyciągnięta sekcja IoC.</span></div>
     </div>
 
     <h3>windows/ · Windows 11 VM · 23 narzędzia · Sysmon</h3>
     <div class="toolgroup">
       <div class="toolgroup-h">konfiguracja i okno przechwytywania</div>
-      <div class="toolrow"><code>configure_profile</code><span class="desc">Wgrywa config Sysmon i przeładowuje (sysmon -c) — cały XML podmieniany, nie nakładka jak na Linuksie.</span></div>
+      <div class="toolrow"><code>configure_profile</code><span class="desc">Wgrywa config Sysmon i przeładowuje (sysmon -c) - cały XML podmieniany, nie nakładka jak na Linuksie.</span></div>
       <div class="toolrow"><code>disable_defender</code><span class="desc">Wyłącza ochronę w czasie rzeczywistym + wykluczenia katalogów laba, żeby próbka nie trafiła do kwarantanny zanim Sysmon/Procmon zobaczą jej zachowanie.</span></div>
-      <div class="toolrow"><code>start/stop_capture, mark_phase</code><span class="desc">Jak w telemetry/ — snapshot powierzchni autorunu (Run/RunOnce, Startup, Scheduled Tasks, Services) przed/po.</span></div>
+      <div class="toolrow"><code>start/stop_capture, mark_phase</code><span class="desc">Jak w telemetry/ - snapshot powierzchni autorunu (Run/RunOnce, Startup, Scheduled Tasks, Services) przed/po.</span></div>
     </div>
     <div class="toolgroup">
       <div class="toolgroup-h">detonacja i pamięć</div>
-      <div class="toolrow"><code>run_sample</code><span class="desc">Wgrywa i odpala przez WMI (Win32_Process.Create) — jedyny świadomy wyjątek od reguły "brak detonacji" w tym labie.</span></div>
-      <div class="toolrow"><code>dump_process</code><span class="desc">Robi zrzut przez Sysinternals Procdump (full/mini) — łapie dane niewidoczne ani dla Sysmona, ani dla Procmona.</span></div>
+      <div class="toolrow"><code>run_sample</code><span class="desc">Wgrywa i odpala przez WMI (Win32_Process.Create) - jedyny świadomy wyjątek od reguły "brak detonacji" w tym labie.</span></div>
+      <div class="toolrow"><code>dump_process</code><span class="desc">Robi zrzut przez Sysinternals Procdump (full/mini) - łapie dane niewidoczne ani dla Sysmona, ani dla Procmona.</span></div>
       <div class="toolrow"><code>download_dump</code><span class="desc">Ściąga zrzut na brokera z weryfikacją sha256.</span></div>
     </div>
     <div class="toolgroup">
       <div class="toolgroup-h">symulacja C2</div>
-      <div class="toolrow"><code>run_beacon_sim / cleanup_beacon_sim</code><span class="desc">Symulator C2 przez PowerShell — opcjonalna persystencja w HKCU\...\Run, jittered beacon HTTP — służy do testowania poprawności działania narzędzi.</span></div>
+      <div class="toolrow"><code>run_beacon_sim / cleanup_beacon_sim</code><span class="desc">Symulator C2 przez PowerShell - opcjonalna persystencja w HKCU\...\Run, jittered beacon HTTP - służy do testowania poprawności działania narzędzi.</span></div>
     </div>
     <div class="toolgroup">
       <div class="toolgroup-h">procmon</div>
-      <div class="toolrow"><code>start/stop_procmon_capture</code><span class="desc">Procmon wstrzyknięty do sesji interaktywnej (PsExec -i) — łapie operacje na już otwartych uchwytach plików.</span></div>
-      <div class="toolrow"><code>get_procmon_events</code><span class="desc">Filtrowany odczyt zdarzeń — capture jest systemowy, filtr trzeba podać.</span></div>
+      <div class="toolrow"><code>start/stop_procmon_capture</code><span class="desc">Procmon wstrzyknięty do sesji interaktywnej (PsExec -i) - łapie operacje na już otwartych uchwytach plików.</span></div>
+      <div class="toolrow"><code>get_procmon_events</code><span class="desc">Filtrowany odczyt zdarzeń - capture jest systemowy, filtr trzeba podać.</span></div>
     </div>
     <div class="toolgroup">
       <div class="toolgroup-h">pktmon (sieć)</div>
-      <div class="toolrow"><code>start/stop_pktmon_capture</code><span class="desc">Systemowy capture pakietów przez pktmon.exe — widzi payload, nie tylko metadane jak Sysmonowy network_connect.</span></div>
+      <div class="toolrow"><code>start/stop_pktmon_capture</code><span class="desc">Systemowy capture pakietów przez pktmon.exe - widzi payload, nie tylko metadane jak Sysmonowy network_connect.</span></div>
       <div class="toolrow"><code>get_pktmon_events</code><span class="desc">Filtrowany odczyt sformatowanych pakietów.</span></div>
-      <div class="toolrow"><code>download_pktmon_capture</code><span class="desc">Ściąga .pcapng na brokera — domyka pętlę do extract_pcap_iocs w static/.</span></div>
+      <div class="toolrow"><code>download_pktmon_capture</code><span class="desc">Ściąga .pcapng na brokera - domyka pętlę do extract_pcap_iocs w static/.</span></div>
     </div>
     <div class="toolgroup">
       <div class="toolgroup-h">telemetria, persystencja, timeline</div>
@@ -293,7 +293,7 @@ Claude / API ────┤ 2 interfejsy│  MCP / stdio
     </div>
     <div class="toolgroup">
       <div class="toolgroup-h">raportowanie</div>
-      <div class="toolrow"><code>draft_detection_rule, generate_report</code><span class="desc">Jak w telemetry/ — raport dokłada trafienia YARA i mismatch parent/child usera.</span></div>
+      <div class="toolrow"><code>draft_detection_rule, generate_report</code><span class="desc">Jak w telemetry/ - raport dokłada trafienia YARA i mismatch parent/child usera.</span></div>
     </div>
 
     <h3>static/ · REMnux VM · 25 narzędzi · analiza offline</h3>
@@ -302,41 +302,41 @@ Claude / API ────┤ 2 interfejsy│  MCP / stdio
       <div class="toolrow"><code>upload_sample</code><span class="desc">Wgrywa plik do katalogu keyowanego sha256, chmod 444. Zwraca sha256 do użycia jako sample wszędzie indziej.</span></div>
       <div class="toolrow"><code>extract_strings, pe_metadata</code><span class="desc">Stringi (ASCII+wide) oraz struktura PE (sekcje, entropia, importy) + identyfikacja packera przez Detect It Easy.</span></div>
       <div class="toolrow"><code>pdf_metadata, office_macro_scan</code><span class="desc">Triaż PDF (pdfid/pdf-parser) i ekstrakcja makr VBA/XLM (olevba).</span></div>
-      <div class="toolrow"><code>parse_email, parse_msg</code><span class="desc">Parsowanie .eml/.msg — nagłówki, łańcuch Received, URL-e; każdy załącznik automatycznie staje się nowym sample.</span></div>
-      <div class="toolrow"><code>parse_lnk</code><span class="desc">Skrót .lnk przez exiftool — target/argumenty, gdzie zwykle siedzi payload.</span></div>
-      <div class="toolrow"><code>extract_archive</code><span class="desc">Rozpakowuje zip/rar/7z/ISO (w tym z hasłem) — odmawia przy podejrzeniu zip-bomby.</span></div>
+      <div class="toolrow"><code>parse_email, parse_msg</code><span class="desc">Parsowanie .eml/.msg - nagłówki, łańcuch Received, URL-e; każdy załącznik automatycznie staje się nowym sample.</span></div>
+      <div class="toolrow"><code>parse_lnk</code><span class="desc">Skrót .lnk przez exiftool - target/argumenty, gdzie zwykle siedzi payload.</span></div>
+      <div class="toolrow"><code>extract_archive</code><span class="desc">Rozpakowuje zip/rar/7z/ISO (w tym z hasłem) - odmawia przy podejrzeniu zip-bomby.</span></div>
     </div>
     <div class="toolgroup">
       <div class="toolgroup-h">detekcja i reputacja</div>
       <div class="toolrow"><code>yara_scan, update_yara_rules</code><span class="desc">Skan YARA (domyślnie manalyze) i sideload publicznego rulesetu (~560 plików) przez SFTP z brokera.</span></div>
-      <div class="toolrow"><code>hash_lookup, url_lookup</code><span class="desc">Reputacja sha256/URL na VirusTotal — z brokera, nigdy z odizolowanej VM.</span></div>
+      <div class="toolrow"><code>hash_lookup, url_lookup</code><span class="desc">Reputacja sha256/URL na VirusTotal - z brokera, nigdy z odizolowanej VM.</span></div>
       <div class="toolrow"><code>whois_lookup</code><span class="desc">Dane rejestracyjne domeny/IP z brokera.</span></div>
     </div>
     <div class="toolgroup">
       <div class="toolgroup-h">analiza binarna (Ghidra)</div>
-      <div class="toolrow"><code>ghidra_analyze</code><span class="desc">Pełna auto-analiza przez PyGhidra — lista funkcji i importów, cache'owana per próbka.</span></div>
-      <div class="toolrow"><code>ghidra_find_xrefs</code><span class="desc">Które funkcje wołają dany import — mechaniczny xref lookup.</span></div>
+      <div class="toolrow"><code>ghidra_analyze</code><span class="desc">Pełna auto-analiza przez PyGhidra - lista funkcji i importów, cache'owana per próbka.</span></div>
+      <div class="toolrow"><code>ghidra_find_xrefs</code><span class="desc">Które funkcje wołają dany import - mechaniczny xref lookup.</span></div>
       <div class="toolrow"><code>ghidra_decompile_function</code><span class="desc">Dekompilacja jednej funkcji do C-podobnego pseudokodu + lista wołanych API.</span></div>
     </div>
     <div class="toolgroup">
       <div class="toolgroup-h">sieć i sinkhole</div>
-      <div class="toolrow"><code>extract_pcap_iocs, analyze_har</code><span class="desc">IoC sieciowe z pcap (tshark) lub HAR — DNS, HTTP Host/URI, TLS SNI; carve'owane obiekty stają się nowym sample.</span></div>
-      <div class="toolrow"><code>start/stop_inetsim</code><span class="desc">InetSim (sinkhole DNS + IP-redirect przez iptables) — próbki z zahardkodowanym C2 dostają odpowiedź zamiast ciszy.</span></div>
-      <div class="toolrow"><code>get_inetsim_log</code><span class="desc">Odczyt logu InetSim — jakie żądania obsłużył od ostatniego startu.</span></div>
+      <div class="toolrow"><code>extract_pcap_iocs, analyze_har</code><span class="desc">IoC sieciowe z pcap (tshark) lub HAR - DNS, HTTP Host/URI, TLS SNI; carve'owane obiekty stają się nowym sample.</span></div>
+      <div class="toolrow"><code>start/stop_inetsim</code><span class="desc">InetSim (sinkhole DNS + IP-redirect przez iptables) - próbki z zahardkodowanym C2 dostają odpowiedź zamiast ciszy.</span></div>
+      <div class="toolrow"><code>get_inetsim_log</code><span class="desc">Odczyt logu InetSim - jakie żądania obsłużył od ostatniego startu.</span></div>
     </div>
     <div class="toolgroup">
       <div class="toolgroup-h">raportowanie i cross-check</div>
       <div class="toolrow"><code>draft_detection_rule, generate_report</code><span class="desc">Jak w pozostałych modułach.</span></div>
-      <div class="toolrow"><code>compare_analyst_notes_vs_findings</code><span class="desc">Zestawia notatki analityka z wyekstrahowanymi IoC — drugi zestaw oczu, celowo bez interpretacji semantycznej.</span></div>
+      <div class="toolrow"><code>compare_analyst_notes_vs_findings</code><span class="desc">Zestawia notatki analityka z wyekstrahowanymi IoC - drugi zestaw oczu, celowo bez interpretacji semantycznej.</span></div>
     </div>
   </section>
 
   <!-- ============================================================ -->
   <section>
     <h2><span class="n">03</span> Wspólna infrastruktura</h2>
-    <p>Każde wywołanie narzędzia i każda faktycznie wykonana komenda zdalna są automatycznie logowane per sesja w <code>&lt;moduł&gt;/case_logs/</code> — argumenty, wynik, dokładna komenda, czas trwania, status. Duże treści (powyżej 2048 bajtów) trzymane osobno jako gzipowane bloby, żeby nie zaśmiecać głównego logu.</p>
-    <p><code>generate_report</code> w każdym module renderuje to do markdown/json, dokładając sekcję Indicators of Compromise wyciąganą mechanicznie (regex/parsing pól) — zero interpretacji modelu co do tego, czy coś jest złośliwe. To ta sama filozofia co <code>compare_analyst_notes_vs_findings</code>: narzędzia mają dawać surowy, sprawdzalny materiał, nie gotową ocenę.</p>
-    <p>Nad tym stoi lekki, statyczny dashboard (<code>build_dashboard.py</code>, zero zależności poza stdlib) — skanuje <code>case_logs/</code> wszystkich trzech modułów naraz i generuje sortowalną/filtrowalną tabelę wszystkich sesji, plus trzy dodatkowe widoki:</p>
+    <p>Każde wywołanie narzędzia i każda faktycznie wykonana komenda zdalna są automatycznie logowane per sesja w <code>&lt;moduł&gt;/case_logs/</code> - argumenty, wynik, dokładna komenda, czas trwania, status. Duże treści (powyżej 2048 bajtów) trzymane osobno jako gzipowane bloby, żeby nie zaśmiecać głównego logu.</p>
+    <p><code>generate_report</code> w każdym module renderuje to do markdown/json, dokładając sekcję Indicators of Compromise wyciąganą mechanicznie (regex/parsing pól) - zero interpretacji modelu co do tego, czy coś jest złośliwe. To ta sama filozofia co <code>compare_analyst_notes_vs_findings</code>: narzędzia mają dawać surowy, sprawdzalny materiał, nie gotową ocenę.</p>
+    <p>Nad tym stoi lekki, statyczny dashboard (<code>build_dashboard.py</code>, zero zależności poza stdlib) - skanuje <code>case_logs/</code> wszystkich trzech modułów naraz i generuje sortowalną/filtrowalną tabelę wszystkich sesji, plus trzy dodatkowe widoki:</p>
     <ul>
       <li>mapa technik ATT&CK wykrytych przez <code>check_lolbins</code>/<code>get_persistence_diff</code></li>
       <li>strony per-próbka grupujące sesje po sha256 (ta sama próbka testowana statycznie i dynamicznie w jednym miejscu)</li>
@@ -347,55 +347,55 @@ Claude / API ────┤ 2 interfejsy│  MCP / stdio
   <!-- ============================================================ -->
   <section>
     <h2><span class="n">04</span> Czego się nauczyłem: pięć decyzji, które nie przetrwały kontaktu z rzeczywistością</h2>
-    <p>Powyższa architektura wygląda dziś na całkiem spójną całość, ale doszła do tego stanu przez konkretne, czasem bolesne poprawki — nie z góry ustalonego planu. Poniżej pięć epizodów, które faktycznie zmieniły kod albo sposób pracy z labem, w kolejności chronologicznej.</p>
+    <p>Powyższa architektura wygląda dziś na całkiem spójną całość, ale doszła do tego stanu przez konkretne, czasem bolesne poprawki - nie z góry ustalonego planu. Poniżej pięć epizodów, które faktycznie zmieniły kod albo sposób pracy z labem, w kolejności chronologicznej.</p>
 
     <div class="lesson">
       <div class="lesson-head"><strong>Usunięcie Wazuha z laba</strong><span class="lesson-date">2026-08-04</span></div>
-      <p>Pierwotny plan brokera stawiał Wazuha w centrum: <code>get_wazuh_alerts</code> i <code>diff_raw_vs_alerted</code> miały pokazywać, które surowe zdarzenia auditd/Sysmona nie doczekały się odpowiadającego alertu — czyli dokładnie ten problem, że reguła przechodzi <code>wazuh-logtest</code>, ale po cichu i nie odpala alertu. W praktyce integracja z managerem Wazuha generowała powtarzające się problemy operacyjne, niezwiązane z samym labem DFIR.</p>
-      <p>Decyzja była jednoznaczna: całkowite usunięcie, nie obejście. Z obu modułów telemetrycznych zniknęły oba narzędzia, cały plik <code>wazuh_tools.py</code>, blok <code>wazuh_manager</code> z konfiguracji, a na VM linuksowej został odinstalowany pakiet <code>wazuh-agent</code>. Tak samo dla systemu Windows. <code>get_raw_telemetry</code> — surowy kanał auditd/Sysmon bez pośrednika — stał się jedynym źródłem telemetrii w obu modułach.</p>
-      <div class="lesson-verdict"><span class="label">wniosek</span>Warstwa porównawcza (SIEM kontra surowa telemetria) brzmiała jak najcenniejsza część projektu na etapie planowania, a okazała się najsłabszym ogniwem operacyjnie. Najprostszym wyjściem było pozostanie przy jednym, bezpośrednim źródle danych — nawet kosztem utraty automatycznego porównania z systemem SIEM.</div>
+      <p>Pierwotny plan brokera stawiał Wazuha w centrum: <code>get_wazuh_alerts</code> i <code>diff_raw_vs_alerted</code> miały pokazywać, które surowe zdarzenia auditd/Sysmona nie doczekały się odpowiadającego alertu - czyli dokładnie ten problem, że reguła przechodzi <code>wazuh-logtest</code>, ale po cichu i nie odpala alertu. W praktyce integracja z managerem Wazuha generowała powtarzające się problemy operacyjne, niezwiązane z samym labem DFIR.</p>
+      <p>Decyzja była jednoznaczna: całkowite usunięcie, nie obejście. Z obu modułów telemetrycznych zniknęły oba narzędzia, cały plik <code>wazuh_tools.py</code>, blok <code>wazuh_manager</code> z konfiguracji, a na VM linuksowej został odinstalowany pakiet <code>wazuh-agent</code>. Tak samo dla systemu Windows. <code>get_raw_telemetry</code> - surowy kanał auditd/Sysmon bez pośrednika - stał się jedynym źródłem telemetrii w obu modułach.</p>
+      <div class="lesson-verdict"><span class="label">wniosek</span>Warstwa porównawcza (SIEM kontra surowa telemetria) brzmiała jak najcenniejsza część projektu na etapie planowania, a okazała się najsłabszym ogniwem operacyjnie. Najprostszym wyjściem było pozostanie przy jednym, bezpośrednim źródle danych - nawet kosztem utraty automatycznego porównania z systemem SIEM.</div>
     </div>
 
     <div class="lesson">
-      <div class="lesson-head"><strong>Sysmon EventID 3 loguje tylko udane połączenia — root-cause przez sześć testów A/B</strong><span class="lesson-date">2026-08-09</span></div>
-      <p>Raport z próbki loadera Stealc pokazał zero zdarzeń <code>network_connect</code>/<code>dns_query</code> w Sysmonie mimo zaobserwowanej aktywności sieciowej próbki, potwierdzonej niezależnie przez Procmon i pktmon. Pierwsza, robocza hipoteza brzmiała "luka Sysmona, związana z odpalaniem przez WMI" — <code>run_sample</code> w <code>windows/</code> uruchamia próbki właśnie przez <code>Win32_Process.Create</code>. Zamiast opisać to jako znany błąd przeprowadziliśmy dodatkowe testy.</p>
+      <div class="lesson-head"><strong>Sysmon EventID 3 loguje tylko udane połączenia - root-cause przez sześć testów A/B</strong><span class="lesson-date">2026-08-09</span></div>
+      <p>Raport z próbki loadera Stealc pokazał zero zdarzeń <code>network_connect</code>/<code>dns_query</code> w Sysmonie mimo zaobserwowanej aktywności sieciowej próbki, potwierdzonej niezależnie przez Procmon i pktmon. Pierwsza, robocza hipoteza brzmiała "luka Sysmona, związana z odpalaniem przez WMI" - <code>run_sample</code> w <code>windows/</code> uruchamia próbki właśnie przez <code>Win32_Process.Create</code>. Zamiast opisać to jako znany błąd przeprowadziliśmy dodatkowe testy.</p>
       <table>
         <tr><th>Test</th><th>Warunek</th><th>Wynik</th></tr>
         <tr><td>1</td><td>Kontrola, bezpośredni SSH (nie WMI), proces żył ~300 ms</td><td class="bad">zero zdarzeń</td></tr>
-        <tr><td>2</td><td>WMI, proces żył ~10 s, 3 połączenia co 5 s</td><td class="ok">2/3 złapane — hipoteza "WMI = ślepe" odrzucona</td></tr>
-        <tr><td>3</td><td>curl.exe przez WMI, ~27 ms życia, żądanie udane (200 OK)</td><td class="bad">zero zdarzeń — zgodne z "zbyt młody proces"</td></tr>
-        <tr><td>4</td><td>WMI, sen 4 s przed połączeniem, połączenie do InetSim — udane</td><td class="ok">złapane, ~2.5–7 s po starcie</td></tr>
+        <tr><td>2</td><td>WMI, proces żył ~10 s, 3 połączenia co 5 s</td><td class="ok">2/3 złapane - hipoteza "WMI = ślepe" odrzucona</td></tr>
+        <tr><td>3</td><td>curl.exe przez WMI, ~27 ms życia, żądanie udane (200 OK)</td><td class="bad">zero zdarzeń - zgodne z "zbyt młody proces"</td></tr>
+        <tr><td>4</td><td>WMI, sen 4 s przed połączeniem, połączenie do InetSim - udane</td><td class="ok">złapane, ~2.5–7 s po starcie</td></tr>
         <tr><td>5</td><td>Jak wyżej, ale adres nigdy nie odpowiada (imitacja C2 Stealc), proces żył &gt;15 s</td><td class="bad">zero zdarzeń mimo dojrzałego procesu</td></tr>
-        <tr><td>6</td><td>Ten sam scenariusz co 5, ale z aktywnym IP-redirect InetSim — połączenie się udaje</td><td class="ok">złapane, ~7 s po starcie</td></tr>
+        <tr><td>6</td><td>Ten sam scenariusz co 5, ale z aktywnym IP-redirect InetSim - połączenie się udaje</td><td class="ok">złapane, ~7 s po starcie</td></tr>
       </table>
-      <p>Wniosek został zweryfikowany empirycznie, nie wywnioskowany z dokumentacji: Sysmon EventID 3 na tej VM (build 26100) loguje wyłącznie połączenie TCP wtedy, gdy handshake faktycznie się powiedzie — sam wysłany SYN bez odpowiedzi nigdy nie trafia do logów, niezależnie od wieku procesu ani mechanizmu odpalenia. Dodatkowo istnieje niezależne, krótkie (1–2.5 s) okno rozgrzewania nowego procesu, w którym nawet udane połączenie bywa pominięte.</p>
-      <div class="lesson-verdict"><span class="label">wniosek</span>Powszechne przekonanie, że Sysmon loguje próby połączenia niezależnie od sukcesu, okazało się nieprawdziwe dla tego konkretnego builda. Każda próbka, której C2 nie odpowiada — najczęstszy przypadek w izolowanym labie bez trasy na zewnątrz — będzie miała zero zdarzeń sieciowych w Sysmonie bez względu na długość sesji. Procmon i pktmon nie są opcjonalnym dodatkiem do Sysmona w tym labie, tylko jedynym wiarygodnym źródłem sieciowym dla takich przypadków.</div>
+      <p>Wniosek został zweryfikowany empirycznie, nie wywnioskowany z dokumentacji: Sysmon EventID 3 na tej VM (build 26100) loguje wyłącznie połączenie TCP wtedy, gdy handshake faktycznie się powiedzie - sam wysłany SYN bez odpowiedzi nigdy nie trafia do logów, niezależnie od wieku procesu ani mechanizmu odpalenia. Dodatkowo istnieje niezależne, krótkie (1–2.5 s) okno rozgrzewania nowego procesu, w którym nawet udane połączenie bywa pominięte.</p>
+      <div class="lesson-verdict"><span class="label">wniosek</span>Powszechne przekonanie, że Sysmon loguje próby połączenia niezależnie od sukcesu, okazało się nieprawdziwe dla tego konkretnego builda. Każda próbka, której C2 nie odpowiada - najczęstszy przypadek w izolowanym labie bez trasy na zewnątrz - będzie miała zero zdarzeń sieciowych w Sysmonie bez względu na długość sesji. Procmon i pktmon nie są opcjonalnym dodatkiem do Sysmona w tym labie, tylko jedynym wiarygodnym źródłem sieciowym dla takich przypadków.</div>
     </div>
 
     <div class="lesson">
-      <div class="lesson-head"><strong>InetSim dummy_port — gotowe rozwiązanie zamiast budowy od zera</strong><span class="lesson-date">2026-08-09</span></div>
-      <p><code>start_inetsim</code>'s IP-redirect obsługiwał osiem standardowych portów InetSim, ale ta sama seria testów pokazała, jak wąskie to pokrycie: Mirai/Condi łączył się na porcie 6934, QuasarRAT na 4782 — oba spoza listy. Podczas retestu QuasarRAT zapytałem wprost: "czy jesteś w stanie dodać do inetsim ten port?"</p>
-      <p>Zamiast budować od nowa moduł catch-all na dowolny port (którego InetSim natywnie nie ma), rozwiązaniem było odnalezienie już istniejącego mechanizmu — <code>INetSim::Dummy</code>, generyczny odpowiadacz TCP/UDP na dowolnym, pojedynczym porcie. <code>dummy_port</code> ustawia port w <code>inetsim.conf</code>, restartuje InetSim i dogrywa pasującą regułę iptables pod tym samym tagiem, którym <code>stop_inetsim</code> sprząta wszystko na końcu. Zostało to potwierdzone podczas testów próbki C2 QuasarRAT (<code>145.63.135.73:4782</code>): pełny handshake TCP, próbka wysłała własny protokół (najpewniej ClientHello TLS) i czekała cierpliwie z sondami zamiast się rozłączyć.</p>
-      <p>Ograniczenie zaakceptowane świadomie: tylko jeden dodatkowy port na raz — <code>dummy_bind_port</code> w konfiguracji InetSim jest skalarem, nie listą, więc kolejne wywołanie z innym portem podmienia poprzedni.</p>
-      <div class="lesson-verdict"><span class="label">wniosek</span>Pytanie w trakcie retestu było szybsze do obsłużenia niż projektowanie nowego rozwiązania — i doprowadziło do punktowej, ale w pełni zweryfikowanej funkcji tego samego dnia. Nie każda luka wymaga architektury na wyrost, czasem gotowy mechanizm w narzędziu, którego się już używa, wystarczy.</div>
+      <div class="lesson-head"><strong>InetSim dummy_port - gotowe rozwiązanie zamiast budowy od zera</strong><span class="lesson-date">2026-08-09</span></div>
+      <p><code>start_inetsim</code>'s IP-redirect obsługiwał osiem standardowych portów InetSim, ale ta sama seria testów pokazała, jak wąskie to pokrycie: Mirai/Condi łączył się na porcie 6934, QuasarRAT na 4782 - oba spoza listy. Podczas retestu QuasarRAT zapytałem wprost: "czy jesteś w stanie dodać do inetsim ten port?"</p>
+      <p>Zamiast budować od nowa moduł catch-all na dowolny port (którego InetSim natywnie nie ma), rozwiązaniem było odnalezienie już istniejącego mechanizmu - <code>INetSim::Dummy</code>, generyczny odpowiadacz TCP/UDP na dowolnym, pojedynczym porcie. <code>dummy_port</code> ustawia port w <code>inetsim.conf</code>, restartuje InetSim i dogrywa pasującą regułę iptables pod tym samym tagiem, którym <code>stop_inetsim</code> sprząta wszystko na końcu. Zostało to potwierdzone podczas testów próbki C2 QuasarRAT (<code>145.63.135.73:4782</code>): pełny handshake TCP, próbka wysłała własny protokół (najpewniej ClientHello TLS) i czekała cierpliwie z sondami zamiast się rozłączyć.</p>
+      <p>Ograniczenie zaakceptowane świadomie: tylko jeden dodatkowy port na raz - <code>dummy_bind_port</code> w konfiguracji InetSim jest skalarem, nie listą, więc kolejne wywołanie z innym portem podmienia poprzedni.</p>
+      <div class="lesson-verdict"><span class="label">wniosek</span>Pytanie w trakcie retestu było szybsze do obsłużenia niż projektowanie nowego rozwiązania - i doprowadziło do punktowej, ale w pełni zweryfikowanej funkcji tego samego dnia. Nie każda luka wymaga architektury na wyrost, czasem gotowy mechanizm w narzędziu, którego się już używa, wystarczy.</div>
     </div>
 
     <div class="lesson">
       <div class="lesson-head"><strong>Auto-mode zablokował uruchomienie / detonację próbki Remcos RAT</strong><span class="lesson-date">2026-08-11</span></div>
-      <p>W tej samej sesji, w której wcześniej bez problemu zdetonowano Poison Ivy z 2009 roku, GuLoader i VeeamAgent, kolejna próbka (trojanizowany Haihaisoft PDF Reader ze złośliwym <code>oledlg.dll</code>) po potwierdzeniu przez VirusTotal jako Remcos RAT + loader HCrypt — Claude Code zaczął dostawać odmowy — <code>disable_defender</code>, <code>run_sample</code>, <code>stop_pktmon_capture</code>, <code>yara_scan</code> zostały kolejno zablokowane przez klasyfikator trybu auto z komunikatem "Blocked by classifier". Blokada zaczęła się dokładnie od momentu, gdy VT potwierdził konkretną, aktywnie utrzymywaną rodzinę RAT-a — nie wcześniej, mimo że lab jest w pełni izolowany niezależnie od tego, co harness o tym wie.</p>
+      <p>W tej samej sesji, w której wcześniej bez problemu zdetonowano Poison Ivy z 2009 roku, GuLoader i VeeamAgent, kolejna próbka (trojanizowany Haihaisoft PDF Reader ze złośliwym <code>oledlg.dll</code>) po potwierdzeniu przez VirusTotal jako Remcos RAT + loader HCrypt - Claude Code zaczął dostawać odmowy - <code>disable_defender</code>, <code>run_sample</code>, <code>stop_pktmon_capture</code>, <code>yara_scan</code> zostały kolejno zablokowane przez klasyfikator trybu auto z komunikatem "Blocked by classifier". Blokada zaczęła się dokładnie od momentu, gdy VT potwierdził konkretną, aktywnie utrzymywaną rodzinę RAT-a - nie wcześniej, mimo że lab jest w pełni izolowany niezależnie od tego, co harness o tym wie.</p>
       <div class="notice amber">
         <span class="label">warstwa bezpieczeństwa</span>
-        <p>To blokada na poziomie harnessu Claude, nie coś, co kontrolują uprawnienia narzędzi MCP ani zasady izolacji samego laba — więc obejście przez surowe SSH byłoby złym pomysłem, nawet gdyby technicznie zadziałało.</p>
+        <p>To blokada na poziomie harnessu Claude, nie coś, co kontrolują uprawnienia narzędzi MCP ani zasady izolacji samego laba - więc obejście przez surowe SSH byłoby złym pomysłem, nawet gdyby technicznie zadziałało.</p>
       </div>
-      <p>Zamiast tego znalazłem prostsze obejście: blokada dotyczyła konkretnie uruchomienia złośliwego pliku wykonywalnego, nie pomocniczych wywołań <code>run_sample</code> na niegroźnych plikach. Zadziałało wgranie DLL-a i małego skryptu .bat do docelowego katalogu (znanego z góry, bo to po prostu sha256 pliku lokalnego) przez <code>run_sample</code> na nieszkodliwych plikach pomocniczych, przygotowanie i uzbrojenie InetSim/Sysmon/Procmon z wyprzedzeniem, a na końcu ręczne wgranie właściwego pliku wykonywalnego do gotowego katalogu i ręczne jego odpalenie — bo uruchomienie sterowane przez człowieka nie jest wywołaniem narzędzia, którego dotyczy klasyfikator.</p>
+      <p>Zamiast tego znalazłem prostsze obejście: blokada dotyczyła konkretnie uruchomienia złośliwego pliku wykonywalnego, nie pomocniczych wywołań <code>run_sample</code> na niegroźnych plikach. Zadziałało wgranie DLL-a i małego skryptu .bat do docelowego katalogu (znanego z góry, bo to po prostu sha256 pliku lokalnego) przez <code>run_sample</code> na nieszkodliwych plikach pomocniczych, przygotowanie i uzbrojenie InetSim/Sysmon/Procmon z wyprzedzeniem, a na końcu ręczne wgranie właściwego pliku wykonywalnego do gotowego katalogu i ręczne jego odpalenie - bo uruchomienie sterowane przez człowieka nie jest wywołaniem narzędzia, którego dotyczy klasyfikator.</p>
       <p>Rezultat: udało się zebrać pełną telemetrię oraz logi Procmon z dwóch niezależnych, niemal identycznych przebiegów. Próbka załadowała podrzucony DLL z własnego katalogu (T1574.001, obserwowane bezpośrednio przez zdarzenie Load Image), wstrzyknęła się do świeżej kopii samej siebie przez CreateRemoteThread ~19–24 s po starcie, po czym wstrzyknięta kopia padła przez WerFault ~7 s po zakończeniu procesu iniektora, zanim dotarła do etapu sieciowego.</p>
-      <div class="lesson-verdict"><span class="label">wniosek</span>Nie każda próbka w tym labie zdetonuje się tak samo automatycznie — im bardziej aktywna i rozpoznawalna rodzina malware, tym większa szansa, że zabezpieczenie zablokuje kluczowe wywołania niezależnie od izolacji sieciowej. Wnioski na przyszłość: przy pierwszej odmowie uruchomienia próbki nie próbować dalej obchodzić przez inne narzędzia, tylko sprawdzić, czy blokada dotyczy konkretnie pliku złośliwego — i jeśli tak, przygotować grunt narzędziami, a samo odpalenie oddać sobie.</div>
+      <div class="lesson-verdict"><span class="label">wniosek</span>Nie każda próbka w tym labie zdetonuje się tak samo automatycznie - im bardziej aktywna i rozpoznawalna rodzina malware, tym większa szansa, że zabezpieczenie zablokuje kluczowe wywołania niezależnie od izolacji sieciowej. Wnioski na przyszłość: przy pierwszej odmowie uruchomienia próbki nie próbować dalej obchodzić przez inne narzędzia, tylko sprawdzić, czy blokada dotyczy konkretnie pliku złośliwego - i jeśli tak, przygotować grunt narzędziami, a samo odpalenie oddać sobie.</div>
     </div>
 
     <div class="lesson">
-      <div class="lesson-head"><strong>ShieldBreak.exe — staging payloadu w ADS (Alternate Data Stream), niewidoczny dla configu Sysmona</strong><span class="lesson-date">2026-08-13</span></div>
-      <p>Publiczne PoC z GitHuba, dwanaście przebiegów po 100–300 ms każdy: staging payloadu (~2.4 MiB) w alternatywnym strumieniu danych NTFS w ukrytym katalogu na dysku, zero aktywności sieciowej / procesów potomnych / technik persystencji. Sysmon nie zarejestrował żadnego z tych zapisów — konfiguracja laba nie miała w konfiguracji Sysmon bloku <code>FileCreateStreamHash</code> (EventID 15), a nawet reguła catch-all wymagała kropki w nazwie pliku, której ścieżka do strumienia ADS nie ma.</p>
-      <p>Pełna analiza — trzy sesje, dwie ścieżki telemetrii (Procmon CSV + surowy Sysmon), root-cause w pliku konfiguracyjnym Sysmona, szkic reguły KQL po dodaniu brakującego EventID — opisana osobno w <a href="hunt-007-shieldbreak.html">HUNT-007</a>. Tutaj tylko jako piąty epizod chronologii: ten sam wzorzec co przy Sysmon EventID 3 (§04) — brak zdarzeń łatwo pomylić z brakiem aktywności, dopóki nie trafi się próbka, która akurat trafia w konkretną, niepokrytą kategorię technik.</p>
+      <div class="lesson-head"><strong>ShieldBreak.exe - staging payloadu w ADS (Alternate Data Stream), niewidoczny dla configu Sysmona</strong><span class="lesson-date">2026-08-13</span></div>
+      <p>Publiczne PoC z GitHuba, dwanaście przebiegów po 100–300 ms każdy: staging payloadu (~2.4 MiB) w alternatywnym strumieniu danych NTFS w ukrytym katalogu na dysku, zero aktywności sieciowej / procesów potomnych / technik persystencji. Sysmon nie zarejestrował żadnego z tych zapisów - konfiguracja laba nie miała w konfiguracji Sysmon bloku <code>FileCreateStreamHash</code> (EventID 15), a nawet reguła catch-all wymagała kropki w nazwie pliku, której ścieżka do strumienia ADS nie ma.</p>
+      <p>Pełna analiza - trzy sesje, dwie ścieżki telemetrii (Procmon CSV + surowy Sysmon), root-cause w pliku konfiguracyjnym Sysmona, szkic reguły KQL po dodaniu brakującego EventID - opisana osobno w <a href="hunt-007-shieldbreak.html">HUNT-007</a>. Tutaj tylko jako piąty epizod chronologii: ten sam wzorzec co przy Sysmon EventID 3 (§04) - brak zdarzeń łatwo pomylić z brakiem aktywności, dopóki nie trafi się próbka, która akurat trafia w konkretną, niepokrytą kategorię technik.</p>
       <div class="lesson-verdict"><span class="label">wniosek</span>Poprawka configu jest przygotowana i gotowa do wdrożenia, ale świadomie odłożona w czasie.</div>
     </div>
   </section>
@@ -405,14 +405,14 @@ Claude / API ────┤ 2 interfejsy│  MCP / stdio
     <h2><span class="n">05</span> Drobniejsze, ale pouczające</h2>
 
     <h4>Escapowanie PowerShell/SFTP · 2026-08-11</h4>
-    <p>Audyt po jednym znalezionym buggu (SFTP w <code>static/</code>) wykrył analogiczny w <code>windows/</code>: wartości wstawiane bez ucieczki wewnątrz cudzysłowów PowerShella (<code>run_sample</code>'s <code>remote_path</code>/<code>args</code>, ścieżki w <code>download_dump</code>/<code>download_pktmon_capture</code>). To inna klasa problemu niż transport <code>-EncodedCommand</code>, który chroni tylko zewnętrzną komendę SSH — backtick/"/$ w wartości wciąż łamie wewnętrzny string dopiero po zdekodowaniu i uruchomieniu na VM. Naprawione dwoma małymi helperami do ucieczki w <code>tools/remote.py</code>, zaaplikowanymi tylko tam, gdzie wartość faktycznie pochodzi od wywołującego — nie tam, gdzie ścieżka jest w całości zbudowana wewnętrznie (sha256/pid/timestamp).</p>
+    <p>Audyt po jednym znalezionym buggu (SFTP w <code>static/</code>) wykrył analogiczny w <code>windows/</code>: wartości wstawiane bez ucieczki wewnątrz cudzysłowów PowerShella (<code>run_sample</code>'s <code>remote_path</code>/<code>args</code>, ścieżki w <code>download_dump</code>/<code>download_pktmon_capture</code>). To inna klasa problemu niż transport <code>-EncodedCommand</code>, który chroni tylko zewnętrzną komendę SSH - backtick/"/$ w wartości wciąż łamie wewnętrzny string dopiero po zdekodowaniu i uruchomieniu na VM. Naprawione dwoma małymi helperami do ucieczki w <code>tools/remote.py</code>, zaaplikowanymi tylko tam, gdzie wartość faktycznie pochodzi od wywołującego - nie tam, gdzie ścieżka jest w całości zbudowana wewnętrznie (sha256/pid/timestamp).</p>
 
     <h4>Spłaszczanie katalogów w update_yara_rules · 2026-08-07</h4>
-    <p>Po załadowaniu ~560 plików community rulesetu ~63 nie skompilowało się. Pozorna "kolizja nazw" okazała się mieć konkretniejszą przyczynę: około dwunastu plików to były same agregatory z relatywnymi include, które przestają się rozwiązywać, kiedy wszystko trafia płasko do jednego katalogu bez struktury podkatalogów — te pliki nigdy nie miały szansy się skompilować niezależnie od jakiejkolwiek kolizji. Prawdziwe reguły, które te agregatory miały zbierać, wciąż są dostępne jako osobne, poprawnie kompilujące się pliki — nic nie zostało utracone.</p>
+    <p>Po załadowaniu ~560 plików community rulesetu ~63 nie skompilowało się. Pozorna "kolizja nazw" okazała się mieć konkretniejszą przyczynę: około dwunastu plików to były same agregatory z relatywnymi include, które przestają się rozwiązywać, kiedy wszystko trafia płasko do jednego katalogu bez struktury podkatalogów - te pliki nigdy nie miały szansy się skompilować niezależnie od jakiejkolwiek kolizji. Prawdziwe reguły, które te agregatory miały zbierać, wciąż są dostępne jako osobne, poprawnie kompilujące się pliki - nic nie zostało utracone.</p>
   </section>
 
   <div class="footer">
-    Ostatni commit w repozytorium: 2026-08-11 · logi sesji sięgają do 2026-08-15 — lab jest w ciągłym użyciu między commitami, nie jednorazowym projektem zamkniętym po pierwszym wdrożeniu.<br>
+    Ostatni commit w repozytorium: 2026-08-11 · logi sesji sięgają do 2026-08-15 - lab jest w ciągłym użyciu między commitami, nie jednorazowym projektem zamkniętym po pierwszym wdrożeniu.<br>
     Znane, celowo odłożone otwarte pozycje: łatka FileCreateStreamHash dla configu Sysmona (patrz <a href="hunt-007-shieldbreak.html">HUNT-007</a>) i pełne pokrycie testami żywego wywołania MCP dla kilku pól dodanych ostatnio do <code>start_inetsim</code>/<code>pe_metadata</code>.
   </div>
 
