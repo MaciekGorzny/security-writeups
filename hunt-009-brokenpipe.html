@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>THREAT-027 - BrokenPipe.exe: Trust Control Bypass w Steam Client Service</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"]{
+    --bg: #14161B; --bg2: #1B1E24; --bg3: #21242B;
+    --border: #2B2E34; --border2: #3D4048;
+    --ink: #E7E9ED; --ink-dim: #A6ABB5; --ink-faint: #6F7580;
+    --red: #DE6A5C; --red-bg: rgba(222,106,92,0.09); --red-border: rgba(222,106,92,0.35);
+    --green: #6FB98A; --green-bg: rgba(111,185,138,0.09); --green-border: rgba(111,185,138,0.35);
+    --amber: #D6A24E; --amber-bg: rgba(214,162,78,0.09); --amber-border: rgba(214,162,78,0.35);
+    --steel: #8FA3C7; --steel-bg: rgba(143,163,199,0.09); --steel-border: rgba(143,163,199,0.35);
+    --identity: #E8934F;
+  }
+  :root[data-theme="light"]{
+    --bg: #F5F6F8; --bg2: #FFFFFF; --bg3: #EBEDF1;
+    --border: #DADDE3; --border2: #B7BCC6;
+    --ink: #191B1F; --ink-dim: #54585F; --ink-faint: #7C8798;
+    --red: #A6192E; --red-bg: rgba(166,25,46,0.06); --red-border: rgba(166,25,46,0.3);
+    --green: #2F7A4C; --green-bg: rgba(47,122,76,0.07); --green-border: rgba(47,122,76,0.3);
+    --amber: #9A6A17; --amber-bg: rgba(154,106,23,0.08); --amber-border: rgba(154,106,23,0.3);
+    --steel: #2B3A55; --steel-bg: rgba(43,58,85,0.07); --steel-border: rgba(43,58,85,0.3);
+    --identity: #B5560F;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',-apple-system,sans-serif;font-size:15px;line-height:1.65;transition:background .15s,color .15s;}
+  code,.mono,pre,table{font-family:'IBM Plex Mono','SF Mono',monospace;}
+  .tlp-bar{background:var(--red);color:#fff;font-size:12px;font-weight:600;letter-spacing:.03em;text-align:center;padding:7px 0;}
+  .theme-toggle{position:fixed;top:18px;right:18px;display:flex;gap:6px;background:var(--bg2);border:1px solid var(--border2);padding:4px;border-radius:20px;z-index:10;}
+  .theme-toggle button{font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;border:none;background:transparent;color:var(--ink-dim);padding:6px 14px;border-radius:16px;cursor:pointer;}
+  .theme-toggle button.active{background:var(--ink);color:var(--bg);}
+  .wrap{max-width:880px;margin:0 auto;padding:56px 28px 120px;}
+  .doc-id{font-size:12px;color:var(--ink-faint);letter-spacing:.02em;margin-bottom:12px;}
+  h1{font-size:32px;font-weight:700;line-height:1.2;letter-spacing:-.01em;margin:0 0 12px;color:var(--ink);}
+  h1 em{color:var(--identity);font-style:normal;}
+  .dek{color:var(--ink-dim);font-size:16px;max-width:66ch;margin:0 0 26px;line-height:1.6;}
+  .byline{display:flex;gap:28px;flex-wrap:wrap;font-size:13px;color:var(--ink-faint);padding-top:18px;padding-bottom:26px;border-top:1px solid var(--border);margin-bottom:8px;}
+  .byline b{color:var(--ink-dim);font-weight:500;}
+  .exec-summary{background:var(--red-bg);border-left:3px solid var(--red);padding:20px 24px;margin:32px 0 12px;}
+  .exec-summary .label{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;color:var(--red);margin-bottom:8px;}
+  .exec-summary p{margin:0 0 8px;font-size:15px;color:var(--ink);max-width:68ch;}
+  .exec-summary p:last-child{margin-bottom:0;}
+  .exec-summary code{font-size:.9em;color:var(--red);}
+  section{margin:56px 0;}
+  h2{font-size:12px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:24px;display:flex;gap:10px;align-items:baseline;font-weight:600;}
+  h2 .n{color:var(--steel);font-family:'IBM Plex Mono',monospace;}
+  h3{font-size:15.5px;color:var(--ink);font-weight:600;margin:26px 0 10px;letter-spacing:-.005em;}
+  p{margin:0 0 14px;font-size:14px;color:var(--ink-dim);max-width:68ch;}
+  strong{color:var(--ink);font-weight:600;}
+  code{font-size:.9em;background:var(--bg3);padding:1px 5px;border-radius:3px;color:var(--steel);}
+  a{color:var(--steel);}
+  .notice{border-left:3px solid var(--steel);background:var(--bg2);padding:16px 20px;margin:20px 0;border-radius:0 6px 6px 0;}
+  .notice.amber{border-color:var(--amber);} .notice.red{border-color:var(--red);} .notice.green{border-color:var(--green);}
+  .notice .label{display:inline-block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--steel);border:1px solid var(--steel-border);padding:2px 8px;border-radius:3px;margin-bottom:10px;}
+  .notice.amber .label{color:var(--amber);border-color:var(--amber-border);}
+  .notice.red .label{color:var(--red);border-color:var(--red-border);}
+  .notice.green .label{color:var(--green);border-color:var(--green-border);}
+  .notice p{margin:0;font-size:13.5px;}
+  .step{display:grid;grid-template-columns:30px 1fr;gap:18px;margin-bottom:26px;}
+  .step .num{font-size:13px;font-weight:600;color:var(--steel);padding-top:3px;font-family:'IBM Plex Mono',monospace;}
+  .step h3{margin:0 0 6px;}
+  .step .tag{display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--amber);border:1px solid var(--amber-border);padding:1px 7px;border-radius:3px;margin-left:8px;vertical-align:middle;}
+  .evidence{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-dim);background:var(--bg2);border:1px solid var(--border);border-left:2px solid var(--steel-border);padding:10px 14px;white-space:pre-wrap;line-height:1.6;margin-top:8px;}
+  .evidence .val{color:var(--steel);}
+  .timeline{border-left:2px solid var(--border2);margin:20px 0 20px 6px;padding-left:22px;}
+  .tl-item{position:relative;margin-bottom:16px;}
+  .tl-item::before{content:"";position:absolute;left:-27.5px;top:5px;width:9px;height:9px;border-radius:50%;background:var(--bg);border:2px solid var(--border2);}
+  .tl-item.red::before{border-color:var(--red);} .tl-item.green::before{border-color:var(--green);} .tl-item.steel::before{border-color:var(--steel);} .tl-item.amber::before{border-color:var(--amber);}
+  .tl-t{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-faint);margin-right:8px;}
+  .tl-item p{margin:2px 0 0;font-size:13px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0;}
+  th{text-align:left;color:var(--ink-faint);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;padding:0 12px 10px 0;border-bottom:2px solid var(--ink);}
+  td{padding:12px 12px 12px 0;border-bottom:1px solid var(--border);color:var(--ink-dim);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td.strong{color:var(--ink);font-weight:500;}
+  td.mono{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--steel);white-space:nowrap;}
+  .ok{color:var(--green);} .bad{color:var(--red);} .warn{color:var(--amber);}
+  .tag-pill{font-size:10.5px;padding:2px 8px;border-radius:3px;font-weight:500;white-space:nowrap;}
+  .tag-pill.high{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+  .tag-pill.med{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);}
+  .tag-pill.low{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
+  .ioc-row{display:grid;grid-template-columns:150px 1fr;gap:16px;padding:11px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .ioc-row:last-child{border-bottom:none;}
+  .ioc-row .type{color:var(--ink-faint);}
+  .ioc-row .val{font-family:'IBM Plex Mono',monospace;color:var(--ink);word-break:break-all;font-size:12px;}
+  pre.code{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:16px 18px;overflow-x:auto;font-size:11.5px;color:var(--ink-dim);line-height:1.7;margin:14px 0;}
+  pre.code .c{color:var(--ink-faint);}
+  pre.code .hl{color:var(--steel);}
+  .kql-block{margin:32px 0;}
+  .kql-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px;}
+  .kql-head strong{font-size:14px;}
+  .kql-meta{font-size:11.5px;color:var(--ink-faint);}
+  ul,ol{margin:0 0 16px;padding-left:20px;font-size:14px;color:var(--ink-dim);}
+  li{margin-bottom:7px;}
+  .footer{margin-top:70px;padding-top:24px;border-top:1px solid var(--border);font-size:12px;color:var(--ink-faint);}
+</style>
+</head>
+<body>
+
+<div class="tlp-bar">TLP:CLEAR - DFIR LAB, UŻYTEK PORTFOLIO — WERSJA DEFENSYWNA, BEZ SZCZEGÓŁÓW EKSPLOATACJI</div>
+<div class="theme-toggle">
+  <button id="btn-dark" class="active" onclick="setTheme('dark')">Ciemny</button>
+  <button id="btn-light" onclick="setTheme('light')">Jasny</button>
+</div>
+
+<div class="wrap">
+
+  <div class="doc-id">THREAT-027 · DFIR LAB, WINDOWS 11 · 2026-09-16 · NARZĘDZIE ZEWNĘTRZNE, ŹRÓDŁO: GITHUB</div>
+  <h1>Broken<em>Pipe.exe</em> - Trust Control Bypass w Steam Client Service</h1>
+  <p class="dek">Analiza dynamiczna publicznie dostępnego narzędzia PoC, które doprowadza do eskalacji uprawnień z poziomu zwykłego użytkownika do NT AUTHORITY\SYSTEM przez nadużycie kanału IPC usługi Steam Client Service. Mechanizm eksploatacji celowo nieopisany na poziomie odtwarzalnym.</p>
+
+  <div class="byline">
+    <span>Host: <b>DESKTOP-4JEER86</b></span>
+    <span>Windows 11</span>
+    <span>Integrity: <b>Medium → System</b></span>
+    <span>Cel: <b>steamservice.exe (SYSTEM)</b></span>
+    <span>Źródło próbki: <b>github.com/KillaBoi/BrokenPipe</b></span>
+  </div>
+
+  <div class="exec-summary">
+    <div class="label">Streszczenie kierownicze</div>
+    <p>BrokenPipe.exe, uruchomiony jako zwykły zalogowany użytkownik (Medium Integrity, bez UAC, bez wcześniejszego dostępu administracyjnego), doprowadził w laboratorium do pełnej eskalacji uprawnień do NT AUTHORITY\SYSTEM w niecałe 30 sekund. Wektorem jest legalny, lokalny kanał IPC usługi <strong>Steam Client Service</strong> (<code>steamservice.exe</code>, firma trzecia - Valve, działa stale jako SYSTEM na maszynach z zainstalowanym klientem Steam). Usługa przyjmuje pewien wariant manifestu instalacyjnego bez pełnej weryfikacji jego pochodzenia, co pozwala uruchomić dowolny binarny komponent operatora jako SYSTEM.</p>
+    <p>Ten dokument opisuje efekt i sposób wykrycia ataku. <strong>Świadomie pomija dokładny mechanizm bypassu</strong> (strukturę ramek protokołu IPC, wartości selektorów metod, offsety) - te szczegóły stanowiłyby gotową instrukcję odtworzenia ataku na realnych, produkcyjnych instalacjach Steama, a status łatki po stronie Valve nie jest potwierdzony.</p>
+  </div>
+
+  <div class="notice red">
+    <span class="label">Pochodzenie próbki - do wyjaśnienia</span>
+    <p>Plik pochodzi z publicznego repozytorium <code>github.com/KillaBoi/BrokenPipe</code>. Dołączony do próbki ekran powitalny zawiera nietypowe jak na zgłoszenie bug bounty elementy - podziękowania dla konkretnych pseudonimów, prywatne odniesienia niezwiązane z treścią techniczną. Sam artefakt binarny deklaruje w README, że jest "wizualną kontynuacją" wcześniejszego zgłoszenia do HackerOne o nazwie <code>identity-sentinel</code> - to jednak deklaracja własna narzędzia, niezweryfikowana zewnętrznie. Przed jakąkolwiek dalszą dystrybucją lub publikacją pełnych szczegółów technicznych warto: (1) potwierdzić, czy podatność została faktycznie zgłoszona Valve i czy ma przydzielony status, (2) nie uruchamiać kolejnych, nieznanych binarek z tego samego źródła poza izolowanym labem.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">01</span> Klasa podatności</h2>
+    <p>Steam Client Service wystawia lokalny interfejs IPC do zarządzania "install scripts" gier - mechanizm, którym normalnie posługuje się sam klient Steam do instalowania i weryfikowania gier. Interfejs ten obsługuje więcej niż jeden format manifestu opisującego taki skrypt. Jeden z formatów wymaga poprawnego podpisu kryptograficznego (potwierdzone: usługa odwołuje się do biblioteki OpenSSL przy jego przetwarzaniu). Drugi - przeznaczony najprawdopodobniej do wewnętrznych/testowych scenariuszy Valve - nie wymaga takiego podpisu, a usługa nie wymusza wystarczająco silnej kontroli tego, z jakiej lokalizacji na dysku taki manifest pochodzi.</p>
+    <p>Efekt: proces działający z uprawnieniami zwykłego użytkownika może skłonić usługę SYSTEM do uruchomienia własnego pliku wykonywalnego, umieszczonego w katalogu w pełni zapisywalnym przez tego użytkownika (poza domyślną lokalizacją instalacyjną Steama).</p>
+    <div class="notice amber">
+      <span class="label">Klasyfikacja</span>
+      <p>Trust control bypass w usłudze firmy trzeciej działającej jako SYSTEM - nie luka pamięciowa, nie przepełnienie bufora. Rdzeniem problemu jest brak powiązania odebranego żądania z legalnym, zainstalowanym przez Steama katalogiem gry.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">02</span> Łańcuch ataku (wysoki poziom)</h2>
+
+    <div class="step">
+      <div class="num">01</div>
+      <div>
+        <h3>Wykonanie początkowe i rekonesans</h3>
+        <p>Użytkownik uruchamia BrokenPipe.exe z Pulpitu. Narzędzie rozpakowuje własny pakiet do katalogu tymczasowego i sprawdza członkostwo w grupach (<code>whoami /groups</code>) - potwierdzenie, że start następuje z niskich uprawnień.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">02</div>
+      <div>
+        <h3>Przygotowanie wariantów manifestu testowego</h3>
+        <p>Narzędzie przygotowuje kilka wariantów manifestu instalacyjnego w oddzielnych podkatalogach - w tym baseline z poprawnym podpisem (kontrola pozytywna) i warianty bez wymaganego podpisu, umieszczone w lokalizacji zapisywalnej przez zwykłego użytkownika.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">03</div>
+      <div>
+        <h3>Sondowanie usługi (kontrola negatywna i pozytywna)</h3>
+        <p>Usługa Steam Client Service (już działająca jako SYSTEM) zostaje skłoniona do odczytania najpierw manifestu z celowo uszkodzonym podpisem, a chwilę potem oryginału z poprawnym podpisem - potwierdzenie, że ścieżka weryfikacji kryptograficznej faktycznie działa dla standardowego formatu.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">04</div>
+      <div>
+        <h3>Obejście kontroli zaufania <span class="tag">kluczowe</span></h3>
+        <p>Usłudze przedkładany jest alternatywny wariant manifestu, nie wymagający podpisu. Usługa akceptuje go mimo że leży w katalogu w pełni zapisywalnym przez niezuprzywilejowanego użytkownika.</p>
+        <div class="evidence">steamservice.exe (SYSTEM) ReadFile <span class="val">[wariant manifestu bez wymaganego podpisu]</span> z katalogu zapisywalnego przez użytkownika - brak błędu weryfikacji</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">05</div>
+      <div>
+        <h3>Wykonanie komponentu operatora jako NT AUTHORITY\SYSTEM <span class="tag">kluczowe</span></h3>
+        <p>Krótko po odczycie manifestu usługa uruchamia wskazany w nim plik wykonywalny jako własny proces potomny - z pełnymi uprawnieniami SYSTEM. Parametry startowe przekazane w manifeście są honorowane przez usługę.</p>
+        <div class="evidence">steamservice.exe -&gt; CreateProcess <span class="val">[komponent operatora]</span> (User: NT AUTHORITY\SYSTEM, IntegrityLevel: System)</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">06</div>
+      <div>
+        <h3>Materializacja interaktywnej powłoki SYSTEM</h3>
+        <p>Komponent operatora otwiera konsolę i uruchamia <code>cmd.exe</code> na tej samej, widocznej sesji, na której pracuje zalogowany użytkownik. Efekt: pełnoprawne, interaktywne okno wiersza poleceń jako SYSTEM, potwierdzone przez <code>whoami</code> wykonane z wnętrza powłoki.</p>
+        <div class="evidence">launcher (SYSTEM) -&gt; conhost.exe -&gt; cmd.exe /D /Q (winsta0\default, sesja użytkownika) -&gt; whoami</div>
+      </div>
+    </div>
+
+    <div class="notice">
+      <span class="label">Co celowo pominięto</span>
+      <p>Struktura ramek protokołu IPC (prefiksy długości, selektory metod, wartości walidacyjne), dokładna nazwa i offset zmodyfikowanego bajtu w kontroli negatywnej oraz pełna treść skryptów budujących te ramki. Te elementy stanowią bezpośrednią instrukcję odtworzenia ataku i nie są potrzebne do detekcji czy oceny ryzyka.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">03</span> Oś czasu</h2>
+    <div class="timeline">
+      <div class="tl-item steel"><span class="tl-t">06:00:55 UTC</span><p>BrokenPipe.exe uruchomiony jako zwykły użytkownik, Medium Integrity.</p></div>
+      <div class="tl-item steel"><span class="tl-t">+3 s</span><p>Rozpakowanie własnego pakietu, rekonesans grup użytkownika.</p></div>
+      <div class="tl-item steel"><span class="tl-t">+6 s</span><p>Przygotowanie wariantów manifestu instalacyjnego.</p></div>
+      <div class="tl-item amber"><span class="tl-t">06:01:16 - 06:01:20 UTC</span><p>Kontrola negatywna i pozytywna weryfikacji podpisu wobec usługi.</p></div>
+      <div class="tl-item red"><span class="tl-t">06:01:24.088 UTC</span><p>Manifest bez wymaganego podpisu zaakceptowany przez usługę z lokalizacji zapisywalnej przez użytkownika.</p></div>
+      <div class="tl-item red"><span class="tl-t">06:01:24.198 UTC</span><p>Komponent operatora uruchomiony jako SYSTEM przez usługę.</p></div>
+      <div class="tl-item red"><span class="tl-t">06:01:24.5 UTC</span><p>Interaktywna powłoka SYSTEM rozwinięta na widocznym pulpicie sesji użytkownika.</p></div>
+      <div class="tl-item steel"><span class="tl-t">06:01:46 UTC</span><p>Tożsamość SYSTEM potwierdzona z wnętrza powłoki (whoami).</p></div>
+    </div>
+    <p>Od uruchomienia narzędzia do potwierdzonego dostępu SYSTEM: ok. 29 sekund.</p>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">04</span> Pokrycie telemetryczne</h2>
+    <table>
+      <tr><th>Artefakt</th><th>Sysmon</th><th>Procmon</th></tr>
+      <tr><td class="strong">Odczyt manifestu bez wymaganego podpisu</td><td class="bad">brak</td><td class="ok">ReadFile</td></tr>
+      <tr><td class="strong">Uruchomienie komponentu jako SYSTEM przez usługę</td><td class="ok">Process Create (EID 1)</td><td class="ok">CreateProcess</td></tr>
+      <tr><td class="strong">Aktywność IPC w oknie eskalacji</td><td class="bad">brak - poza pokryciem reguł named_pipe/RegistryEvent</td><td class="ok">pełne</td></tr>
+    </table>
+    <div class="notice amber">
+      <span class="label">Uwaga</span>
+      <p>W oknie bezpośrednio poprzedzającym eskalację Sysmon nie zarejestrował żadnego zdarzenia związanego z IPC - technika działa poniżej pokrycia domyślnych reguł <code>named_pipe</code>/<code>RegistryEvent</code>. Procmon (ETW) pozostaje jedynym źródłem, które uchwyciło pełną sekwencję. Jedyny sygnał produkcyjnie widoczny w Sysmonie to samo utworzenie procesu potomnego SYSTEM (EID 1) - i to jest właściwy punkt zaczepienia dla detekcji.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">05</span> Mapowanie ATT&amp;CK</h2>
+    <table>
+      <tr><th>Technika</th><th>ID</th><th>Dowód</th></tr>
+      <tr>
+        <td>Exploitation for Privilege Escalation</td>
+        <td class="mono">T1068</td>
+        <td>Komponent operatora uruchomiony przez steamservice.exe jako proces potomny z User: NT AUTHORITY\SYSTEM, IntegrityLevel: System - eskalacja z Medium do System bez UAC.</td>
+      </tr>
+      <tr>
+        <td>Subvert Trust Controls</td>
+        <td class="mono">T1553</td>
+        <td>Manifest bez wymaganego podpisu PKCS#7/RSA zaakceptowany przez usługę, mimo braku weryfikacji analogicznej do ścieżki standardowej.</td>
+      </tr>
+      <tr>
+        <td>Command and Scripting Interpreter: Windows Command Shell</td>
+        <td class="mono">T1059.003</td>
+        <td>cmd.exe uruchomiony jako SYSTEM na widocznym pulpicie sesji użytkownika, interaktywny.</td>
+      </tr>
+      <tr>
+        <td>Command and Scripting Interpreter: PowerShell</td>
+        <td class="mono">T1059.001</td>
+        <td>Kilka procesów powershell.exe użytych do bootstrapu i przygotowania pakietu testowego.</td>
+      </tr>
+      <tr>
+        <td>Permission Groups Discovery: Local Groups</td>
+        <td class="mono">T1069.001</td>
+        <td>whoami /groups wywołane przed i po eskalacji - weryfikacja startowych i końcowych uprawnień.</td>
+      </tr>
+      <tr>
+        <td>Indicator Removal: Timestomp</td>
+        <td class="mono">T1070.006</td>
+        <td>Znacznik czasu kompilacji BrokenPipe.exe ustawiony na datę w przyszłości (fizycznie niemożliwą) - potwierdzone bezpośrednio przez odczyt metadanych PE.</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">06</span> Wskaźniki</h2>
+    <div class="ioc-row"><div class="type">SHA-256 (BrokenPipe.exe)</div><div class="val">AB2DA9365021F79756EB464341D2F99128B8F23FB0DB2AB3F8CEFB171D88F100</div></div>
+    <div class="ioc-row"><div class="type">SHA-256 (komponent operatora)</div><div class="val">DF0CAFD4B99BFBB4C3DCA44CF198B2E78E54B50FFA389AC21BC0B5D53AFA8EE8</div></div>
+    <div class="ioc-row"><div class="type">SHA-256 (PowerShell bootstrap)</div><div class="val">8BB6FA8C283B4D92120B1EF249A9B311B0F804D4CABBE9981159976C8BE76A5E</div></div>
+    <div class="ioc-row"><div class="type">Proces docelowy</div><div class="val">steamservice.exe (Valve Steam Client Service)</div></div>
+    <div class="ioc-row"><div class="type">Wzorzec ścieżki</div><div class="val">Komponent potomny SYSTEM uruchamiany z lokalizacji poza domyślnym katalogiem instalacji Steama</div></div>
+    <div class="notice amber">
+      <span class="label">Zakres IOC</span>
+      <p>Hashe są trywialne do zmiany przy przekompilowaniu. Trwały sygnał behawioralny: dowolny proces potomny <code>steamservice.exe</code> działający jako SYSTEM, którego plik wykonywalny leży poza katalogiem instalacyjnym Steama i/lub nie jest podpisany przez Valve.</p>
+    </div>
+    <div class="notice green">
+      <span class="label">Status detekcji</span>
+      <p>Microsoft Defender wykrywa sygnaturowo tę konkretną, znaną publicznie próbkę BrokenPipe.exe. To pokrycie na poziomie pliku, nie na poziomie mechanizmu - nie zamyka luki w samej usłudze Steam Client Service i nie obejmuje przekompilowanego wariantu z inną sumą kontrolną (patrz KQL-3, oznaczone jako fallback z tego właśnie powodu). Reguły behawioralne KQL-1/KQL-2 pozostają jedyną warstwą odporną na taką zmianę.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">07</span> Detekcja</h2>
+    <p>Reguła oparta wyłącznie na artefaktach widocznych w produkcyjnej telemetrii (Sysmon EID 1 / Defender XDR DeviceProcessEvents), bez potrzeby znajomości wewnętrznego protokołu IPC usługi.</p>
+
+    <table>
+      <tr><th>Reguła</th><th>Źródło</th><th>Confidence</th><th>Etap</th></tr>
+      <tr>
+        <td class="strong">KQL-1</td>
+        <td>Sentinel / Sysmon EID 1</td>
+        <td><span class="tag-pill high">wysoka</span></td>
+        <td>Proces potomny steamservice.exe niepodpisany przez Valve lub poza katalogiem instalacyjnym - behawioralne</td>
+      </tr>
+      <tr>
+        <td class="strong">KQL-2</td>
+        <td>Defender XDR</td>
+        <td><span class="tag-pill med">średnia</span></td>
+        <td>Proces potomny steamservice.exe z linią poleceń zawierającą flagi trybu interaktywnego</td>
+      </tr>
+      <tr>
+        <td class="strong">KQL-3</td>
+        <td>Sentinel / Sysmon</td>
+        <td><span class="tag-pill low">niska (fallback)</span></td>
+        <td>SHA-256 znanych próbek - hunt only, trywialne do obejścia rekompilacją</td>
+      </tr>
+    </table>
+
+    <div class="kql-block">
+      <div class="kql-head"><strong>KQL-1 · Nieoczekiwany proces potomny steamservice.exe</strong><span class="kql-meta">Sentinel / Sysmon EID 1 · behawioralne</span></div>
+      <pre class="code"><span class="c">// steamservice.exe uruchamia proces potomny spoza katalogu instalacji Steama
+// lub niepodpisany przez Valve. Legalne install scripts uruchamiają binarki
+// z wnętrza katalogu gry pod Steam\steamapps\common.</span>
+Event
+| where Source == "Microsoft-Windows-Sysmon" and EventID == 1
+| extend ParentImage = extract(@"ParentImage: ([^\r\n]+)", 1, RenderedDescription)
+| extend Image = extract(@"Image: ([^\r\n]+)", 1, RenderedDescription)
+| extend IntegrityLevel = extract(@"IntegrityLevel: ([^\r\n]+)", 1, RenderedDescription)
+| where ParentImage has_cs @"\steamservice.exe"
+| where IntegrityLevel =~ "System"
+| where Image <span class="hl">!has</span> @"\Steam\steamapps\common\"
+    and Image <span class="hl">!has</span> @"\Steam\bin\"
+| project TimeGenerated, Computer, ParentImage, Image, IntegrityLevel</pre>
+    </div>
+
+    <div class="kql-block">
+      <div class="kql-head"><strong>KQL-2 · Podpis wydawcy procesu potomnego</strong><span class="kql-meta">Defender XDR</span></div>
+      <pre class="code"><span class="c">// Uzupełnienie KQL-1 o weryfikację podpisu - proces potomny
+// steamservice.exe działający jako SYSTEM, niepodpisany przez Valve Corporation</span>
+DeviceProcessEvents
+| where InitiatingProcessFileName =~ "steamservice.exe"
+| where AccountName has "SYSTEM"
+| where InitiatingProcessSignerType != "OSPlatformSigner"
+| where FileSignatureStatus != "Valid" or SignerType != "CompanySigner"
+    or Signer <span class="hl">!has</span> "Valve"
+| project Timestamp, DeviceName, InitiatingProcessFileName,
+    FileName, FolderPath, SHA256, Signer</pre>
+    </div>
+
+    <div class="kql-block">
+      <div class="kql-head"><strong>KQL-3 · Sygnaturowy fallback</strong><span class="kql-meta">Defender XDR · hunt only</span></div>
+      <pre class="code"><span class="c">// Wyłącznie sygnaturowe - trivial evasion przez rebuild
+// Threat hunting po incydencie, nie reguła alertowania produkcyjnego</span>
+DeviceProcessEvents
+| where SHA256 in~ (
+    "AB2DA9365021F79756EB464341D2F99128B8F23FB0DB2AB3F8CEFB171D88F100",
+    "DF0CAFD4B99BFBB4C3DCA44CF198B2E78E54B50FFA389AC21BC0B5D53AFA8EE8"
+  )
+| project Timestamp, DeviceName, AccountName,
+    ProcessCommandLine, InitiatingProcessFileName, SHA256</pre>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2><span class="n">08</span> Otwarte wątki</h2>
+    <ul>
+      <li>Status zgłoszenia podatności po stronie Valve nieznany - deklaracja "already confirmed identity-sentinel PoC" pochodzi wyłącznie z własnej dokumentacji narzędzia, brak zewnętrznego potwierdzenia (CVE, advisory). Wykrywanie próbki przez Defendera nie jest tożsame z załataniem luki w steamservice.exe.</li>
+      <li>Prawdziwość i intencje autora repozytorium (github.com/KillaBoi/BrokenPipe) nie zostały zweryfikowane poza analizą samego artefaktu binarnego.</li>
+      <li>Żadna z reguł KQL nie została uruchomiona na realnym silniku Sentinel/Log Analytics - wymagany test wolumenu false-positive przed wdrożeniem produkcyjnym.</li>
+      <li>Zaobserwowane w labie zachowanie (brak persystencji, samo-czyszczenie artefaktów) dotyczy tego konkretnego, ograniczonego wariantu narzędzia - nic nie gwarantuje, że każda kompilacja tego samego mechanizmu zachowa te same ograniczenia.</li>
+    </ul>
+  </section>
+
+  <div class="footer">
+    THREAT-027 · 2026-09-16 · telemetria: Sysmon + Procmon · próbka: github.com/KillaBoi/BrokenPipe (pochodzenie niezweryfikowane) · szczegóły mechanizmu eksploatacji celowo pominięte
+  </div>
+
+</div>
+
+<script>
+  function setTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('btn-dark').classList.toggle('active', t === 'dark');
+    document.getElementById('btn-light').classList.toggle('active', t === 'light');
+  }
+</script>
+</body>
+</html>
